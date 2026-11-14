@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="%THEME_LIGHT%" />
+    <!-- Apply the saved or system theme before first paint (no flash). Same rule as src/lib/theme.ts. -->
+    <script>
+      ;(function () {
+        var t = null
+        try {
+          t = localStorage.getItem('early-edition.theme')
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          try {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          } catch (e) {
+            t = 'light'
+          }
+        }
+        var root = document.documentElement
+        root.setAttribute('data-theme', t)
+        root.style.colorScheme = t
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', t === 'dark' ? '%THEME_DARK%' : '%THEME_LIGHT%')
+      })()
+    </script>
+    <!-- Launch full-screen (no Safari chrome) when added to the iOS Home Screen.
+         iOS ignores the manifest's display: standalone, so these are required. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="%APP_SHORT_NAME%" />
+    <meta name="description" content="%APP_DESCRIPTION%" />
+    <title>%APP_NAME%</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

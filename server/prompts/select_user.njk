@@ -1,0 +1,17 @@
+Today is {{ today_long }}.
+
+TOPICS (higher weight = the reader enjoys it more; aim the picks at the higher weights):
+{% for t in topics -%}
+- {{ t.name }}: weight {{ t.weight | fixed(2) }}{% if t.mode == "pin" %} (pinned){% endif %}{% if t.mode == "block" %} (BLOCKED, never use){% endif %}{% if t.notes %}. Notes: {{ t.notes }}{% endif %}
+{% endfor %}
+{%- if favourite_players | length %}
+Favourite players (stories about them are especially welcome, if suitable): {{ favourite_players | join(", ") }}
+{%- endif %}
+
+CANDIDATES (id, source, whether it is a children's source, topic hint, title, summary):
+{% for c in candidates -%}
+[{{ c.id }}] source: {{ c.source }} | kids_source: {{ "true" if c.kids_source else "false" }} | topic hint: {{ c.topic_hint }}
+    title: {{ c.title }}
+    summary: {{ c.summary }}
+{% endfor %}
+Choose {{ story_count }} picks and {{ reserves }} reserves. Reply with the JSON object only.

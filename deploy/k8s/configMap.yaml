@@ -1,0 +1,210 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: early-edition-kids-config
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+data:
+  # Mounted at /config/config.yaml (EARLY_EDITION_KIDS_CONFIG). Keys and topic names are fixed
+  # by CONTRACT.md. After editing, re-apply and restart the deployment.
+  config.yaml: |-
+    title: Early Edition
+    child_age: 8
+    story_count: 6
+    reading_wpm: 90
+    # Story body length in words (the writer is told this range and validation enforces it).
+    story_words:
+      min: 120
+      max: 200
+
+    # Topic names must match CONTRACT.md exactly. Weights are the starting point;
+    # reading engagement moves them between 0.5x and 1.5x (DESIGN 4.4).
+    topics:
+      - name: Liverpool FC
+        base_weight: 3
+        notes: "The reader's team. Aim for one Liverpool story a day when there is a suitable one: results, goals, players, the next match. Stay on the football: no transfer gossip, contract rows or refereeing arguments. A manager change is fine as plain news."
+      - name: England
+        base_weight: 3
+        notes: "England men's national team: matches, goals, records, the squad and the manager. Men's football only."
+      - name: Football
+        base_weight: 3
+        notes: "Club football other than Liverpool (England has its own topic). After Liverpool, the clubs the reader cares about are the rivals Arsenal, Manchester United, Manchester City, Real Madrid and Barcelona: prefer their stories over other clubs (including when they lose or change manager), but never above a suitable Liverpool story. Favour stories about the favourite players."
+      - name: Science
+        base_weight: 3
+        notes: ""
+      - name: Space
+        base_weight: 2
+        notes: ""
+      - name: Animals and nature
+        base_weight: 2
+        notes: ""
+      - name: Games and tech
+        base_weight: 1
+        notes: ""
+      - name: Weather
+        base_weight: 1
+        notes: "UK weather when notable (snow, storms, eclipses)"
+      - name: Weird but true
+        base_weight: 1
+        notes: "one a day at most"
+
+    # Patterns are regular expressions matched against the item URL or title.
+    feeds:
+      - name: BBC Newsround
+        url: https://feeds.bbci.co.uk/newsround/rss.xml
+        kids_source: true
+        topic_hint: null
+        exclude_url_patterns:
+          - "/videos/"
+          - "watch_newsround"
+        exclude_title_patterns:
+          - "^Quiz"
+          - "in pictures"
+          - "have your say"
+      - name: Science News Explores
+        url: https://www.snexplores.org/feed
+        kids_source: true
+        topic_hint: Science
+        exclude_url_patterns: []
+        exclude_title_patterns: []
+      - name: BBC Sport football
+        url: https://feeds.bbci.co.uk/sport/football/rss.xml
+        kids_source: false
+        topic_hint: Football
+        exclude_url_patterns:
+          - "/videos/"
+        exclude_title_patterns:
+          - "\\bwom[ae]n.?s\\b"
+          - "\\bWSL\\b"
+          - "Lionesses"
+          - "\\bgirls\\b"
+      - name: BBC Sport Liverpool
+        url: https://feeds.bbci.co.uk/sport/football/teams/liverpool/rss.xml
+        kids_source: false
+        topic_hint: Liverpool FC
+        exclude_url_patterns:
+          - "/videos/"
+          - "/sounds/"
+          - "/live/"
+        exclude_title_patterns:
+          - "\\bwom[ae]n.?s\\b"
+          - "\\bWSL\\b"
+          - "Lionesses"
+          - "\\bgirls\\b"
+          - "^Quiz"
+          - "gossip"
+          - "in pictures"
+      - name: BBC Sport England
+        url: https://feeds.bbci.co.uk/sport/football/teams/england/rss.xml
+        kids_source: false
+        topic_hint: England
+        exclude_url_patterns:
+          - "/videos/"
+          - "/sounds/"
+          - "/live/"
+        exclude_title_patterns:
+          - "\\bwom[ae]n.?s\\b"
+          - "\\bWSL\\b"
+          - "Lionesses"
+          - "\\bgirls\\b"
+          - "^Quiz"
+          - "gossip"
+          - "in pictures"
+      - name: BBC science
+        url: https://feeds.bbci.co.uk/news/science_and_environment/rss.xml
+        kids_source: false
+        topic_hint: Science
+        exclude_url_patterns:
+          - "/videos/"
+        exclude_title_patterns: []
+
+    # Starter list. A match in a candidate's title or summary drops it before
+    # selection; a match in a finished story rejects that story (DESIGN 4.3).
+    # This is a backstop: the prompts and the checker call do most of the work.
+    blocklist:
+      - murder
+      - murdered
+      - stabbing
+      - stabbed
+      - shooting
+      - gunman
+      - terror
+      - terrorist
+      - bomb
+      - bombing
+      - massacre
+      - hostage
+      - execution
+      - rape
+      - sexual
+      - porn
+      - abuse
+      - abused
+      - suicide
+      - overdose
+      - gambling
+      - betting
+      - casino
+      - bookmaker
+      - war crimes
+      - airstrike
+      - genocide
+
+    favourite_players:
+      - Messi
+      - Ronaldo
+      - Harry Kane
+      - Lamine Yamal
+    favourite_team: Liverpool
+    # Only men's football: the prompts skip women's and girls' football.
+    mens_football_only: true
+    rival_clubs:
+      - Arsenal
+      - Manchester United
+      - Manchester City
+      - Real Madrid
+      - Barcelona
+
+    # LLM prices in US dollars per million tokens, for the dashboard's cost figures and the
+    # monthly limit. A model missing here is recorded at $0 and flagged in the log.
+    llm_prices:
+      claude-opus-5-5: { input_per_mtok: 4, output_per_mtok: 20 }
+      claude-sonnet-5-5: { input_per_mtok: 2, output_per_mtok: 10 }
+      claude-haiku-5-5: { input_per_mtok: 0.10, output_per_mtok: 0.50 }
+
+    # Models offered through OpenRouter (needs OPENROUTER_API_KEY). Ids are OpenRouter's own; the
+    # dashboard offers them as "openrouter:<id>". Prices are USD per million tokens, used when
+    # OpenRouter does not report the cost of a call itself.
+    openrouter_models:
+      - id: anthropic/claude-opus-5.5
+        name: "Claude Opus 5.5 (OpenRouter)"
+        note: "The same careful Claude Opus, billed through OpenRouter."
+        input_per_mtok: 4
+        output_per_mtok: 20
+      - id: anthropic/claude-sonnet-5.5
+        name: "Claude Sonnet 5.5 (OpenRouter)"
+        note: "Nearly as good as Opus at about half the cost, through OpenRouter."
+        input_per_mtok: 2
+        output_per_mtok: 10
+      - id: moonshotai/kimi-k3.1-pro
+        name: "Kimi K3.1 Pro (OpenRouter)"
+        note: "A strong model from another company; worth trying as a second opinion."
+        input_per_mtok: 2
+        output_per_mtok: 10
+      - id: x-ai/grok-4.7
+        name: "Grok 4.7 (OpenRouter)"
+        note: "Another company's model; cheaper to write with, so check its stories closely."
+        input_per_mtok: 2
+        output_per_mtok: 6
+      - id: z-ai/glm-5.3
+        name: "GLM 5.3 (OpenRouter)"
+        note: "Very low cost; untested for children's writing"
+        input_per_mtok: 0.08
+        output_per_mtok: 3.6
+      - id: deepseek/deepseek-v4-pro-0813
+        name: "DeepSeek V4 Pro (OpenRouter)"
+        note: "Very low cost; untested for children's writing"
+        input_per_mtok: 0.11
+        output_per_mtok: 4.44

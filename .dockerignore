@@ -1,0 +1,19 @@
+# Build context is the repo root (docker build -f server/Dockerfile .). Send only what the image needs.
+**/node_modules
+**/.DS_Store
+.git
+.claude
+**/.claude
+plugin
+deploy
+*.zip
+*.md
+!web/**/*.md
+server/data
+server/tests
+server/coverage
+web/dist
+web/coverage
+**/*.log
+reports
+docs

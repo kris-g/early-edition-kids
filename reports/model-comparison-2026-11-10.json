@@ -1,0 +1,1829 @@
+{
+  "meta": {
+    "date": "2026-11-10",
+    "generated_at": "2026-11-13T23:37:04.232Z",
+    "window_end": "2026-11-10T06:00:00.000Z",
+    "candidates": 16,
+    "feed_counts": {
+      "BBC Newsround": 80,
+      "Science News Explores": 20,
+      "BBC Sport football": 76,
+      "BBC Sport Liverpool": 24,
+      "BBC science": 41
+    },
+    "feed_log": [
+      "feed 'BBC Newsround': 80 items",
+      "feed 'Science News Explores': 20 items",
+      "feed 'BBC Sport football': 76 items",
+      "feed 'BBC Sport Liverpool': 24 items",
+      "feed 'BBC science': 41 items"
+    ],
+    "filter": {
+      "kept": 16,
+      "too_old": 216,
+      "duplicate": 3,
+      "excluded": 6,
+      "blocked": 0,
+      "recently_used": 0
+    },
+    "story_count": 6,
+    "selector": "anthropic:claude-opus-5-5",
+    "selector_used": "anthropic:claude-opus-5-5",
+    "checker": "anthropic:claude-opus-5-5",
+    "writer_effort": "medium",
+    "checker_effort": "high",
+    "checker_error": null,
+    "budget_usd": 1.33,
+    "spent_usd": 0.902444,
+    "note": "Candidates are built from the feeds as fetched now; feeds only carry recent items, so an older date can have few."
+  },
+  "models": [
+    {
+      "id": "anthropic:claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 4,
+      "output_per_mtok": 20
+    },
+    {
+      "id": "anthropic:claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 2,
+      "output_per_mtok": 10
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3",
+      "name": "GLM 5.3 (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.08,
+      "output_per_mtok": 3.6
+    },
+    {
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.11,
+      "output_per_mtok": 4.44
+    }
+  ],
+  "selection": {
+    "anthropic:claude-sonnet-5-5": {
+      "picks": [
+        {
+          "candidate_id": 13,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 7,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Which toys would you pick for your favourite of all time list?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cqe9l92g1p32o",
+          "topic": "Games and tech"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 9,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 8,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 14,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 15,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Space"
+        }
+      ],
+      "input_tokens": 3517,
+      "output_tokens": 219,
+      "cost_usd": 0.009224,
+      "models_answered": [
+        "anthropic:claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 2.4,
+      "error": null
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "picks": [
+        {
+          "candidate_id": 13,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Which toys would you pick for your favourite of all time list?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cqe9l92g1p32o",
+          "topic": "Games and tech"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 8,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 7,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 14,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 16,
+          "title": "The superpower battle over energy – and what it means for your bills",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw62y2z53pg1o",
+          "topic": "Science"
+        }
+      ],
+      "input_tokens": 1946,
+      "output_tokens": 269,
+      "cost_usd": 0.000513,
+      "models_answered": [
+        "openrouter:z-ai/glm-5.3"
+      ],
+      "stop_reason": "stop",
+      "seconds": 3.4,
+      "error": null
+    },
+    "anthropic:claude-opus-5-5": {
+      "picks": [
+        {
+          "candidate_id": 13,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 8,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 14,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 9,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 7,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Which toys would you pick for your favourite of all time list?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cqe9l92g1p32o",
+          "topic": "Games and tech"
+        },
+        {
+          "candidate_id": 15,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Science"
+        }
+      ],
+      "input_tokens": 3517,
+      "output_tokens": 856,
+      "cost_usd": 0.031188,
+      "models_answered": [
+        "anthropic:claude-opus-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 8,
+      "error": null
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "picks": [
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 13,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 7,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 14,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 2,
+          "title": "How strict is your school about phones?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cm9qzqd1nvvlo",
+          "topic": "Games and tech"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 9,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 8,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Science"
+        }
+      ],
+      "input_tokens": 1947,
+      "output_tokens": 6137,
+      "cost_usd": 0.026873,
+      "models_answered": [
+        "openrouter:deepseek/deepseek-v4-pro-0813"
+      ],
+      "stop_reason": "stop",
+      "seconds": 48,
+      "error": null
+    }
+  },
+  "stories": [
+    {
+      "candidate_id": 13,
+      "source_title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+      "source_name": "BBC Sport Liverpool",
+      "topic": "Liverpool FC",
+      "source_words": 658,
+      "excerpt": "Alexis Mac Allister, Florian Wirtz and Alexander Isak scored as Liverpool won at Crystal Palace and in doing so, increased the pressure on Pierre Sage, the Palace boss.\n\nHere's how I rated the players and how you rated the players.\n\nDean Henderson: Made a couple of good saves though was well beaten for all three goals. 5\n\nJefferson Lerma: Initially battled well against the visitors frontline but Liverpool's quality was too much. 4\n\nChris Richards: Part of a backline that had their work cut out and ultimately conceded three goals that were far too easy. 4\n\nAxel Disasi: Like Lerma and Richards, ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Liverpool score three at Crystal Palace",
+            "teaser": "Big saves and great goals in a win in London",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool won their Premier League match away at Crystal Palace. Alexis Mac Allister, Florian Wirtz and Alexander Isak all scored.",
+              "Mac Allister got the first goal with a great header. It was his first Premier League goal of the season. Dominik Szoboszlai gave him the assist with a clever pass.",
+              "Wirtz scored next after a good run by Bradley Barcola. It was his first Premier League goal of the season too. Then Wirtz helped Isak score late on. Isak now has seven league goals this season.",
+              "Goalkeeper Alisson was the star. He made a stunning save to stop Daichi Kamada, plus lots more important saves. BBC Sport gave him 9 out of 10 and said he was back to his best. Palace did score once, from a penalty."
+            ],
+            "word_to_know": {
+              "word": "assist",
+              "definition": "The pass or move that helps a teammate score a goal."
+            },
+            "think_about_it": "Would you rather score a brilliant goal or make an amazing save to help your team?"
+          },
+          "word_count": 128,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 10. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The teaser says the win was 'in London', but the source never mentions London. This is outside knowledge.",
+              "The story says Szoboszlai gave the assist 'with a clever pass'. The source only says he 'got the assist for Mac Allister', and Mac Allister scored with a header, so the type of assist is invented.",
+              "The story says 'BBC Sport gave him 9 out of 10'. The source shows a rating of 9 from the article's writer but never states the scale is out of 10, and it only names BBC Sport in connection with the users' average scores, so this wording goes beyond the source."
+            ],
+            "error": null,
+            "seconds": 6,
+            "usage": {
+              "input_tokens": 3021,
+              "output_tokens": 555,
+              "cost_usd": 0.023184,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 8.2,
+          "writer_usage": {
+            "input_tokens": 3631,
+            "output_tokens": 688,
+            "cost_usd": 0.028284,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Liverpool win at Crystal Palace",
+            "teaser": "Three goals, three scorers and a stunning save",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool beat Crystal Palace in the Premier League. Alexis Mac Allister, Florian Wirtz and Alexander Isak all scored.",
+              "Mac Allister scored with a great header. It was his first Premier League goal of the season. Dominik Szoboszlai got the assist.",
+              "Wirtz scored his first Premier League goal of the season too. He finished nicely after a good run down the right by Bradley Barcola. Isak then scored late on. He now has 7 league goals this season.",
+              "Goalkeeper Alisson was the star for many. He made a stunning reaction save to stop Daichi Kamada. Then he made lots more important saves. He was rated 9 out of 10 and was back to his best."
+            ],
+            "word_to_know": {
+              "word": "assist",
+              "definition": "A pass that helps a teammate score a goal."
+            },
+            "think_about_it": "Why do you think a goalkeeper's big saves can be as exciting as goals?"
+          },
+          "word_count": 114,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 10. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The claim that Alisson 'was the star for many' is not in the source. The 9 out of 10 rating comes from a single writer, and the source gives no fan ratings or evidence that many people saw him as the star."
+            ],
+            "error": null,
+            "seconds": 5,
+            "usage": {
+              "input_tokens": 2994,
+              "output_tokens": 446,
+              "cost_usd": 0.020896,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.7,
+          "writer_usage": {
+            "input_tokens": 3631,
+            "output_tokens": 418,
+            "cost_usd": 0.011442,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Liverpool Win 3-0 at Crystal Palace",
+            "teaser": "Liverpool beat Crystal Palace 3-0 with goals from three players.",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool beat Crystal Palace 3-0 in their Premier League match at Selhurst Park. Alexis Mac Allister, Florian Wirtz and Alexander Isak scored the goals.",
+              "Mac Allister opened the scoring with a great header. It was his first Premier League goal of the season. Wirtz also netted his first league goal of the campaign, and he set up Isak's late goal too.",
+              "Goalkeeper Alisson was one of the stars of the match. He made a stunning reaction save and several crucial stops to keep Palace out. He was rated 9 out of 10, the highest score of the game.",
+              "Isak now has seven league goals this season. Virgil van Dijk was also praised for a solid display at the back."
+            ],
+            "word_to_know": {
+              "word": "assist",
+              "definition": "A person or thing that helps make a goal happen, usually by passing the ball."
+            },
+            "think_about_it": "Which player would you give the top rating to if you watched the match?"
+          },
+          "word_count": 119,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 64 characters; the limit is 60",
+              "these numbers are not in the source text: 0, 10, 3. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The '3-0' score is wrong and not in the source: Nketiah scored a penalty for Palace, and the source says Liverpool failed to keep a clean sheet, so it was not 3-0.",
+              "'Selhurst Park' is not mentioned in the source.",
+              "Saying Alisson's saves 'kept Palace out' clashes with the source, because Palace did score."
+            ],
+            "error": null,
+            "seconds": 3.9,
+            "usage": {
+              "input_tokens": 3016,
+              "output_tokens": 301,
+              "cost_usd": 0.018084,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 1.8,
+          "writer_usage": {
+            "input_tokens": 2018,
+            "output_tokens": 294,
+            "cost_usd": 0.002677,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Liverpool win at Crystal Palace",
+            "teaser": "Liverpool win with three goals and a star keeper",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool won their Premier League match away at Crystal Palace on Sunday 8 November. The Reds scored three goals and played with lots of energy.",
+              "Alexis Mac Allister opened the scoring with a great header. It was his first Premier League goal of the season. Florian Wirtz added a second goal with a nice finish, and Alexander Isak scored late on.",
+              "Dominik Szoboszlai set up Mac Allister with an assist. Wirtz also got an assist for Isak's goal. Alisson, Liverpool's goalkeeper, had a wonderful game. He made stunning saves and was rated 9.",
+              "The result made Liverpool fans happy. Alisson was described as back to his best, which is great news for the team."
+            ],
+            "word_to_know": {
+              "word": "assist",
+              "definition": "a pass that helps a teammate score a goal"
+            },
+            "think_about_it": "Which Liverpool player do you think had the best game? Why?"
+          },
+          "word_count": 114,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The date 'Sunday 8 November' does not appear anywhere in the source article.",
+              "'Played with lots of energy' is not stated in the source.",
+              "'The result made Liverpool fans happy' is not in the source."
+            ],
+            "error": null,
+            "seconds": 2.8,
+            "usage": {
+              "input_tokens": 2991,
+              "output_tokens": 225,
+              "cost_usd": 0.016464,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 17.9,
+          "writer_usage": {
+            "input_tokens": 2029,
+            "output_tokens": 2969,
+            "cost_usd": 0.014436,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 5,
+      "source_title": "Seals long ago evolved to hear above the water — and below",
+      "source_url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+      "source_name": "Science News Explores",
+      "topic": "Science",
+      "source_words": 667,
+      "excerpt": "On land, a mother seal can pick out her pup’s cry on a noisy beach. Underwater, seals listen for songs of potential mates or calls warning of predators. This ability to hear well both in and out of the water is unique among mammals. And some marine mammals evolved it nearly 26.7 million years ago, a new study finds.\n\nSeals, sea lions and walruses are known as pinnipeds. They have amphibious hearing — or ears adapted to work well on land and in water. This is “something of a superpower,” says paleontologist James Rule. “They are the only mammals which can do this.” Rule works at Monash Universi",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Seals have super hearing in water and air",
+            "teaser": "How do seals hear so well underwater?",
+            "topic": "Science",
+            "body": [
+              "Seals can hear well on land and underwater. Scientists have found that their ancestors developed this clever skill nearly 26.7 million years ago.",
+              "Seals, sea lions and walruses are called pinnipeds. They are the only mammals that can hear well in both places. Scientist James Rule called it \"something of a superpower\".",
+              "Human ears are filled with air, so we hear badly underwater. Pinnipeds have spongy tissue inside their ears. It fills with blood when they dive. Sound travels well through blood, so they can hear clearly and tell which direction sounds come from.",
+              "The team used X-ray scans to look at 217 ears from museums around the world. Some came from fossils of ancient animals. Then the scientists worked out how the ears changed over time.",
+              "This special hearing gives many pinnipeds great rhythm. Like parrots, they can copy speaking and singing!"
+            ],
+            "word_to_know": {
+              "word": "pinnipeds",
+              "definition": "A group of sea animals with flippers, including seals, sea lions and walruses."
+            },
+            "think_about_it": "If you could hear perfectly underwater, what sounds would you most like to listen to?"
+          },
+          "word_count": 144,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.6,
+            "usage": {
+              "input_tokens": 2862,
+              "output_tokens": 332,
+              "cost_usd": 0.018088,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 8.5,
+          "writer_usage": {
+            "input_tokens": 3430,
+            "output_tokens": 903,
+            "cost_usd": 0.03178,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Seals Have a Hearing Superpower",
+            "teaser": "Seal ears work in the air and under the sea. Here's how.",
+            "topic": "Science",
+            "body": [
+              "Seals, sea lions and walruses can hear well on land and underwater. Scientists say no other mammals can do this. A new study found that some of these animals evolved this skill nearly 26.7 million years ago.",
+              "Human ears are filled with air. That works on land, but not underwater. Water is over 800 times more dense than air, so very little underwater sound gets through to our ears.",
+              "Seals have spongy tissue inside their ears. When they dive, it fills with blood. This keeps the pressure the same inside and outside their ears. Sound can travel well through blood, so seals can hear clearly underwater.",
+              "The team scanned 217 ear specimens from museums with X-rays. They used the 3-D images to see how ears changed over time. The scientists also said loud sounds from boats can change how seals behave, because seals rely on sound to talk to each other."
+            ],
+            "word_to_know": {
+              "word": "specimens",
+              "definition": "Samples of animals or plants that scientists keep and study."
+            },
+            "think_about_it": "Why might good hearing be so important for a seal living in the sea?"
+          },
+          "word_count": 152,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.5,
+            "usage": {
+              "input_tokens": 2845,
+              "output_tokens": 311,
+              "cost_usd": 0.0176,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.1,
+          "writer_usage": {
+            "input_tokens": 3430,
+            "output_tokens": 442,
+            "cost_usd": 0.01128,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Seals are masters of sound",
+            "teaser": "How do seals hear so well above and below the water?",
+            "topic": "Science",
+            "body": [
+              "Seals have a special skill that no other mammals share. They can hear clearly both in the air and underwater. On a noisy beach, a mother seal can pick out her own pup's cry. Under the sea, she can hear the calls of other seals.",
+              "Now scientists have discovered this skill began almost 26.7 million years ago. A team led by James Rule, a paleontologist in Australia, X-rayed 217 ear specimens from museums around the world. The scans came from 119 mammal species, including all 34 modern pinnipeds.",
+              "Pinnipeds include seals, sea lions and walruses. Their secret is spongy tissue inside their ears. When they dive, it fills with blood. Human ears work badly underwater because water is more than 800 times denser than air. But blood is similar to water, so sound travels through it well.",
+              "The team found the hearing trait appeared in the earliest sea-dwelling pinnipeds. It probably helped them as they moved into deeper seas. Today it even gives some seals a great sense of rhythm. Like parrots, they can mimic speaking and singing."
+            ],
+            "word_to_know": {
+              "word": "pinnipeds",
+              "definition": "Seals, sea lions and walruses, which all have flippers."
+            },
+            "think_about_it": "If you could hear as well underwater as seals can, what sounds would you most like to listen for?"
+          },
+          "word_count": 179,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "body is 179 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The claim that 'the hearing trait appeared in the earliest sea-dwelling pinnipeds' is not stated in the source. It says only that underwater hearing developed early, in pinniped ancestors. It names Enaliarctos as the likely first fully sea-dwelling pinnipeds but never links the trait's first appearance to them.",
+              "The 'Word to know' definition says pinnipeds 'all have flippers'. Flippers are not mentioned anywhere in the source, so this detail comes from outside it."
+            ],
+            "error": null,
+            "seconds": 6.7,
+            "usage": {
+              "input_tokens": 2925,
+              "output_tokens": 697,
+              "cost_usd": 0.02564,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.2,
+          "writer_usage": {
+            "input_tokens": 1893,
+            "output_tokens": 456,
+            "cost_usd": 0.003394,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Seals evolved to hear above and below water",
+            "teaser": "How seals can listen well on land and underwater",
+            "topic": "Science",
+            "body": [
+              "Seals, sea lions and walruses have a special superpower. They can hear well both on land and underwater. Scientists call this group pinnipeds. They are the only mammals that can do this.",
+              "Inside their ears, pinnipeds have a spongy tissue. It fills with blood when they dive underwater. Blood is much closer to water in density than air is. So sound travels through it well.",
+              "Researchers used X-ray scans to study 217 ear specimens from museums around the world. The samples included 119 mammal species. The scans showed detailed 3-D images of the animals' ears.",
+              "The team built a family tree of ancient creatures. They found that pinnipeds evolved this special hearing nearly 26.7 million years ago. That is much earlier than scientists expected."
+            ],
+            "word_to_know": {
+              "word": "pinnipeds",
+              "definition": "the group of mammals that includes seals, sea lions and walruses"
+            },
+            "think_about_it": "What other animals can move between land and water and use their senses well in both places?"
+          },
+          "word_count": 125,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The claim that this was 'much earlier than scientists expected' is not in the source. The source only says one scientist, Steven Benjamins, was surprised at how early underwater hearing emerged. It does not say scientists in general expected otherwise, or that it was 'much' earlier."
+            ],
+            "error": null,
+            "seconds": 4.5,
+            "usage": {
+              "input_tokens": 2814,
+              "output_tokens": 384,
+              "cost_usd": 0.018936,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 15.2,
+          "writer_usage": {
+            "input_tokens": 1898,
+            "output_tokens": 2238,
+            "cost_usd": 0.010147,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 8,
+      "source_title": "What can you read into Premier League table after 10 games?",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 858,
+      "excerpt": "We are now more than a quarter of the way through the Premier League season, with each team having played 10 games.\n\nSo what can we read into it?\n\nHistory suggests the answer is quite a lot.\n\nLast season, for instance, the top two - and two of the eventual bottom three - were in the exact spots at this stage that they in finished six months later.\n\nBBC Sport has a look.\n\nArsenal are top of the table on 27 points - which is higher than the average number of points (23) champions have after 10 games.\n\nIn fact, only four teams have taken more points from their first 10 fixtures than the Gunners, ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "What the table says after 10 games",
+            "teaser": "Can history tell us who will win the Premier League?",
+            "topic": "Football",
+            "body": [
+              "Every team in the Premier League has now played 10 games. That is more than a quarter of the season. BBC Sport looked back at history to see what the table might tell us.",
+              "Arsenal are top with 27 points. On average, champions have 23 points at this stage. Only four teams have ever had more points than Arsenal after 10 games, and all four won the league.",
+              "But there is a funny twist. The only two teams before that had exactly 27 points at this point both missed out on the title. Brighton are second with 22 points. Manchester City have 21 and Liverpool have 18, so they could still win it too.",
+              "Crystal Palace are bottom with seven points. But 14 teams have stayed up after being bottom at this stage.",
+              "There is still a long way to go, and plenty of time for things to change."
+            ],
+            "word_to_know": {
+              "word": "champions",
+              "definition": "The team that wins the whole league at the end of the season."
+            },
+            "think_about_it": "If you could pick any team to win the league this season, who would you choose and why?"
+          },
+          "word_count": 149,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3,
+            "usage": {
+              "input_tokens": 2989,
+              "output_tokens": 236,
+              "cost_usd": 0.016676,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 13,
+          "writer_usage": {
+            "input_tokens": 3615,
+            "output_tokens": 1323,
+            "cost_usd": 0.04092,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "What the Premier League table can tell us",
+            "teaser": "After 10 games, history gives some clues about the title.",
+            "topic": "Football",
+            "body": [
+              "Every Premier League team has now played 10 games. Arsenal are top of the table on 27 points. Brighton are second on 22 points.",
+              "History gives some clues about what could happen next. Only four teams have won more points from their first 10 games than Arsenal, and all four went on to win the league.",
+              "But nothing is certain. The team top after 10 games have won the title in 15 of the 34 seasons so far. That is less than half the time.",
+              "There is hope for teams at the bottom too. Crystal Palace are 20th on 7 points. In total, 14 teams have stayed up after being bottom at this stage.",
+              "Last season, 15 of the 20 teams finished within three places of where they were after 10 games. Aston Villa made the biggest jump, from 11th to the top four."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Why do you think the team at the top after 10 games does not always win the league?"
+          },
+          "word_count": 144,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 7. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3,
+            "usage": {
+              "input_tokens": 2966,
+              "output_tokens": 260,
+              "cost_usd": 0.017064,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.3,
+          "writer_usage": {
+            "input_tokens": 3615,
+            "output_tokens": 385,
+            "cost_usd": 0.01108,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "What the Premier League table tells us",
+            "teaser": "Arsenal are top after 10 games. Does history say they will win?",
+            "topic": "Football",
+            "body": [
+              "Arsenal are top of the Premier League with 27 points after 10 games. That is a strong start, because champions usually have about 23 points at this stage.",
+              "But history has a funny twist. The only two teams before who had exactly 27 points after 10 games both failed to win the title. Also, the team on top after 10 games has gone on to win the league in only 15 of the 34 Premier League seasons so far.",
+              "There is hope for teams lower down too. Liverpool have 18 points, and no champion has ever had fewer than that after 10 games.",
+              "And being bottom is not the end. Crystal Palace are last, but 14 teams have been bottom at this point and still stayed up, most recently Wolves in 2024-25.",
+              "So there is a long way to go, and plenty can still change."
+            ],
+            "word_to_know": {
+              "word": "champions",
+              "definition": "The team that finishes first and wins the league."
+            },
+            "think_about_it": "If your team made a slow start, would you keep believing they could still win?"
+          },
+          "word_count": 145,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 63 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.7,
+            "usage": {
+              "input_tokens": 2990,
+              "output_tokens": 228,
+              "cost_usd": 0.01652,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2,
+          "writer_usage": {
+            "input_tokens": 2126,
+            "output_tokens": 314,
+            "cost_usd": 0.001309,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "What 10 games tell us about the title race",
+            "teaser": "Arsenal are top, but history shows anything can still happen",
+            "topic": "Football",
+            "body": [
+              "After 10 games, Arsenal are top of the Premier League with 27 points. That is higher than the average of 23 points that champions have at this stage.",
+              "Only four teams have ever taken more points from their first 10 games than Arsenal, and all four went on to win the league. But two teams who had exactly 27 points did not win the title.",
+              "Brighton are second with 22 points. The team in second after 10 games has won the title only one time in the past 18 seasons, so there is still a long way to go.",
+              "Crystal Palace are bottom with seven points. But 14 teams have stayed up after being bottom at this stage, so they should not give up."
+            ],
+            "word_to_know": {
+              "word": "champions",
+              "definition": "the team that wins the league at the end of the season"
+            },
+            "think_about_it": "Which team do you think will end the season as champions?"
+          },
+          "word_count": 124,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4,
+            "usage": {
+              "input_tokens": 2937,
+              "output_tokens": 325,
+              "cost_usd": 0.018248,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 21,
+          "writer_usage": {
+            "input_tokens": 2142,
+            "output_tokens": 3077,
+            "cost_usd": 0.015012,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 3,
+      "source_title": "Would you like to go into space?",
+      "source_url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+      "source_name": "BBC Newsround",
+      "topic": "Space",
+      "source_words": 344,
+      "excerpt": "Ever dreamed of flying to the Moon and helping to build a base there?\n\nWell, there are a few things you'll need to do before you can make that dream come true.\n\nNasa has opened applications for astronauts to help in their next chapter of human spaceflight, so we've been checking out what they're looking for.\n\nThe chosen applicants will join the US space agency as they aim to return to the Moon, build a Moon base and lay groundwork for first crewed missions to Mars.\n\nNow if you think that sounds like a cool job let us know in the vote and have your say in the comments below.\n\nLast time Nasa put",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Nasa is looking for new astronauts",
+            "teaser": "Could you help build a base on the Moon one day?",
+            "topic": "Space",
+            "body": [
+              "Nasa, the US space agency, has opened applications for new astronauts. The people chosen could help return to the Moon, build a Moon base and get ready for the first crewed missions to Mars.",
+              "Nasa says it needs more explorers. It has only 32 active astronauts. \"We have far more work than we have astronauts,\" said Randy Bresnik, commander of the Artemis III mission.",
+              "Getting picked is very tricky. The last time Nasa asked for astronauts, more than 8,000 people applied. Only 10 made the final cut.",
+              "To apply, you must be a US citizen, so people in the UK cannot try this time. You also need a master's degree in a STEM subject, such as engineering or computer science. You need at least three years of work experience too.",
+              "Applications close on 3 December. Nasa expects to choose its new astronauts in late 2027."
+            ],
+            "word_to_know": {
+              "word": "STEM",
+              "definition": "Short for science, technology, engineering and maths."
+            },
+            "think_about_it": "If you lived on a Moon base, what job would you most like to do there?"
+          },
+          "word_count": 146,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3,
+            "usage": {
+              "input_tokens": 2136,
+              "output_tokens": 185,
+              "cost_usd": 0.012244,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.3,
+          "writer_usage": {
+            "input_tokens": 2732,
+            "output_tokens": 928,
+            "cost_usd": 0.029488,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Nasa wants new astronauts for the Moon",
+            "teaser": "Could you help build a base on the Moon one day?",
+            "topic": "Space",
+            "body": [
+              "Nasa has opened applications for new astronauts. The chosen people will help the US space agency return to the Moon, build a Moon base and prepare for the first crewed missions to Mars.",
+              "Nasa says it needs more recruits. It has only 32 active astronauts. Last time it asked for applications, more than 8,000 people applied and only 10 made the final cut.",
+              "There are some rules. Applicants must be US citizens, so people in the UK cannot apply. They need a master's degree in a STEM field, such as engineering or computer science. They also need at least three years of related work experience.",
+              "Applications are open until 3rd December. Nasa expects to choose its new astronauts in late 2027."
+            ],
+            "word_to_know": {
+              "word": "STEM",
+              "definition": "Science, technology, engineering and maths, the subjects that help us understand and build things."
+            },
+            "think_about_it": "If you could live on a Moon base, what would you most like to work on?"
+          },
+          "word_count": 122,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.8,
+            "usage": {
+              "input_tokens": 2097,
+              "output_tokens": 173,
+              "cost_usd": 0.011848,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.7,
+          "writer_usage": {
+            "input_tokens": 2732,
+            "output_tokens": 398,
+            "cost_usd": 0.009444,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Nasa is looking for new astronauts",
+            "teaser": "Could a future Moon explorer be reading this right now?",
+            "topic": "Space",
+            "body": [
+              "Nasa is searching for new astronauts to help fly back to the Moon, build a Moon base, and even prepare for the first crewed trips to Mars.",
+              "The US space agency says it needs more explorers because it has only 32 active astronauts right now. \"We have far more work than we have astronauts,\" said Artemis III commander Randy Bresnik.",
+              "Last time Nasa asked for applicants, more than 8,000 people applied, and only 10 were picked. So the competition is tough!",
+              "There are rules for applying. You must be a US citizen and have a master's degree in a STEM subject, such as engineering, biological science, physical science or computer science. You also need at least three years of related work experience. Applications are open until 3rd December, and Nasa will make its final choice in late 2027.",
+              "The new astronauts will be part of Nasa's 25th astronaut class since the very first Mercury Seven in 1959."
+            ],
+            "word_to_know": {
+              "word": "astronaut",
+              "definition": "A person trained to travel and work in space."
+            },
+            "think_about_it": "If you could travel to space, would you rather visit the Moon or Mars, and why?"
+          },
+          "word_count": 158,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.4,
+            "usage": {
+              "input_tokens": 2157,
+              "output_tokens": 141,
+              "cost_usd": 0.011448,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.7,
+          "writer_usage": {
+            "input_tokens": 1460,
+            "output_tokens": 350,
+            "cost_usd": 0.000592,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Nasa seeks Moon base astronauts",
+            "teaser": "Nasa needs new astronauts to build a Moon base",
+            "topic": "Space",
+            "body": [
+              "Nasa is looking for new astronauts to fly to the Moon and help build a base there. The chosen people could walk on the Moon and live at the Moon base. Later, they might help plan the first crewed missions to Mars.",
+              "If you want to apply, there are a few things you need. You must be a US citizen. You must also hold a master's degree in a STEM field, such as engineering, biological science, physical science, or computer science. STEM stands for science, technology, engineering and maths.",
+              "You also need at least three years of professional experience. Pilots and doctors have extra requirements. Applications are open until 3rd December.",
+              "The job is very popular. Last time, more than 8,000 people applied and only 10 were chosen. Nasa has just 32 active astronauts, so it needs more explorers. The final selection will happen in late 2027."
+            ],
+            "word_to_know": {
+              "word": "STEM",
+              "definition": "STEM stands for science, technology, engineering and maths."
+            },
+            "think_about_it": "If you could visit the Moon, what would you most like to do there?"
+          },
+          "word_count": 148,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.9,
+            "usage": {
+              "input_tokens": 2133,
+              "output_tokens": 237,
+              "cost_usd": 0.013272,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 24.5,
+          "writer_usage": {
+            "input_tokens": 1469,
+            "output_tokens": 3266,
+            "cost_usd": 0.014664,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 14,
+      "source_title": "The swan sanctuary wetland fighting climate change",
+      "source_url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+      "source_name": "BBC science",
+      "topic": "Animals and nature",
+      "source_words": 913,
+      "excerpt": "Most people know rainforests are vital in the fight against climate change, but now scientists say wetlands could be even more important.\n\nSaltmarshes, mangrove swamps and wetlands can absorb carbon \"four times faster than trees\", according to the charity the Wildfowl and Wetlands Trust (WWT).\n\nCelebrating 80 years since WWT's first wetland bird reserve was founded at Slimbridge, in Gloucestershire, the charity's leaders have called for one million hectares of wetlands to be restored across the world.\n\nSarah Fowler, CEO of WWT, said: \"They are mood-boosting, flood-buffering, water-purifying, i",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "The soggy secret weapon helping Earth",
+            "teaser": "Why muddy marshes beat trees at soaking up carbon",
+            "topic": "Animals and nature",
+            "body": [
+              "A wetland bird reserve at Slimbridge, in Gloucestershire, is celebrating 80 years. It was started by a naturalist called Peter Scott. He came there in November 1946 to watch thousands of geese and swans.",
+              "Now the charity that runs it, the Wildfowl and Wetlands Trust, says wetlands are a \"soggy secret weapon\" against climate change. Saltmarshes and swamps can soak up carbon four times faster than trees.",
+              "Here is how it works. When big tides wash over a saltmarsh, plants get buried in the mud. Those plants are full of carbon, so it gets locked away.",
+              "Slimbridge has helped rare birds too. By 1949, barely 24 Hawaiian geese, called Nēnē, were left. Peter Scott raised some at Slimbridge. Today there are more than 3,000.",
+              "The charity wants one million hectares of wetlands brought back around the world. That matters, because 40% of the world's species need wetlands to survive."
+            ],
+            "word_to_know": {
+              "word": "carbon",
+              "definition": "A substance found in all living things. Too much of it in the air as a gas makes the planet warmer."
+            },
+            "think_about_it": "If you could create a tiny wetland near your home, which birds or animals would you hope to see there?"
+          },
+          "word_count": 150,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.1,
+            "usage": {
+              "input_tokens": 3490,
+              "output_tokens": 504,
+              "cost_usd": 0.02404,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.8,
+          "writer_usage": {
+            "input_tokens": 4001,
+            "output_tokens": 1119,
+            "cost_usd": 0.038384,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Wetlands: the soggy secret weapon",
+            "teaser": "Swamps and marshes may be great at fighting climate change",
+            "topic": "Animals and nature",
+            "body": [
+              "A charity called the Wildfowl and Wetlands Trust is celebrating 80 years since its first bird reserve opened at Slimbridge, in Gloucestershire. Its leaders want one million hectares of wetlands to be restored across the world.",
+              "Wetlands include saltmarshes and mangrove swamps. The charity says they can absorb carbon four times faster than trees. Carbon is a gas that adds to climate change. One volunteer calls wetlands a soggy secret weapon.",
+              "The world has lost 85% of its wetlands. Yet 40% of the world's species need them to survive. The charity now runs 10 wetland bird reserves across the UK.",
+              "It all began when a naturalist called Peter Scott saw thousands of geese and swans at Slimbridge. He helped save the Nēnē, or Hawaiian Goose, when only 24 birds were left by 1949. Today there are more than 3,000."
+            ],
+            "word_to_know": {
+              "word": "carbon",
+              "definition": "A natural substance that is stored in plants and is also found in the gas that warms our planet."
+            },
+            "think_about_it": "Why might a small patch of wetland in a city be good for both birds and people?"
+          },
+          "word_count": 140,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The line 'Carbon is a gas that adds to climate change' is not in the source and is wrong: carbon is not a gas (carbon dioxide is). It also contradicts the story's own 'Word to know' definition, so it goes beyond an allowed simple explanation."
+            ],
+            "error": null,
+            "seconds": 5.8,
+            "usage": {
+              "input_tokens": 3456,
+              "output_tokens": 542,
+              "cost_usd": 0.024664,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.4,
+          "writer_usage": {
+            "input_tokens": 4001,
+            "output_tokens": 484,
+            "cost_usd": 0.012842,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Wetlands: the soggy secret weapon",
+            "teaser": "Marshes and swamps soak up carbon four times faster than trees!",
+            "topic": "Animals and nature",
+            "body": [
+              "Eighty years ago, a naturalist called Peter Scott set up a bird reserve at Slimbridge in Gloucestershire. He loved watching the swans and geese that flew thousands of miles from the Russian Arctic to spend winter there.",
+              "Today his charity runs 10 wetland reserves across the UK. Wetlands are soggy places like marshes and swamps, and scientists say they could be even better than rainforests at fighting climate change.",
+              "That is because wetlands can absorb carbon four times faster than trees. Carbon is a gas that warms the planet, and wet plants bury it safely in the mud.",
+              "Wetlands are also brilliant for birds. Scott once saved the Hawaiian Goose, when only 24 were left. Now there are more than 3,000!",
+              "But 85% of the world's wetlands have been lost. The charity wants to restore one million hectares of them, calling wetlands a soggy secret weapon."
+            ],
+            "word_to_know": {
+              "word": "wetland",
+              "definition": "A soggy area of land, like a marsh or swamp, covered by shallow water."
+            },
+            "think_about_it": "Why do you think so many birds love visiting soggy, marshy places?"
+          },
+          "word_count": 147,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 63 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'Carbon is a gas that warms the planet'. This is inaccurate and not from the source: carbon is not a gas, and the warming gas is carbon dioxide. The source gives no such explanation.",
+              "The story says 'wet plants bury it safely in the mud', which misstates the source. The source says the tides bury salt marsh plants, which are full of carbon; it does not say the plants bury carbon in mud."
+            ],
+            "error": null,
+            "seconds": 8.8,
+            "usage": {
+              "input_tokens": 3460,
+              "output_tokens": 777,
+              "cost_usd": 0.02938,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 8.9,
+          "writer_usage": {
+            "input_tokens": 2238,
+            "output_tokens": 333,
+            "cost_usd": 0.001846,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Slimbridge's soggy secret weapon",
+            "teaser": "How a bird reserve became a climate secret weapon",
+            "topic": "Animals and nature",
+            "body": [
+              "Slimbridge wetland reserve in Gloucestershire is 80 years old this year. It began in November 1946, when a naturalist called Peter Scott came to the marshy banks of the River Severn to watch migrating swans and geese.",
+              "Scott built hides and towers so people could watch the birds without disturbing them. He also helped save the Hawaiian Goose, or Nēnē. By 1949 barely 24 birds remained. Scott asked for geese to be sent to Slimbridge, but the first two to arrive were both females. Nine chicks were later born there, and now more than 3,000 Nēnē geese live across the world.",
+              "Wetlands do more than give birds a home. Scientists say they soak up carbon four times faster than trees. That helps slow climate change. But 85% of the world's wetlands have been lost. The Wildfowl and Wetlands Trust now hopes to restore one million hectares of wetlands. Workers there call wetlands a soggy secret weapon."
+            ],
+            "word_to_know": {
+              "word": "naturalist",
+              "definition": "a person who studies animals and plants and works to protect nature"
+            },
+            "think_about_it": "Why do you think a wet, muddy place can be so important for birds and the planet?"
+          },
+          "word_count": 157,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'Scientists say' wetlands soak up carbon four times faster than trees, but the source credits this to the charity WWT and its chief executive, who was talking about salt marshes specifically. The claim is given to the wrong source.",
+              "'More than 3,000 Nēnē geese live across the world' changes the source, which says most of them live on Hawaiian golf courses."
+            ],
+            "error": null,
+            "seconds": 7.7,
+            "usage": {
+              "input_tokens": 3467,
+              "output_tokens": 786,
+              "cost_usd": 0.029588,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 23.8,
+          "writer_usage": {
+            "input_tokens": 2211,
+            "output_tokens": 3340,
+            "cost_usd": 0.015075,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 9,
+      "source_title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 1025,
+      "excerpt": "Back in August, when Mohamed Salah landed in Istanbul after flying in from his holiday in Mykonos, he wore Trabzonspor's burgundy and blue home strip as he stepped out of the plane to be greeted by thousands of fans.\n\nThat kit sold out almost instantly. Later that day, as Salah headed to Trabzon in north-east Turkey to complete the formalities of one of the most unexpected transfers after the expiry of his Liverpool contract, he asked one of his entourage what he should wear.\n\n\"The same kit,\" came the response, but Trabzonspor president Ertugrul Dogan advised Salah to wear the black away kit i",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Mohamed Salah's goals light up Turkey",
+            "teaser": "A rock and a street have been named after him!",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah, who used to play for Liverpool, is now scoring goals for a Turkish team called Trabzonspor. BBC Sport travelled to Turkey to see how the 34-year-old is getting on.",
+              "The answer is: very well! He has 10 goals and five assists in all competitions. Trabzonspor have won seven of their first 10 games and are just three points behind the league leaders, Galatasaray.",
+              "The fans in Trabzon, a city by the Black Sea, adore him. His face is on scarves, keyrings and even the walls of a fish shop. One football writer said nine out of every 10 fans wearing a shirt have Salah's name on the back.",
+              "Salah went for a hike and posed for a picture on a rock in the hills. That rock has been renamed Salah's Rock, and now visitors come to see it! He also has a street named after him in the nearby town of Yomra."
+            ],
+            "word_to_know": {
+              "word": "assists",
+              "definition": "Passes that help a teammate to score a goal."
+            },
+            "think_about_it": "If a rock was named after you, what would you like people to remember about you when they visit it?"
+          },
+          "word_count": 154,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 3597,
+              "output_tokens": 295,
+              "cost_usd": 0.020288,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 11.5,
+          "writer_usage": {
+            "input_tokens": 4172,
+            "output_tokens": 1148,
+            "cost_usd": 0.039648,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Salah is a hero in Trabzon",
+            "teaser": "A Turkish city has fallen in love with Mohamed Salah",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah now plays for Trabzonspor, a club in Turkey. The city of Trabzon is by the Black Sea. Fans have given him a huge welcome.",
+              "His face is everywhere. It is on scarves, magnets and keyrings. Even the walls inside the fishmongers have pictures of him. His shirts sold out almost instantly. Season ticket sales rocketed after his arrival.",
+              "Salah is also playing well. He has 10 goals and five assists in all competitions. Trabzonspor trail leaders Galatasaray by three points in the Turkish Super Lig.",
+              "A rock in the hills where Salah posed for a photo has been renamed Salahtasi. It is now a tourist destination. There are new flights to Trabzon from Cairo, Dubai and Riyadh too."
+            ],
+            "word_to_know": {
+              "word": "assists",
+              "definition": "Passes that help a teammate score a goal."
+            },
+            "think_about_it": "Why do you think one football player can make a whole city so excited?"
+          },
+          "word_count": 120,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.5,
+            "usage": {
+              "input_tokens": 3568,
+              "output_tokens": 206,
+              "cost_usd": 0.018392,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.7,
+          "writer_usage": {
+            "input_tokens": 4172,
+            "output_tokens": 434,
+            "cost_usd": 0.012684,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Salah's new home: the city that loves him",
+            "teaser": "A Turkish city is buzzing since Mohamed Salah came to play.",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah has a new football home. The star, who used to play for Liverpool, has joined Trabzonspor in Turkey. Thousands of fans welcomed him at the airport, wearing the club's burgundy and blue kit.",
+              "Salah is a hero in Trabzon, a city by the Black Sea. His face is on scarves, magnets and keyrings. Even a rock where he once posed for a photo has been renamed Salahtasi, which means Salah's Rock. Fans say nine out of every 10 shirts in the city have his name on the back.",
+              "He is doing well on the pitch too. Salah has scored 10 goals and made five assists already. Trabzonspor have won seven of their first 10 games and are pushing for the Turkish league title.",
+              "Fans travel from Egypt and other countries to watch him play. One supporter, Nisa, said: 'I still can't believe that he is one of us.'"
+            ],
+            "word_to_know": {
+              "word": "assists",
+              "definition": "When a player passes the ball to a teammate who then scores a goal."
+            },
+            "think_about_it": "If you moved to a new city, what would you like people to name after you?"
+          },
+          "word_count": 150,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story suggests the fans at the airport were wearing the burgundy and blue kit. In the source, it was Salah who wore the kit as he stepped off the plane.",
+              "The 'nine out of every 10' claim comes from Turkish football journalist Hasan Tuncel, not from 'fans'. It also refers to fans wearing a shirt, not to all shirts in the city."
+            ],
+            "error": null,
+            "seconds": 6.6,
+            "usage": {
+              "input_tokens": 3609,
+              "output_tokens": 617,
+              "cost_usd": 0.026776,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.1,
+          "writer_usage": {
+            "input_tokens": 2367,
+            "output_tokens": 335,
+            "cost_usd": 0.001401,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Salah becomes a hero in Turkey",
+            "teaser": "Fans in Trabzon cannot believe the Egyptian King plays for their team.",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah has become a hero in Turkey since joining Trabzonspor this season. Fans in the city of Trabzon wear his shirt everywhere, and his face appears on scarves, magnets and keyrings.",
+              "The excitement has also been good for the club. Season ticket sales went up quickly after Salah arrived. Trabzonspor have already sold more merchandise in three months than they did in the whole of last year.",
+              "On the pitch, Salah is helping his new team challenge for the Turkish league title. He has scored 10 goals and set up five more. Trabzonspor are only three points behind the leaders Galatasaray.",
+              "Some fans in Turkey say Salah is the biggest football star after Lionel Messi and Cristiano Ronaldo. A rock he posed on during a hike is now called Salahtasi, which means Salah's Rock, and has become a tourist spot."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Why do you think a football player can make so many people excited about a city?"
+          },
+          "word_count": 141,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 70 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.9,
+            "usage": {
+              "input_tokens": 3577,
+              "output_tokens": 395,
+              "cost_usd": 0.022208,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 22.4,
+          "writer_usage": {
+            "input_tokens": 2387,
+            "output_tokens": 1127,
+            "cost_usd": 0.005269,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    }
+  ],
+  "totals": {
+    "anthropic:claude-opus-5-5": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 5,
+      "sent_back": 1,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 145.2,
+      "writer_cost_usd": 0.239692,
+      "checker_cost_usd": 0.11452,
+      "avg_seconds_per_story": 10.2
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "stories_written": 6,
+      "passed_validation": 4,
+      "passed_checker": 4,
+      "sent_back": 2,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 132,
+      "writer_cost_usd": 0.077996,
+      "checker_cost_usd": 0.110464,
+      "avg_seconds_per_story": 3.8
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "stories_written": 6,
+      "passed_validation": 2,
+      "passed_checker": 2,
+      "sent_back": 4,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 149.7,
+      "writer_cost_usd": 0.011732,
+      "checker_cost_usd": 0.127848,
+      "avg_seconds_per_story": 3.6
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 3,
+      "sent_back": 3,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 134.8,
+      "writer_cost_usd": 0.101476,
+      "checker_cost_usd": 0.118716,
+      "avg_seconds_per_story": 20.8
+    }
+  }
+}

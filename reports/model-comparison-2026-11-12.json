@@ -1,0 +1,1837 @@
+{
+  "meta": {
+    "date": "2026-11-12",
+    "generated_at": "2026-11-13T23:41:56.576Z",
+    "window_end": "2026-11-12T06:00:00.000Z",
+    "candidates": 24,
+    "feed_counts": {
+      "BBC Newsround": 80,
+      "Science News Explores": 20,
+      "BBC Sport football": 77,
+      "BBC Sport Liverpool": 24,
+      "BBC science": 41
+    },
+    "feed_log": [
+      "feed 'BBC Newsround': 80 items",
+      "feed 'Science News Explores': 20 items",
+      "feed 'BBC Sport football': 77 items",
+      "feed 'BBC Sport Liverpool': 24 items",
+      "feed 'BBC science': 41 items"
+    ],
+    "filter": {
+      "kept": 24,
+      "too_old": 209,
+      "duplicate": 4,
+      "excluded": 5,
+      "blocked": 0,
+      "recently_used": 0
+    },
+    "story_count": 6,
+    "selector": "anthropic:claude-opus-5-5",
+    "selector_used": "anthropic:claude-opus-5-5",
+    "checker": "anthropic:claude-opus-5-5",
+    "writer_effort": "medium",
+    "checker_effort": "high",
+    "checker_error": null,
+    "budget_usd": 1.33,
+    "spent_usd": 0.833838,
+    "note": "Candidates are built from the feeds as fetched now; feeds only carry recent items, so an older date can have few."
+  },
+  "models": [
+    {
+      "id": "anthropic:claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 4,
+      "output_per_mtok": 20
+    },
+    {
+      "id": "anthropic:claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 2,
+      "output_per_mtok": 10
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3",
+      "name": "GLM 5.3 (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.08,
+      "output_per_mtok": 3.6
+    },
+    {
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.11,
+      "output_per_mtok": 4.44
+    }
+  ],
+  "selection": {
+    "openrouter:z-ai/glm-5.3": {
+      "picks": [
+        {
+          "candidate_id": 6,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 13,
+          "title": "Wales boss Bellamy praises Liverpool's handling of Koumas",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm752n34wek9o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "England's Blues brothers - how the Bellinghams helped save Birmingham",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm1j3j20r2rzo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Why is it suddenly so cold?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cwg5r8z16l52o",
+          "topic": "Weather"
+        },
+        {
+          "candidate_id": 7,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Zoom in on these amazing close-up photos",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmvg9gyg4p4xo",
+          "topic": "Weird but true"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 10,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 17,
+          "title": "Significant drop in levels of toxic 'forever' chemicals in England's rivers",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cmze75r55g3jo",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 24,
+          "title": "Toby Jones stars in film about UK Mars mission",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cqm2l304w0x9o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 22,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        }
+      ],
+      "input_tokens": 2423,
+      "output_tokens": 273,
+      "cost_usd": 0.001186,
+      "models_answered": [
+        "openrouter:z-ai/glm-5.3"
+      ],
+      "stop_reason": "stop",
+      "seconds": 2,
+      "error": null
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "picks": [
+        {
+          "candidate_id": 6,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Why is it suddenly so cold?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cwg5r8z16l52o",
+          "topic": "Weather"
+        },
+        {
+          "candidate_id": 9,
+          "title": "England's Blues brothers - how the Bellinghams helped save Birmingham",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm1j3j20r2rzo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 14,
+          "title": "Shirt pull on Isak should have been penalty - panel",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c6n8d8kl125vo",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 7,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Zoom in on these amazing close-up photos",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmvg9gyg4p4xo",
+          "topic": "Weird but true"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 11,
+          "title": "How 'Barca way' continues despite big-name exits",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c5vg23nmgp2yo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 10,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 24,
+          "title": "Toby Jones stars in film about UK Mars mission",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cqm2l304w0x9o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 22,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        }
+      ],
+      "input_tokens": 4279,
+      "output_tokens": 224,
+      "cost_usd": 0.010798,
+      "models_answered": [
+        "anthropic:claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 2.5,
+      "error": null
+    },
+    "anthropic:claude-opus-5-5": {
+      "picks": [
+        {
+          "candidate_id": 6,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 13,
+          "title": "Wales boss Bellamy praises Liverpool's handling of Koumas",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm752n34wek9o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "England's Blues brothers - how the Bellinghams helped save Birmingham",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm1j3j20r2rzo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 11,
+          "title": "How 'Barca way' continues despite big-name exits",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c5vg23nmgp2yo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 7,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Why is it suddenly so cold?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cwg5r8z16l52o",
+          "topic": "Weather"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 17,
+          "title": "Significant drop in levels of toxic 'forever' chemicals in England's rivers",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cmze75r55g3jo",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 10,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 24,
+          "title": "Toby Jones stars in film about UK Mars mission",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cqm2l304w0x9o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 22,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        }
+      ],
+      "input_tokens": 4279,
+      "output_tokens": 631,
+      "cost_usd": 0.029736,
+      "models_answered": [
+        "anthropic:claude-opus-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 6.6,
+      "error": null
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "picks": [
+        {
+          "candidate_id": 13,
+          "title": "Wales boss Bellamy praises Liverpool's handling of Koumas",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm752n34wek9o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "England's Blues brothers - how the Bellinghams helped save Birmingham",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cm1j3j20r2rzo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 22,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Why is it suddenly so cold?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cwg5r8z16l52o",
+          "topic": "Weather"
+        },
+        {
+          "candidate_id": 24,
+          "title": "Toby Jones stars in film about UK Mars mission",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cqm2l304w0x9o",
+          "topic": "Space"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 7,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 10,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 15,
+          "title": "Szoboszlai fitness call to come at 'last minute'",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 17,
+          "title": "Significant drop in levels of toxic 'forever' chemicals in England's rivers",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cmze75r55g3jo",
+          "topic": "Science"
+        }
+      ],
+      "input_tokens": 2425,
+      "output_tokens": 4945,
+      "cost_usd": 0.022783,
+      "models_answered": [
+        "openrouter:deepseek/deepseek-v4-pro-0813"
+      ],
+      "stop_reason": "stop",
+      "seconds": 34.1,
+      "error": null
+    }
+  },
+  "stories": [
+    {
+      "candidate_id": 6,
+      "source_title": "Four T. rex footprints hint at how fast it traveled",
+      "source_url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+      "source_name": "Science News Explores",
+      "topic": "Science",
+      "source_words": 457,
+      "excerpt": "Four fossilized footprints are helping scientists step into a dinosaur’s shoes. The prints form the first known set of tracks likely left by an adult Tyrannosaurus rex.\n\nA trackway is three or more consecutive footprints left by some animal. The one for this T. rex spans 7 meters (10 feet). The track spacing suggests the ancient predator had been ambling along at about 1.6 meters (5.2 feet) per second, which would be a quick walking pace for us.\n\nA few single adult T. rex footprints have been recorded. So have trackways from what might be T. rex juveniles or another related species, says Peter",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "T. rex footprints show its walking speed",
+            "teaser": "Four giant footprints reveal how fast a T. rex walked",
+            "topic": "Science",
+            "body": [
+              "Scientists have studied four fossil footprints that were probably left by an adult Tyrannosaurus rex. They are the first known trackway from a grown-up T. rex.",
+              "The trackway stretches 7 metres. By measuring the gaps between the prints, the team worked out that the dinosaur was walking at about 1.6 metres per second. That is about as fast as a person walking quickly.",
+              "Kent Hups, a teacher and fossil hunter, found the prints in North Dakota. The first one had three toes and was huge, measuring 80 centimetres across. The prints were made roughly 66.5 million years ago.",
+              "Peter Falkingham from Liverpool John Moores University helped study them. He said one footprint does not tell you much, but a trackway shows how an animal moves.",
+              "A fifth footprint may be hidden in the hill. The team is waiting for nature to wear the rock away."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "A line of three or more footprints left by an animal as it moves along."
+            },
+            "think_about_it": "If someone found your footprints millions of years from now, what might they learn about how you walk?"
+          },
+          "word_count": 147,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3,
+            "usage": {
+              "input_tokens": 2479,
+              "output_tokens": 261,
+              "cost_usd": 0.015136,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.7,
+          "writer_usage": {
+            "input_tokens": 3044,
+            "output_tokens": 1070,
+            "cost_usd": 0.033576,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "T. rex Footprints Show How Fast It Walked",
+            "teaser": "Four giant prints give a clue about a dinosaur's speed",
+            "topic": "Science",
+            "body": [
+              "Scientists have found four fossil footprints that were likely left by an adult Tyrannosaurus rex. They are the first known set of tracks like this.",
+              "A trackway is three or more footprints in a row. This one stretches 7 meters. The gaps between the prints suggest the T. rex was walking at about 1.6 meters per second. That is a quick walking pace for a person.",
+              "Kent Hups found the tracks while fossil hunting in North Dakota. The first print was huge. It measured 80 centimeters across and had three toes.",
+              "A trackway tells scientists more than one print can. Peter Falkingham, who works at Liverpool John Moores University in England, says it shows how the animal placed its feet as it moved.",
+              "The prints are not well preserved, so the speed is only an estimate. A fifth step may be hidden in the hill. The team is waiting for the rock around it to wear away."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "A line of three or more footprints left by an animal as it walked."
+            },
+            "think_about_it": "What do you think footprints could tell us about how you move?"
+          },
+          "word_count": 158,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.8,
+            "usage": {
+              "input_tokens": 2471,
+              "output_tokens": 174,
+              "cost_usd": 0.013364,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.9,
+          "writer_usage": {
+            "input_tokens": 3044,
+            "output_tokens": 457,
+            "cost_usd": 0.010658,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "T. rex footprints found in North Dakota",
+            "teaser": "Four giant fossil prints show how a dinosaur once walked.",
+            "topic": "Science",
+            "body": [
+              "A teacher who hunts fossils has found something amazing: four huge footprints likely left by an adult Tyrannosaurus rex. The prints were sticking out of a hillside in North Dakota in the United States.",
+              "The first print was three-toed and enormous. It measured 80 centimetres across! The teacher, Kent Hups, thought straight away: this has to be a T. rex.",
+              "The four prints form a trackway, which means three or more footprints left in a row by the same animal. It is the first known trackway from an adult T. rex. A single print tells scientists little, but a trackway shows how the dinosaur placed its feet as it moved along.",
+              "Scientists studied the stride length and worked out that this T. rex was ambling at about 1.6 metres per second. That is roughly the speed of a person walking quickly.",
+              "The team thinks a fifth footprint may still be hiding in the hill. They are waiting for wind and rain to wear away the rock so they can look for it."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "three or more footprints left in a row by the same animal"
+            },
+            "think_about_it": "What would you most like to learn from a dinosaur's footprints?"
+          },
+          "word_count": 173,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "body is 173 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.2,
+            "usage": {
+              "input_tokens": 2492,
+              "output_tokens": 472,
+              "cost_usd": 0.019408,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.4,
+          "writer_usage": {
+            "input_tokens": 1638,
+            "output_tokens": 346,
+            "cost_usd": 0.002267,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Fossil tracks reveal T. rex's walking speed",
+            "teaser": "Ancient prints reveal a quick walking T. rex",
+            "topic": "Science",
+            "body": [
+              "Four fossilised footprints found in North Dakota may be the first known tracks left by an adult Tyrannosaurus rex. A teacher and fossil expert named Kent Hups spotted the prints while fossil hunting.",
+              "The prints form a trackway, which is a line of three or more footprints made by one animal as it moves. This T. rex trackway spans 7 metres across the ground. The spacing suggests the dinosaur was walking at about 1.6 metres per second.",
+              "That speed is close to a quick walking pace for people. Scientists are excited because a single footprint does not tell much, but a trackway shows how an animal placed its feet as it moved.",
+              "The first print Hups found measured 80 centimetres across. He knew it had to be a huge dinosaur. Fossils nearby suggest the tracks are roughly 66.5 million years old."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "a line of three or more footprints made by one animal as it moves"
+            },
+            "think_about_it": "If you found a fossil footprint, what would you want to learn from it?"
+          },
+          "word_count": 143,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.6,
+            "usage": {
+              "input_tokens": 2463,
+              "output_tokens": 340,
+              "cost_usd": 0.016652,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 24.5,
+          "writer_usage": {
+            "input_tokens": 1661,
+            "output_tokens": 3878,
+            "cost_usd": 0.017549,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 13,
+      "source_title": "Wales boss Bellamy praises Liverpool's handling of Koumas",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cm752n34wek9o",
+      "source_name": "BBC Sport Liverpool",
+      "topic": "Liverpool FC",
+      "source_words": 553,
+      "excerpt": "Wales manager Craig Bellamy has praised Liverpool for their handling of forward Lewis Koumas ahead of their Nations League trip to Norway.\n\nThe 21-year-old has spent the last few seasons out on loan at a number of Championship clubs, but is enjoying a breakout campaign for both club and country.\n\nThe forward scored his first international goal against Ghana in a friendly back in June, and is a regular feature in Liverpool's matchday squads under Andoni Iraola.\n\nKoumas - who has made nine Liverpool appearance in total this season - also scored his first Champions League goal in a 6-3 win away a",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Wales boss praises Liverpool's Koumas",
+            "teaser": "A young Reds forward is scoring for club and country!",
+            "topic": "Liverpool FC",
+            "body": [
+              "Wales manager Craig Bellamy has praised Liverpool for the way they have looked after young forward Lewis Koumas.",
+              "Koumas is 21 years old. He spent time on loan at football clubs in the Championship, including Stoke City and Hull City. He helped Hull City move up to the Premier League.",
+              "Now he is back at Liverpool and has played nine times for the Reds this season. He scored his first Champions League goal in a 6-3 win away at LASK, a team from Austria.",
+              "He also scored his first goal for Wales in a friendly match against Ghana in June. Bellamy, who once played for Liverpool himself, loves the young player's energy. He said players like Koumas inspire their teammates to keep running.",
+              "Koumas could get another chance to shine when Wales play Norway in Oslo on Saturday 14 November."
+            ],
+            "word_to_know": {
+              "word": "loan",
+              "definition": "When a player goes to play for a different club for a while, then comes back."
+            },
+            "think_about_it": "Why do you think playing for other clubs might help a young footballer get better?"
+          },
+          "word_count": 140,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.4,
+            "usage": {
+              "input_tokens": 2593,
+              "output_tokens": 250,
+              "cost_usd": 0.015372,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 11.7,
+          "writer_usage": {
+            "input_tokens": 3185,
+            "output_tokens": 1220,
+            "cost_usd": 0.03714,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Bellamy praises young Liverpool forward",
+            "teaser": "Wales boss loves how Lewis Koumas is growing as a player",
+            "topic": "Liverpool FC",
+            "body": [
+              "Wales manager Craig Bellamy has praised Liverpool for how they have looked after forward Lewis Koumas. Wales play Norway in the Nations League on Saturday, 14 November.",
+              "Koumas is 21. He has spent time out on loan at Championship clubs. Now he is having a great season for both Liverpool and Wales.",
+              "He scored his first goal for Wales against Ghana in June. He also scored his first Champions League goal in a 6-3 win away at LASK. He has made nine Liverpool appearances this season.",
+              "Bellamy says Liverpool know when to play him and when to rest him. He loves the energy Koumas brings. Bellamy once played for Liverpool too, and scored 18 goals in 79 games.",
+              "Bellamy says playing in the Champions League is the highest level there is, and it will help Wales too."
+            ],
+            "word_to_know": {
+              "word": "loan",
+              "definition": "When a player goes to play for another club for a while, but still belongs to his own club."
+            },
+            "think_about_it": "Why might playing for different clubs help a young player to learn?"
+          },
+          "word_count": 137,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.6,
+            "usage": {
+              "input_tokens": 2599,
+              "output_tokens": 403,
+              "cost_usd": 0.018456,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.9,
+          "writer_usage": {
+            "input_tokens": 3185,
+            "output_tokens": 461,
+            "cost_usd": 0.01098,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Wales Boss Delighted With Koumas",
+            "teaser": "Craig Bellamy says Liverpool are helping Lewis Koumas shine.",
+            "topic": "Liverpool FC",
+            "body": [
+              "Wales manager Craig Bellamy has praised Liverpool for the way they have helped young forward Lewis Koumas grow into a top player.",
+              "Koumas, 21, has broken into the Liverpool team this season. He has made nine appearances for the club and even scored his first Champions League goal in a 6-3 win away at Austrian side LASK.",
+              "Before this season, Koumas spent time on loan at other clubs, including Stoke City and Hull City. Bellamy said loan spells help young players learn, even when they are tricky.",
+              "\"I like what Liverpool have done with him,\" said Bellamy. \"He's getting exposed to real high-level football in the Champions League. There is nothing higher and that's only going to help us.\"",
+              "Koumas will hope to play for Wales again when they face Norway in Oslo on Saturday 14 November."
+            ],
+            "word_to_know": {
+              "word": "loan",
+              "definition": "When a player is sent to play for another club for a while, but still belongs to their original club."
+            },
+            "think_about_it": "Why do you think playing in big matches like the Champions League helps a young player improve?"
+          },
+          "word_count": 137,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.3,
+            "usage": {
+              "input_tokens": 2608,
+              "output_tokens": 332,
+              "cost_usd": 0.017072,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.3,
+          "writer_usage": {
+            "input_tokens": 1720,
+            "output_tokens": 332,
+            "cost_usd": 0.000584,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Bellamy Praises Liverpool's Young Star",
+            "teaser": "Wales boss says Liverpool have helped Koumas grow",
+            "topic": "Liverpool FC",
+            "body": [
+              "Wales manager Craig Bellamy has praised Liverpool for how they have helped young forward Lewis Koumas. Bellamy, who used to play for Liverpool, said he likes watching the player.",
+              "Koumas spent time on loan at a few different clubs before this season. Now he is a regular in Liverpool's matchday squads. He has made nine appearances for the Reds this season.",
+              "The 21-year-old scored his first international goal for Wales in June. He also scored his first Champions League goal in a 6-3 win away at Austrian side LASK.",
+              "Bellamy said Liverpool did a great job by letting Koumas go on loan to learn and then bringing him back. He added that the player's enthusiasm and intensity are exciting. \"There is nothing higher than the Champions League,\" Bellamy said."
+            ],
+            "word_to_know": {
+              "word": "loan",
+              "definition": "When a player plays for another club for a short time, but still belongs to their own club."
+            },
+            "think_about_it": "Have you ever learned something new by trying a different activity, like Koumas learned while on loan?"
+          },
+          "word_count": 129,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The quote \"There is nothing higher than the Champions League\" is not in the source. Bellamy actually said \"He's getting exposed to real high-level football in the Champions League. There is nothing higher...\" The story has reworded his words but still presents them as a direct quote."
+            ],
+            "error": null,
+            "seconds": 3.8,
+            "usage": {
+              "input_tokens": 2598,
+              "output_tokens": 280,
+              "cost_usd": 0.015992,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 11.8,
+          "writer_usage": {
+            "input_tokens": 1736,
+            "output_tokens": 1932,
+            "cost_usd": 0.008962,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 9,
+      "source_title": "England's Blues brothers - how the Bellinghams helped save Birmingham",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cm1j3j20r2rzo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 1014,
+      "excerpt": "It is six years since Jude Bellingham played his final game for Birmingham City, and three years since younger brother Jobe wore the club's shirt for the last time.\n\nWhile Jude, 23, is establishing himself as a footballing great at European greats Real Madrid following a spell at Borussia Dortmund, Jobe, 21, is continuing his football education at his brother's former club in Germany after two seasons with Sunderland.\n\nThe Stourbridge-born midfielders have moved on with their careers.\n\nTheir memories, however, live on at St Andrew's, such was the impact the boyhood Birmingham fans made in the ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Brothers could make England history",
+            "teaser": "Jude and Jobe Bellingham could play together",
+            "topic": "Football",
+            "body": [
+              "Brothers Jude and Jobe Bellingham could make history for England. If they both play against Croatia at Wembley on Thursday, they will be the first brothers to play for England for 19 years.",
+              "Jude, 23, plays for Real Madrid and has played for England 60 times. Jobe, 21, plays for Borussia Dortmund in Germany. The game against Croatia would give Jobe his first cap for England.",
+              "Both brothers grew up supporting Birmingham City and started their careers there. Jude is the youngest player in the club's history. He made his debut aged 16 years and 38 days.",
+              "Birmingham fans still love them. On match days, supporters pose for photos in front of a big painting of Jude outside the ground. The club even retired his number 22 shirt to say thank you.",
+              "The last brothers to play for England were Gary and Phil Neville, back in 2007."
+            ],
+            "word_to_know": {
+              "word": "cap",
+              "definition": "When a footballer plays a match for their country, they win a cap."
+            },
+            "think_about_it": "What do you think it would feel like to play in a big match alongside your brother or sister?"
+          },
+          "word_count": 147,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.8,
+            "usage": {
+              "input_tokens": 3523,
+              "output_tokens": 307,
+              "cost_usd": 0.020232,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 11,
+          "writer_usage": {
+            "input_tokens": 4109,
+            "output_tokens": 1180,
+            "cost_usd": 0.040036,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Bellingham brothers could play for England",
+            "teaser": "Jude and Jobe could make history together at Wembley",
+            "topic": "Football",
+            "body": [
+              "Jude and Jobe Bellingham could play together for England on Thursday 12 November. England play Croatia at Wembley in the Nations League. If Jobe wins his first cap, they will be the first brothers to play for England for 19 years.",
+              "Both boys grew up supporting Birmingham City and played for the club. Between them they played 70 league and cup games for Birmingham. They have never played together in a senior match.",
+              "Fans say the brothers helped the club in a big way. Birmingham received transfer fees when they moved on. Now the team sits top of the Championship, and plans are in place for a new stadium with room for 62,000 fans.",
+              "Jude is the youngest player in Birmingham's history. The club even retired his number 22 shirt as a thank you."
+            ],
+            "word_to_know": {
+              "word": "cap",
+              "definition": "An appearance for your country's team. Winning your first cap means playing for your country for the first time."
+            },
+            "think_about_it": "How do you think it would feel to play on the same team as your brother or sister?"
+          },
+          "word_count": 135,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 12. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The date '12 November' is not in the source article, which only says 'Thursday'."
+            ],
+            "error": null,
+            "seconds": 3.2,
+            "usage": {
+              "input_tokens": 3495,
+              "output_tokens": 221,
+              "cost_usd": 0.0184,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.8,
+          "writer_usage": {
+            "input_tokens": 4109,
+            "output_tokens": 425,
+            "cost_usd": 0.012468,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "The Bellingham brothers' big England moment",
+            "teaser": "Jude and Jobe could make history playing together for England.",
+            "topic": "Football",
+            "body": [
+              "Two brothers could make history for England on Thursday. Jude and Jobe Bellingham might play together against Croatia at Wembley in the Nations League.",
+              "If it happens, they will be the first brothers to play for England in 19 years. The last pair were Gary and Phil Neville, back in 2007.",
+              "The brothers grew up as Birmingham City fans and both came through the club's academy. Jude, who is 23, is now a star at Real Madrid. Jobe, who is 21, plays for Borussia Dortmund in Germany.",
+              "Birmingham fans still love the pair. People stop to take photos next to a painting of Jude outside the ground, and some wear Bellingham shirts to matches.",
+              "Jude joined Birmingham when he was just eight years old. When he left, the club retired his number 22 shirt as a thank you - which means no other player can wear it."
+            ],
+            "word_to_know": {
+              "word": "academy",
+              "definition": "A special training centre where a football club teaches young players."
+            },
+            "think_about_it": "Which brother or sister would you most like to play in a big match with, and why?"
+          },
+          "word_count": 146,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 62 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.2,
+            "usage": {
+              "input_tokens": 3519,
+              "output_tokens": 311,
+              "cost_usd": 0.020296,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.1,
+          "writer_usage": {
+            "input_tokens": 2302,
+            "output_tokens": 325,
+            "cost_usd": 0.002236,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Bellingham brothers could make England history",
+            "teaser": "Jude and Jobe Bellingham may make England history together.",
+            "topic": "Football",
+            "body": [
+              "Jude and Jobe Bellingham are brothers who love Birmingham City. They both started at the club's academy. Now they could make England history together.",
+              "On Thursday, England play Croatia at Wembley in the Nations League. If Jobe plays with Jude, they will be the first brothers to play for England for 19 years.",
+              "Jude has already played 60 times for England. Jobe is hoping to win his first cap. A cap is the name for playing in a match for your country.",
+              "The brothers helped Birmingham when the club was struggling. Fans still wear Bellingham shirts and pose by a mural of Jude outside the ground.",
+              "Birmingham are now top of the Championship and planning a new 62,000 seat stadium. Fans say the brothers' transfers helped the club."
+            ],
+            "word_to_know": {
+              "word": "cap",
+              "definition": "a name for playing in a match for your country"
+            },
+            "think_about_it": "Why do you think fans feel proud when a player from their club plays for England?"
+          },
+          "word_count": 129,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "title is 46 characters; the limit is 45"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 3484,
+              "output_tokens": 290,
+              "cost_usd": 0.019736,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 17.1,
+          "writer_usage": {
+            "input_tokens": 2592,
+            "output_tokens": 2306,
+            "cost_usd": 0.012527,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 11,
+      "source_title": "How 'Barca way' continues despite big-name exits",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/c5vg23nmgp2yo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 807,
+      "excerpt": "Barcelona's team is markedly different to the one Arsenal faced in the 2025 Women's Champions League final - but the challenge is as difficult as ever.\n\nThree-time Ballon d'Or winner Alexia Putellas was among a number of high-profile summer departures, but Barca remain favourites to continue their European domination.\n\nThe reigning champions have won all three league-phase matches, scoring 19 goals, and welcome Arsenal to the Nou Camp on Thursday (17:45 GMT).\n\nTwo seasons ago, Arsenal stunned Barcelona in the Women's Champions League final, less than five months after Renee Slegers was named p",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Arsenal take on mighty Barcelona",
+            "teaser": "How do Barcelona keep winning when big stars leave?",
+            "topic": "Football",
+            "body": [
+              "Arsenal are playing Barcelona in the Women's Champions League on Thursday. The match is at the Nou Camp, Barcelona's famous stadium.",
+              "Barcelona are the champions. They have won four of the past six Women's Champions League titles. Some big stars left the club in the summer. But the team has still won all three of its matches so far, scoring 19 goals.",
+              "So how do they do it? Many of their players learn the game at La Masia, the club's famous academy. Young players there are all trained to play the same way. They learn to swap positions easily. Star player Aitana Bonmati learned there.",
+              "Barcelona's passing style is called tiki-taka. Player Esmee Brugts said the secret is \"doing the simple things good\".",
+              "Arsenal have made a good start in Europe too, with seven points from their first three matches. They beat Barcelona in the 2025 final, so it should be an exciting game."
+            ],
+            "word_to_know": {
+              "word": "academy",
+              "definition": "A special school where young players train to become top footballers."
+            },
+            "think_about_it": "If you could learn one football skill really well, which one would you pick and why?"
+          },
+          "word_count": 154,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.3,
+            "usage": {
+              "input_tokens": 3070,
+              "output_tokens": 511,
+              "cost_usd": 0.0225,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.6,
+          "writer_usage": {
+            "input_tokens": 3647,
+            "output_tokens": 1039,
+            "cost_usd": 0.035368,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "How Barcelona keep winning after big exits",
+            "teaser": "Barca lost star players but still look super strong",
+            "topic": "Football",
+            "body": [
+              "Arsenal play Barcelona in the Women's Champions League on Thursday at the Nou Camp. Barcelona have lost some big stars, but they have won all three of their league-phase matches and scored 19 goals.",
+              "Alexia Putellas left in the summer to join London City Lionesses. Three other key players also left. Even so, Barcelona are still favourites to win again.",
+              "The secret is a clear style of play. Players learn it from a young age at the club's famous La Masia youth academy. They learn to swap positions smoothly, so new players can fit in quickly.",
+              "Barcelona's Esmee Brugts says it is about doing the simple things well. She says the team plays really beautiful football. Arsenal boss Renee Slegers says Barcelona's style stands up even when new players come in."
+            ],
+            "word_to_know": {
+              "word": "academy",
+              "definition": "A special school where young players learn and train to become better at a sport."
+            },
+            "think_about_it": "Why might it help a team if every player learns to play in the same way from a young age?"
+          },
+          "word_count": 131,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 3035,
+              "output_tokens": 252,
+              "cost_usd": 0.01718,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.1,
+          "writer_usage": {
+            "input_tokens": 3647,
+            "output_tokens": 427,
+            "cost_usd": 0.011564,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Barcelona Keep Winning the 'Barca Way'",
+            "teaser": "How do Barcelona stay so good even after stars leave?",
+            "topic": "Football",
+            "body": [
+              "Barcelona's women's team lost some of their biggest stars this summer, including three-time Ballon d'Or winner Alexia Putellas. Yet the Spanish side are still winning almost everything in sight.",
+              "They have won all three of their matches in the Women's Champions League this season, scoring 19 goals along the way. On Thursday they play Arsenal at the Nou Camp.",
+              "So how do they do it? Barcelona's secret is a special style of play that players learn when they are very young. Many stars, like Aitana Bonmati, grew up at the club's famous La Masia youth academy, where everyone is taught to play the same way.",
+              "Netherlands player Esmee Brugts says it is all about doing the simple things well. Young players such as Vicky Lopez, 20, have stepped up and are already shining in the first team.",
+              "Arsenal boss Renee Slegers calls Barcelona's way of playing \"very impressive\" and says their style never changes, even with new players."
+            ],
+            "word_to_know": {
+              "word": "academy",
+              "definition": "A place where a football club trains young players to become stars."
+            },
+            "think_about_it": "Why do you think practising the same style of play from a young age helps a team stay strong?"
+          },
+          "word_count": 158,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The claim that young players like Vicky Lopez 'have stepped up and are already shining in the first team' is not in the source, which only says the youngsters 'have added more depth to the squad'.",
+              "'Still winning almost everything in sight' overstates the source, which only reports that Barcelona won all three Champions League league-phase matches this season and are favourites."
+            ],
+            "error": null,
+            "seconds": 5.8,
+            "usage": {
+              "input_tokens": 3100,
+              "output_tokens": 508,
+              "cost_usd": 0.02256,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.1,
+          "writer_usage": {
+            "input_tokens": 2077,
+            "output_tokens": 408,
+            "cost_usd": 0.000942,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "How Barcelona keep winning their way",
+            "teaser": "Barcelona lost some star players but still play the same brilliant football.",
+            "topic": "Football",
+            "body": [
+              "Barcelona are still the team to beat in the Women's Champions League. They have won all three of their matches so far, scoring 19 goals.",
+              "In the summer, some famous players left the club. Alexia Putellas, Mapi Leon, Ona Batlle and Salma Paralluelo all moved to new teams.",
+              "But Barcelona have a special way of playing. Young players learn it at their famous La Masia academy. They are trained to swap positions and keep the ball moving.",
+              "Esmee Brugts plays for Barcelona. She said the team tries to play beautiful football and win every trophy. She called their style 'tiki-taka'.",
+              "Arsenal manager Renee Slegers said Barcelona have a really strong identity. Even with new players, their style stays the same."
+            ],
+            "word_to_know": {
+              "word": "identity",
+              "definition": "The special way a team plays and what makes them different from others."
+            },
+            "think_about_it": "Why do you think a team's style of play can stay the same even when different players join?"
+          },
+          "word_count": 120,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 76 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says La Masia players are trained to 'keep the ball moving'. The source only says they are trained to play the same way and swap positions seamlessly. Keeping the ball moving is not mentioned, so it was added from outside knowledge."
+            ],
+            "error": null,
+            "seconds": 4.3,
+            "usage": {
+              "input_tokens": 3029,
+              "output_tokens": 357,
+              "cost_usd": 0.019256,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.5,
+          "writer_usage": {
+            "input_tokens": 2088,
+            "output_tokens": 325,
+            "cost_usd": 0.004043,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 7,
+      "source_title": "This teen piloted an underwater robot to study kelp forests",
+      "source_url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+      "source_name": "Science News Explores",
+      "topic": "Animals and nature",
+      "source_words": 463,
+      "excerpt": "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, Calif. There, he sees kelp beds off the coast on his way to school. California’s kelp severely declined in the 2010s due to a heat wave and other factors, Linden recently learned. But some of them near Santa Cruz have begun to bounce back. That made him wonder: Was that because the recovering beds had fewer sea urchins, which graze on kelp?\n\nTo find out, Linden looked at satellite data from a site called Kelpwatch. It helped him choose two declining, two recovering and two stable kelp beds in Santa Cruz. He then borrowed a remotely op",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Teen steers robot through kelp forests",
+            "teaser": "Why are some underwater forests growing back?",
+            "topic": "Animals and nature",
+            "body": [
+              "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, California. He steered an underwater robot to find out why some kelp forests are growing back while others are shrinking.",
+              "California's kelp shrank a lot in the 2010s, partly because of a heat wave. Linden wondered if the beds that were recovering had fewer sea urchins, which munch on kelp.",
+              "He used satellite data to choose kelp beds that were shrinking, growing back or staying the same. Then he and his dad rowed out in their family rowboat, because a motor could get caught in the kelp. Linden got seasick, but he loved watching fish swim past on the robot's video.",
+              "The video showed hardly any sea urchins anywhere. So Linden thinks other things, such as runoff, matter more. Kelp forests are home to many creatures and protect the shore from erosion, so learning how they thrive is important."
+            ],
+            "word_to_know": {
+              "word": "erosion",
+              "definition": "When land is slowly worn away by water, waves or wind."
+            },
+            "think_about_it": "If you could steer an underwater robot anywhere, what would you most like to see?"
+          },
+          "word_count": 149,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.1,
+            "usage": {
+              "input_tokens": 2437,
+              "output_tokens": 113,
+              "cost_usd": 0.012008,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.2,
+          "writer_usage": {
+            "input_tokens": 3004,
+            "output_tokens": 1106,
+            "cost_usd": 0.034136,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Teen uses an underwater robot to study kelp",
+            "teaser": "A 14-year-old steered a robot to find out why kelp recovers",
+            "topic": "Animals and nature",
+            "body": [
+              "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, California. He sees kelp beds on his way to school. Some of them had shrunk a lot, but some near his home have started to bounce back.",
+              "Linden wondered why. Were there fewer sea urchins in the beds that were recovering? Sea urchins graze on kelp. To find out, he borrowed an underwater robot called a remotely operated vehicle, or ROV, and steered it with a remote control.",
+              "He filmed six kelp beds. Two were declining, two were recovering and two were stable. No bed had many sea urchins. So urchins are probably not the reason. Linden thinks other things, such as runoff, may matter more.",
+              "This is important because kelp forests are home to many species. They also protect shores from erosion. Linden's project made him a finalist in the 2026 Thermo Fisher Scientific Junior Innovators Challenge."
+            ],
+            "word_to_know": {
+              "word": "erosion",
+              "definition": "When wind or water slowly wears away land."
+            },
+            "think_about_it": "If you could steer a robot anywhere underwater, what would you want to look for?"
+          },
+          "word_count": 148,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says Linden 'filmed six kelp beds', but the source never gives the number six. It only lists two declining, two recovering and two stable beds, so 'six' was worked out by adding numbers, which the rules do not allow."
+            ],
+            "error": null,
+            "seconds": 3.9,
+            "usage": {
+              "input_tokens": 2452,
+              "output_tokens": 363,
+              "cost_usd": 0.017068,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.3,
+          "writer_usage": {
+            "input_tokens": 3004,
+            "output_tokens": 482,
+            "cost_usd": 0.010828,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Teen's underwater robot dives into kelp mystery",
+            "teaser": "A 14-year-old sent a robot under the sea to solve a kelp mystery.",
+            "topic": "Animals and nature",
+            "body": [
+              "A 14-year-old from California has used an underwater robot to study giant seaweed forests called kelp. Linden Hunter-Pinsky lives by the ocean in Santa Cruz, and he passes kelp beds on his way to school.",
+              "Linden learned that California's kelp declined badly in the 2010s after a heat wave. But some beds near his home have started to grow back. He wondered if that was because fewer sea urchins, which munch on kelp, were living there.",
+              "So Linden borrowed a remotely operated vehicle, or ROV, from a local nonprofit. He steered it with a remote control and filmed six kelp beds. The footage showed that no bed had many sea urchins at all. That means urchins are probably not the reason only some kelp recovers. Linden thinks other factors, like polluted water running off the land, may matter more.",
+              "His work earned him a finalist spot in a big science competition. Linden says the best advice is to pick a project you truly enjoy, even if it seems different from everyone else's.",
+              "Kelp forests matter because they are home to many sea creatures, shield the shore from erosion, and trap carbon that warms the planet."
+            ],
+            "word_to_know": {
+              "word": "ROV",
+              "definition": "a small robot controlled from above the water that can film and explore underwater."
+            },
+            "think_about_it": "If you could send an underwater robot anywhere, where would you send it and what would you hope to find?"
+          },
+          "word_count": 195,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "title is 47 characters; the limit is 45",
+              "teaser is 65 characters; the limit is 60",
+              "body is 195 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says Linden 'filmed six kelp beds', but the source never gives the number six. It lists two declining, two recovering and two stable beds, so the total was worked out by adding them.",
+              "The story describes runoff as 'polluted water running off the land'. The source only says 'runoff' and never says it was polluted, so this adds a detail the source does not support."
+            ],
+            "error": null,
+            "seconds": 4.9,
+            "usage": {
+              "input_tokens": 2537,
+              "output_tokens": 423,
+              "cost_usd": 0.018608,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.4,
+          "writer_usage": {
+            "input_tokens": 1627,
+            "output_tokens": 402,
+            "cost_usd": 0.002014,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Teen pilots robot to study kelp forests",
+            "teaser": "Linden, 14, steered an underwater robot to study kelp beds.",
+            "topic": "Animals and nature",
+            "body": [
+              "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, California. He sees kelp beds off the coast on his way to school. Some underwater forests are recovering, but others are not.",
+              "Kelp had declined in the 2010s because of a heat wave and other factors. Linden wondered if sea urchins, which graze on kelp, were the reason.",
+              "To find out, he borrowed a remotely operated vehicle, or ROV. At two declining, two recovering and two stable kelp beds, he collected video underwater. The footage showed no bed had many sea urchins.",
+              "This means sea urchins are probably not why only some beds recovered. Linden suspects other factors, like runoff, play a bigger role. His work earned him a finalist spot in the 2026 Thermo Fisher Scientific Junior Innovators Challenge. He loved watching fish swim past the ROV."
+            ],
+            "word_to_know": {
+              "word": "kelp",
+              "definition": "A type of large seaweed that grows in underwater forests."
+            },
+            "think_about_it": "What underwater place would you like to explore with a robot?"
+          },
+          "word_count": 138,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.1,
+            "usage": {
+              "input_tokens": 2439,
+              "output_tokens": 220,
+              "cost_usd": 0.014156,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 57.2,
+          "writer_usage": {
+            "input_tokens": 1937,
+            "output_tokens": 5111,
+            "cost_usd": 0.017097,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 1,
+      "source_title": "Why is it suddenly so cold?",
+      "source_url": "https://www.bbc.co.uk/newsround/articles/cwg5r8z16l52o",
+      "source_name": "BBC Newsround",
+      "topic": "Weather",
+      "source_words": 385,
+      "excerpt": "Have you suddenly had to dig out your 'BIG' coat this week?\n\nWell that's because the outside temperature has suddenly dropped due to a blast of Arctic air moving down the UK.\n\nOvernight temperatures are expected to fall to -5C in some rural parts of England.\n\nYellow cold weather health alerts have been put in place by the UK Health Security Agency (UKHSA) in the West Midlands and the North West of England.\n\nThese will be in place from 09:00 GMT on Thursday until 12:00 GMT on Saturday.\n\nThis means vulnerable people could be more at risk, so they should take extra care to keep warm.\n\nBut why is ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Arctic air brings a sudden chill to UK",
+            "teaser": "Find out why the big coats are back out",
+            "topic": "Weather",
+            "body": [
+              "The UK has suddenly turned very cold. A blast of icy air from the Arctic has moved down towards the country. In some country areas of England, night-time temperatures were expected to fall to -5C.",
+              "Many people have spotted frost on grass, cars and pavements. Some parts of Northern Scotland could even see light flurries of snow.",
+              "Weather like this is sometimes caused by a polar vortex. This is a huge area of very cold air that spins high up around the North Pole. Usually, strong winds keep it locked in place. But if those winds weaken, some of the cold air can escape south.",
+              "Experts at the Met Office say it is very early in the year for this to happen. Scientist Jeff Knight said it seems to be the earliest on record in the 75 years they have been watching.",
+              "But this does not mean lots of snow is coming. By the weekend, milder weather is set to arrive from the Atlantic Ocean."
+            ],
+            "word_to_know": {
+              "word": "polar vortex",
+              "definition": "A giant swirl of very cold air that spins high above the North Pole."
+            },
+            "think_about_it": "What do you enjoy most about a frosty morning, and what do you do to keep warm?"
+          },
+          "word_count": 165,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "body is 165 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 2237,
+              "output_tokens": 247,
+              "cost_usd": 0.013888,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.2,
+          "writer_usage": {
+            "input_tokens": 2800,
+            "output_tokens": 1033,
+            "cost_usd": 0.03186,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Why has it turned so cold so suddenly?",
+            "teaser": "A blast of Arctic air has made the UK chilly. Here's why.",
+            "topic": "Weather",
+            "body": [
+              "A blast of Arctic air has moved down towards the UK. The temperature has dropped fast. In some country areas of England, nights could get as cold as -5C.",
+              "You may have spotted frost on grass, cars and pavements. Some parts of Northern Scotland could even see light flurries of snow.",
+              "Sometimes this kind of weather is linked to a polar vortex. This is a huge area of very cold air that spins high up around the North Pole. Powerful winds usually keep it in place. Sometimes those winds weaken, and cold air can escape southwards.",
+              "The Met Office says it is very early in the year for this to happen. Experts say it is a very unusual event. But it does not mean lots of snow is on the way. By the weekend, milder weather will arrive from the Atlantic Ocean."
+            ],
+            "word_to_know": {
+              "word": "polar vortex",
+              "definition": "A huge area of very cold air that spins high up above the North Pole."
+            },
+            "think_about_it": "What clothes would you pick for a frosty morning, and why?"
+          },
+          "word_count": 142,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.2,
+            "usage": {
+              "input_tokens": 2201,
+              "output_tokens": 157,
+              "cost_usd": 0.011944,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.6,
+          "writer_usage": {
+            "input_tokens": 2800,
+            "output_tokens": 438,
+            "cost_usd": 0.00998,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "A blast of Arctic air has arrived",
+            "teaser": "Brrr! Find out why the UK suddenly feels freezing.",
+            "topic": "Weather",
+            "body": [
+              "Wrap up warm! A blast of freezing Arctic air has swept down towards the UK, making temperatures drop suddenly. Some rural parts of England could see temperatures fall to -5C overnight, with frost on grass, cars and pavements.",
+              "The chilly weather is linked to something called a polar vortex. That is a huge area of very cold air that spins high above the North Pole. Strong winds usually keep it locked in place, but sometimes those winds weaken. When that happens, cold air can escape south towards places that are normally milder, like the UK.",
+              "Experts at the Met Office say it is very early in the year for this to happen. Climate scientist Jeff Knight said it looks like the earliest event of its kind in 75 years of records.",
+              "Don't put away your lighter coats yet, though. By the weekend, milder weather will arrive from the Atlantic Ocean, and experts say this does not mean lots of snow is on the way."
+            ],
+            "word_to_know": {
+              "word": "vortex",
+              "definition": "A swirling mass of air or water that spins around like a whirlpool."
+            },
+            "think_about_it": "What signs of winter weather have you spotted near you, like frost or fog?"
+          },
+          "word_count": 164,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "body is 164 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.8,
+            "usage": {
+              "input_tokens": 2247,
+              "output_tokens": 409,
+              "cost_usd": 0.017168,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.5,
+          "writer_usage": {
+            "input_tokens": 1478,
+            "output_tokens": 327,
+            "cost_usd": 0.000721,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Why has it suddenly got so cold?",
+            "teaser": "A polar vortex is sending icy Arctic air towards the UK.",
+            "topic": "Weather",
+            "body": [
+              "Have you dug out your biggest coat this week? A blast of Arctic air has moved down towards the UK, making it suddenly very cold. Overnight temperatures may fall to -5C in rural spots.",
+              "You may have seen frost on grass, cars and pavements. Parts of Northern Scotland could even see light flurries of snow.",
+              "This chilly weather can be caused by a polar vortex. That is a huge area of very cold air spinning high up in the atmosphere around the North Pole.",
+              "Most of the time, strong winds keep it locked in place. If those winds weaken, cold Arctic air can escape southwards towards places like the UK.",
+              "Met Office experts say this is very early for it to happen. Lead climate scientist Jeff Knight said it looks like the earliest on record over 75 years. Milder weather will arrive from the Atlantic Ocean, so don't put away lighter coats yet."
+            ],
+            "word_to_know": {
+              "word": "polar vortex",
+              "definition": "A huge spinning area of very cold air high above the North Pole."
+            },
+            "think_about_it": "What do you like to do when it is frosty outside?"
+          },
+          "word_count": 153,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The teaser says as fact that 'a polar vortex is sending icy Arctic air towards the UK'. The source only says weather like this is 'sometimes' caused by a polar vortex, and it warns that not every chilly spell is caused by one. It never directly says this cold snap comes from the polar vortex."
+            ],
+            "error": null,
+            "seconds": 5.5,
+            "usage": {
+              "input_tokens": 2229,
+              "output_tokens": 520,
+              "cost_usd": 0.019316,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 38.1,
+          "writer_usage": {
+            "input_tokens": 1822,
+            "output_tokens": 2444,
+            "cost_usd": 0.00603,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    }
+  ],
+  "totals": {
+    "anthropic:claude-opus-5-5": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 6,
+      "sent_back": 0,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 150.3,
+      "writer_cost_usd": 0.241852,
+      "checker_cost_usd": 0.099136,
+      "avg_seconds_per_story": 10.7
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 4,
+      "sent_back": 2,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 141.8,
+      "writer_cost_usd": 0.077276,
+      "checker_cost_usd": 0.096412,
+      "avg_seconds_per_story": 3.9
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "stories_written": 6,
+      "passed_validation": 2,
+      "passed_checker": 4,
+      "sent_back": 2,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 162.2,
+      "writer_cost_usd": 0.00995,
+      "checker_cost_usd": 0.115112,
+      "avg_seconds_per_story": 2.6
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "stories_written": 6,
+      "passed_validation": 4,
+      "passed_checker": 3,
+      "sent_back": 3,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 135.3,
+      "writer_cost_usd": 0.088991,
+      "checker_cost_usd": 0.105108,
+      "avg_seconds_per_story": 25.4
+    }
+  }
+}

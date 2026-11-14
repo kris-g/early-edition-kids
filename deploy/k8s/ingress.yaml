@@ -1,0 +1,34 @@
+# HTTPS hostname for the parent dashboard (installable PWA), for Traefik:
+# websecure only, TLS from Traefik's default TLSStore, and Authelia through a
+# forwardAuth middleware. The app has no login of its own, so never expose the
+# dashboard without an authenticating proxy in front of it.
+#
+# The backend is the dashboard port (8081) only. The Kindle routes live on
+# port 8080 (LAN LoadBalancer) and are never routed here. Plain HTTP on the
+# web entrypoint is redirected to HTTPS by Traefik itself.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: early-edition-kids
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # CHANGE ME: your Authelia forwardAuth middleware, as <namespace>-<name>@kubernetescrd.
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: early-edition-kids.example.com  # CHANGE ME
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: early-edition-kids
+                port:
+                  name: dashboard

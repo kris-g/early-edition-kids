@@ -1,0 +1,209 @@
+@import 'tailwindcss';
+
+/* Design tokens from the approved mockups (Early Edition Kids parent dashboard).
+   The page sets data-theme="light" | "dark" on <html> before first paint
+   (see index.html and src/lib/theme.ts). */
+:root,
+:root[data-theme='light'] {
+  --bg: #f4f2ec;
+  --card: #ffffff;
+  --ink: #171717;
+  --muted: #5f5e5a;
+  --line: #e2dfd6;
+  --accent: #0b6b53;
+  --accent-soft: #dcefe8;
+  --warm: #b45309;
+  --warm-soft: #fbebd3;
+  --chip: #efede6;
+  --on-accent: #ffffff;
+  --danger: #b42318;
+  --danger-soft: #fde8e6;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #111312;
+  --card: #1b1e1c;
+  --ink: #f2f0ea;
+  --muted: #a9a8a2;
+  --line: #2f3330;
+  --accent: #4ade9f;
+  --accent-soft: #173528;
+  --warm: #fbbf24;
+  --warm-soft: #3a2c0b;
+  --chip: #252927;
+  --on-accent: #0b1f17;
+  --danger: #ff8a80;
+  --danger-soft: #3b1714;
+  color-scheme: dark;
+}
+
+/* `dark:` follows the chosen theme, not just the system. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-warm: var(--warm);
+  --color-warm-soft: var(--warm-soft);
+  --color-chip: var(--chip);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --breakpoint-desk: 900px;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+/* Shading steps used by the calendar and the day strips. */
+.shade-1 {
+  background: color-mix(in srgb, var(--accent) 18%, var(--card));
+}
+.shade-2 {
+  background: color-mix(in srgb, var(--accent) 45%, var(--card));
+}
+.warm-65 {
+  background: color-mix(in srgb, var(--warm) 65%, var(--card));
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  overflow-x: hidden;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The story as the Kindle shows it. body_html is trusted server output, but it
+   is still boxed in: contained layout and paint, nothing may poke out sideways,
+   and fixed-position children are trapped inside the box. Paper stays light in
+   both themes because that is what he sees. */
+.kindle-page {
+  contain: layout paint;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  overflow-x: auto;
+  isolation: isolate;
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: #111;
+  background: #f6f5f1;
+}
+[data-theme='dark'] .kindle-page {
+  background: #e4e2dc;
+}
+.kindle-page * {
+  max-width: 100%;
+  position: static !important;
+}
+.kindle-page img,
+.kindle-page svg,
+.kindle-page video,
+.kindle-page iframe {
+  height: auto;
+}
+.kindle-page p {
+  margin: 0 0 0.8em;
+}
+.kindle-page h1 {
+  font-size: 1.55em;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0 0 0.6em;
+}
+.kindle-page h2,
+.kindle-page h3 {
+  font-weight: 700;
+  margin: 1em 0 0.4em;
+}
+.kindle-page .kicker,
+.kindle-page .label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.5em;
+}
+.kindle-page .box {
+  border: 2px solid #111;
+  padding: 0.6em 0.8em;
+  margin: 1.2em 0 1em;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.88em;
+}
+.kindle-page .box p {
+  margin: 0;
+}
+.kindle-page .box .label {
+  margin-bottom: 0.3em;
+}
+.kindle-page .source {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75em;
+  margin: 1.5em 0 0;
+}
+.kindle-page a {
+  color: inherit;
+  text-decoration: underline;
+}
+.kindle-page table {
+  display: block;
+  overflow-x: auto;
+}
+.kindle-page pre {
+  white-space: pre-wrap;
+}
+
+.tab-bar {
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+.header-safe {
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+
+/* Share page: the swipeable row of cards. */
+.share-track {
+  --slide: min(76vw, 380px);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.share-track::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 900px) {
+  .share-track {
+    --slide: min(400px, calc(100% - 64px));
+  }
+}
+.share-slide {
+  width: var(--slide);
+}
+.share-spacer {
+  width: max(0px, calc((100% - var(--slide)) / 2 - 16px));
+}

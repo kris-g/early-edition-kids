@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "early-edition-kids-web-mock",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd web && PORT=8090 EARLY_EDITION_KIDS_API=http://localhost:8090 EARLY_EDITION_KIDS_DASHBOARD_API=http://localhost:8090 npx concurrently -k -n mock,vite \"npm:mock\" \"npx vite --host 0.0.0.0 --port 5173 --strictPort\""
+      ],
+      "port": 5173
+    },
+    {
+      "name": "early-edition-kids-server-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "mkdir -p /tmp/claude-501/early-edition-kids-dev && cd server && HOST=0.0.0.0 PORT=8080 DASHBOARD_PORT=8081 EARLY_EDITION_KIDS_DATA_DIR=/tmp/claude-501/early-edition-kids-dev EARLY_EDITION_KIDS_CONFIG=config.example.yaml EARLY_EDITION_KIDS_WEB_DIR=../web/dist LLM_BASE_URL=stub ADMIN_TOKEN=dev-admin npm start"
+      ],
+      "port": 8081
+    }
+  ]
+}

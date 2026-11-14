@@ -1,0 +1,26 @@
+Today is {{ today_long }}. The source was published on {{ published_long }}.
+Dates: a month or "earlier this month" taken from the publication date is allowed. A bare weekday ("on Monday") is NOT supported when the source was published more than two days before today, because it makes old news sound like this week.
+
+SOURCE ARTICLE
+Headline: {{ source_title }}
+Summary: {{ source_summary }}
+
+{{ source_text }}
+END OF SOURCE ARTICLE
+
+FINISHED STORY
+Topic: {{ story.topic }}
+Title: {{ story.title }}
+Teaser: {{ story.teaser }}
+
+{% for p in story.body -%}
+{{ p }}
+
+{% endfor -%}
+{% if story.word_to_know -%}
+Word to know: {{ story.word_to_know.word }}: {{ story.word_to_know.definition }}
+{% endif -%}
+Think about it: {{ story.think_about_it }}
+END OF FINISHED STORY
+
+Reply with the JSON object only.

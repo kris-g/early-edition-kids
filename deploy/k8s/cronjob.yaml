@@ -1,0 +1,77 @@
+# Generates the day's issue before the Kindle is woken. The job only calls the
+# server, so SQLite keeps a single writer. Run by hand with:
+#   kubectl -n my-apps create job --from=cronjob/early-edition-kids-generate early-edition-kids-generate-manual-$(date +%s)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: early-edition-kids-generate
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+    app.kubernetes.io/component: generate
+spec:
+  schedule: "30 5 * * *"
+  timeZone: Europe/London
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      # The endpoint is idempotent per date, so a retry after a failure is safe.
+      backoffLimit: 2
+      activeDeadlineSeconds: 3000
+      ttlSecondsAfterFinished: 604800
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: early-edition-kids
+            app.kubernetes.io/instance: early-edition-kids
+            app.kubernetes.io/component: generate
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 100
+            runAsGroup: 101
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: generate
+              # Multi-arch (amd64 + arm64).
+              image: curlimages/curl:8.11.1
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: ADMIN_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: early-edition-kids-secrets
+                      key: ADMIN_TOKEN
+                - name: EARLY_EDITION_KIDS_URL
+                  value: http://early-edition-kids.my-apps.svc.cluster.local:8080
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  # --fail-with-body: non-2xx exits non-zero (job fails) and still logs the error body.
+                  # --max-time is long so a slow run is never cut off and retried while still going.
+                  curl -sS --fail-with-body \
+                    --connect-timeout 10 --max-time 2400 \
+                    --retry 3 --retry-connrefused --retry-delay 20 \
+                    -X POST -H "X-Admin-Token: ${ADMIN_TOKEN}" \
+                    "${EARLY_EDITION_KIDS_URL}/admin/generate"
+                  echo
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 32Mi
+                requests:
+                  cpu: 10m
+                  memory: 16Mi

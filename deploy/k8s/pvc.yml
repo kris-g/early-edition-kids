@@ -1,0 +1,18 @@
+# SQLite lives here, so this must not be NFS (DESIGN 4.10). local-path binds the
+# volume to whichever node the pod first lands on; losing that node loses the
+# reading history, which is acceptable for v1.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: early-edition-kids-pvc
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,1704 @@
+{
+  "meta": {
+    "date": "2026-11-09",
+    "generated_at": "2026-11-13T23:23:42.285Z",
+    "window_end": "2026-11-09T06:00:00.000Z",
+    "candidates": 6,
+    "feed_counts": {
+      "BBC Newsround": 80,
+      "Science News Explores": 20,
+      "BBC Sport football": 77,
+      "BBC Sport Liverpool": 24,
+      "BBC science": 41
+    },
+    "feed_log": [
+      "feed 'BBC Newsround': 80 items",
+      "feed 'Science News Explores': 20 items",
+      "feed 'BBC Sport football': 77 items",
+      "feed 'BBC Sport Liverpool': 24 items",
+      "feed 'BBC science': 41 items"
+    ],
+    "filter": {
+      "kept": 6,
+      "too_old": 232,
+      "duplicate": 1,
+      "excluded": 3,
+      "blocked": 0,
+      "recently_used": 0
+    },
+    "story_count": 6,
+    "selector": "anthropic:claude-opus-5-5",
+    "selector_used": "anthropic:claude-opus-5-5",
+    "checker": "anthropic:claude-opus-5-5",
+    "writer_effort": "medium",
+    "checker_effort": "high",
+    "checker_error": null,
+    "budget_usd": 1.5,
+    "spent_usd": 0.874505,
+    "note": "Candidates are built from the feeds as fetched now; feeds only carry recent items, so an older date can have few."
+  },
+  "models": [
+    {
+      "id": "anthropic:claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 4,
+      "output_per_mtok": 20
+    },
+    {
+      "id": "anthropic:claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 2,
+      "output_per_mtok": 10
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3",
+      "name": "GLM 5.3 (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.08,
+      "output_per_mtok": 3.6
+    },
+    {
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.11,
+      "output_per_mtok": 4.44
+    }
+  ],
+  "selection": {
+    "openrouter:z-ai/glm-5.3": {
+      "picks": [
+        {
+          "candidate_id": 1,
+          "title": "Forming a band and growing crops: What a year in a simulated Mars mission is really like",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmkgq4z95z98o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 3,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 2,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 4,
+          "title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o",
+          "topic": "Football"
+        }
+      ],
+      "reserves": [],
+      "input_tokens": 1286,
+      "output_tokens": 65,
+      "cost_usd": 0.002086,
+      "models_answered": [
+        "openrouter:z-ai/glm-5.3"
+      ],
+      "stop_reason": "stop",
+      "seconds": 1.3,
+      "error": null
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "picks": [
+        {
+          "candidate_id": 1,
+          "title": "Forming a band and growing crops: What a year in a simulated Mars mission is really like",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmkgq4z95z98o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 4,
+          "title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 2,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Science"
+        }
+      ],
+      "reserves": [],
+      "input_tokens": 2548,
+      "output_tokens": 117,
+      "cost_usd": 0.006266,
+      "models_answered": [
+        "anthropic:claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 1.8,
+      "error": null
+    },
+    "anthropic:claude-opus-5-5": {
+      "picks": [
+        {
+          "candidate_id": 5,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Forming a band and growing crops: What a year in a simulated Mars mission is really like",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmkgq4z95z98o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 2,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 4,
+          "title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o",
+          "topic": "Weather"
+        },
+        {
+          "candidate_id": 3,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Space"
+        }
+      ],
+      "reserves": [],
+      "input_tokens": 2548,
+      "output_tokens": 414,
+      "cost_usd": 0.018472,
+      "models_answered": [
+        "anthropic:claude-opus-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 4.4,
+      "error": null
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "picks": [
+        {
+          "candidate_id": 1,
+          "title": "Forming a band and growing crops: What a year in a simulated Mars mission is really like",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cmkgq4z95z98o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 2,
+          "title": "What can you read into Premier League table after 10 games?",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 3,
+          "title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 4,
+          "title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o",
+          "topic": "Weather"
+        },
+        {
+          "candidate_id": 5,
+          "title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Science"
+        }
+      ],
+      "reserves": [],
+      "input_tokens": 1556,
+      "output_tokens": 5877,
+      "cost_usd": 0.025311,
+      "models_answered": [
+        "openrouter:deepseek/deepseek-v4-pro-0813"
+      ],
+      "stop_reason": "stop",
+      "seconds": 39.6,
+      "error": null
+    }
+  },
+  "stories": [
+    {
+      "candidate_id": 5,
+      "source_title": "Who was back to his best? Player ratings for Crystal Palace v Liverpool",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cqkgjm2dlpv6o",
+      "source_name": "BBC Sport Liverpool",
+      "topic": "Liverpool FC",
+      "source_words": 658,
+      "excerpt": "Alexis Mac Allister, Florian Wirtz and Alexander Isak scored as Liverpool won at Crystal Palace and in doing so, increased the pressure on Pierre Sage, the Palace boss.\n\nHere's how I rated the players and how you rated the players.\n\nDean Henderson: Made a couple of good saves though was well beaten for all three goals. 5\n\nJefferson Lerma: Initially battled well against the visitors frontline but Liverpool's quality was too much. 4\n\nChris Richards: Part of a backline that had their work cut out and ultimately conceded three goals that were far too easy. 4\n\nAxel Disasi: Like Lerma and Richards, ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Liverpool score three at Crystal Palace",
+            "teaser": "Three different players scored as the Reds won away",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool won away at Crystal Palace in the Premier League. Three different Liverpool players scored.",
+              "Alexis Mac Allister scored first with a great header. Dominik Szoboszlai set it up for him. Later, Florian Wirtz finished nicely after a good run down the right by Bradley Barcola. It was the first Premier League goal of the season for both Mac Allister and Wirtz.",
+              "Alexander Isak scored the third goal late on, with help from Wirtz. Isak now has seven league goals this season. Palace did score once, from a penalty.",
+              "The star of the match was goalkeeper Alisson. He made a stunning reaction save and plenty more important saves after that. BBC Sport gave him a score of 9 and said he was back to his best."
+            ],
+            "word_to_know": {
+              "word": "penalty",
+              "definition": "A free shot at goal from a spot close to the goal, given after a foul in the box."
+            },
+            "think_about_it": "Why do you think a goalkeeper making lots of saves can be just as important as a player scoring goals?"
+          },
+          "word_count": 126,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 7.2,
+            "usage": {
+              "input_tokens": 3026,
+              "output_tokens": 489,
+              "cost_usd": 0.021884,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 11.1,
+          "writer_usage": {
+            "input_tokens": 3629,
+            "output_tokens": 1092,
+            "cost_usd": 0.036356,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Liverpool win at Crystal Palace",
+            "teaser": "Three goals and a stunning save from Alisson",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool won their Premier League match at Crystal Palace. Alexis Mac Allister, Florian Wirtz and Alexander Isak all scored for the visitors.",
+              "Mac Allister scored first with a great header. It was his first Premier League goal of the season. Dominik Szoboszlai set it up with a pass.",
+              "Wirtz scored next, also his first Premier League goal of the season. Bradley Barcola helped to set it up. Isak then scored late on. He now has 7 league goals this season.",
+              "Goalkeeper Alisson was the star. He made a stunning reaction save to stop Daichi Kamada and plenty of other important saves too. BBC Sport gave him 9 out of 10 and said he was back to his best.",
+              "Crystal Palace did have chances. Yeremy Pino hit the bar in the first half and was unlucky not to score."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Why do you think a goalkeeper's big saves can matter as much as goals?"
+          },
+          "word_count": 138,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 10. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 7.2,
+            "usage": {
+              "input_tokens": 3016,
+              "output_tokens": 624,
+              "cost_usd": 0.024544,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.8,
+          "writer_usage": {
+            "input_tokens": 3629,
+            "output_tokens": 438,
+            "cost_usd": 0.011638,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Liverpool Win at Crystal Palace",
+            "teaser": "Three goals, great saves and a star keeper back to his best!",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool beat Crystal Palace 3-1 away from home in the Premier League on Sunday. Alexis Mac Allister, Florian Wirtz and Alexander Isak all scored for the Reds.",
+              "Both Mac Allister and Wirtz got their first Premier League goals of the season. Mac Allister scored with a great header, helped by a pass from Dominik Szoboszlai. Wirtz finished neatly after Bradley Barcola ran well down the right.",
+              "Isak got Liverpool's third goal late on. It was his seventh goal in the league this season. He kept working hard and never gave up.",
+              "Goalkeeper Alisson was perhaps the star of the match. He made a stunning save with quick reactions, plus lots of other crucial saves. The BBC Sport ratings gave him 9 out of 10 and said he was back to his best."
+            ],
+            "word_to_know": {
+              "word": "crucial",
+              "definition": "Very important, especially at a key moment."
+            },
+            "think_about_it": "Which Liverpool player would you give the best rating to, and why?"
+          },
+          "word_count": 132,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 1, 10, 3. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The '3-1' score is never stated in the source. It is worked out by combining Liverpool's three scorers with Nketiah's penalty for Palace.",
+              "'On Sunday' is not in the source, which gives no day or date for the match."
+            ],
+            "error": null,
+            "seconds": 5.3,
+            "usage": {
+              "input_tokens": 3038,
+              "output_tokens": 312,
+              "cost_usd": 0.018392,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.8,
+          "writer_usage": {
+            "input_tokens": 2018,
+            "output_tokens": 301,
+            "cost_usd": 0.001666,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Liverpool Stars Shine in Away Win",
+            "teaser": "Three goals and Alisson's big saves made it a happy win.",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool won at Crystal Palace on Sunday, scoring three goals. Alexis Mac Allister, Florian Wirtz and Alexander Isak all found the net.",
+              "It was a special day for Mac Allister and Wirtz. Both players scored their first Premier League goals of the season. Dominik Szoboszlai set up Mac Allister with a lovely assist, and Wirtz later set up Isak.",
+              "The goalkeeper Alisson was back to his best. He made a stunning save to stop a Crystal Palace shot, and he kept making important saves all match. Fans and reporters gave him a rating of 9.",
+              "Liverpool's defence had some good moments too. Virgil van Dijk made a solid block, and the whole team kept pressing. The win keeps Liverpool moving forward in the league."
+            ],
+            "word_to_know": {
+              "word": "assist",
+              "definition": "A pass that helps a teammate score a goal."
+            },
+            "think_about_it": "Which part of a football match do you enjoy watching most: goals, saves, or clever passes?"
+          },
+          "word_count": 124,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "'On Sunday' is not in the source; no day of the match is given.",
+              "'Fans and reporters gave him a rating of 9' is not supported. The 9 is the writer's own rating, and the fans' average score is not given.",
+              "'The whole team kept pressing' is not supported. The source only says Wirtz pressed really well.",
+              "'The win keeps Liverpool moving forward in the league' is an invented claim. The source says nothing about Liverpool's league position."
+            ],
+            "error": null,
+            "seconds": 4.1,
+            "usage": {
+              "input_tokens": 3036,
+              "output_tokens": 347,
+              "cost_usd": 0.019084,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 18.2,
+          "writer_usage": {
+            "input_tokens": 2319,
+            "output_tokens": 1257,
+            "cost_usd": 0.006029,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 1,
+      "source_title": "Forming a band and growing crops: What a year in a simulated Mars mission is really like",
+      "source_url": "https://www.bbc.co.uk/newsround/articles/cmkgq4z95z98o",
+      "source_name": "BBC Newsround",
+      "topic": "Space",
+      "source_words": 498,
+      "excerpt": "Four people have spent 378 days seeing what it would be like to live on Mars...without leaving Earth.\n\nThe crew members took part in a simulated mission to the Red Planet, spending just under a year in isolation at Nasa's Johnson Space Center in Houston.\n\nIt's Nasa's second Crew Health and Performance Exploration Analog, or CHAPEA, mission. The first ended in July 2024.\n\nThe exercise is meant to prepare astronauts for future trips to Mars.\n\nThe astronauts live in a specially designed habitat.\n\nIt's a 1,700-square-foot (158-square-metre), 3D-printed structure with four bedrooms, a dining/living",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "A whole year living like it's Mars",
+            "teaser": "Four people lived on 'Mars' without leaving Earth!",
+            "topic": "Space",
+            "body": [
+              "Four people have spent 378 days living as if they were on Mars, without leaving Earth. The crew finished their pretend mission on Saturday 31 October at Nasa's Johnson Space Center in Houston.",
+              "They lived in a special home built by a 3D printer. It had four bedrooms, a living area, a medical room and a vertical farm for growing crops. The mission was a simulation, meant to help astronauts get ready for real trips to Mars.",
+              "The crew did science experiments, pretend space walks and coped with losing contact for two weeks. Every sip of water and every shake of salt had to be recorded for Nasa.",
+              "Commander Ross Elder said the home was very quiet, with only the hum of fans. He missed the sound of weather and busy streets! So the crew brought instruments and formed a band in their spare time.",
+              "Now the four can finally see their friends and family again."
+            ],
+            "word_to_know": {
+              "word": "simulation",
+              "definition": "A pretend version of something real, used to practise or learn."
+            },
+            "think_about_it": "If you lived in a pretend Mars home for a year, what would you miss most from home?"
+          },
+          "word_count": 156,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'So the crew brought instruments and formed a band', which suggests they formed the band because Ross Elder missed the noise of weather and streets. The source never links the two; it only says the crew brought instruments and practised in their downtime.",
+              "Minor: 'only the hum of fans' leaves out the equipment noise the source mentions ('noises from fans and equipment')."
+            ],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 2441,
+              "output_tokens": 331,
+              "cost_usd": 0.016384,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 12.3,
+          "writer_usage": {
+            "input_tokens": 3018,
+            "output_tokens": 1227,
+            "cost_usd": 0.036612,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "A Year Living on Pretend Mars",
+            "teaser": "Four people spent 378 days in a Mars home on Earth",
+            "topic": "Space",
+            "body": [
+              "Four people have spent 378 days living like they are on Mars. But they never left Earth. The crew stayed inside a special home at Nasa's Johnson Space Center in Houston.",
+              "The home is 3D-printed. It has four bedrooms, a workspace with a vertical farm for growing crops, and a medical room. The crew grew food, did science experiments and took part in pretend space walks. They even coped with two weeks without communication.",
+              "Nasa wants to learn how astronauts will manage on future trips to Mars. Some things surprised the crew. Every sip of water was logged. It was eerily quiet, so commander Ross Elder listened to music to fill the silence. They also formed a band.",
+              "The crew left the home on Saturday 31 October. Now they can see their friends and family again."
+            ],
+            "word_to_know": {
+              "word": "simulated",
+              "definition": "Made to copy something real, so people can practise or learn about it."
+            },
+            "think_about_it": "What would you miss most if you lived in a quiet home for a whole year?"
+          },
+          "word_count": 136,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'Some things surprised the crew', but the source only says the crew talked about things that 'may surprise people' about their experience. It does not say the crew themselves were surprised."
+            ],
+            "error": null,
+            "seconds": 4.8,
+            "usage": {
+              "input_tokens": 2411,
+              "output_tokens": 481,
+              "cost_usd": 0.019264,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.4,
+          "writer_usage": {
+            "input_tokens": 3018,
+            "output_tokens": 427,
+            "cost_usd": 0.010306,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "A year living like astronauts on Mars",
+            "teaser": "Four people spent 378 days on a pretend Mars mission on Earth.",
+            "topic": "Space",
+            "body": [
+              "Four people have spent 378 days pretending to live on Mars, without ever leaving Earth. They stayed in a special 3D-printed home at Nasa's Johnson Space Center in Houston in America.",
+              "The fake Mars home had four bedrooms, a dining area, a workspace with a vertical farm for growing crops, and a medical room. The crew did science experiments, grew food, and practised space walks. They even coped with problems like losing communication for two weeks.",
+              "The crew said some things were surprising. Every sip of water they drank had to be logged for Nasa. It was also very quiet inside, so commander Ross Elder often listened to music through an earbud just to hear some noise.",
+              "In their free time, the four crew members formed a band! They brought instruments with them and practised songs together.",
+              "The crew left the home on Saturday 31 October. Nasa says the lessons learnt will help plan missions to the Moon and, one day, Mars."
+            ],
+            "word_to_know": {
+              "word": "habitat",
+              "definition": "A special place built for people or animals to live in."
+            },
+            "think_about_it": "If you spent a year in a Mars home, what would you pack to keep yourself happy?"
+          },
+          "word_count": 162,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 62 characters; the limit is 60",
+              "body is 162 words; it needs 100 to 160"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 6.1,
+            "usage": {
+              "input_tokens": 2462,
+              "output_tokens": 468,
+              "cost_usd": 0.019208,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.4,
+          "writer_usage": {
+            "input_tokens": 1637,
+            "output_tokens": 337,
+            "cost_usd": 0.001351,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "A Year in a Simulated Mars Home",
+            "teaser": "Four people spent 378 days in a pretend Mars home on Earth.",
+            "topic": "Space",
+            "body": [
+              "Four people have just finished a year living in a simulated Mars home on Earth. They spent 378 days at Nasa's Johnson Space Center in Houston, but never left our planet.",
+              "The crew stayed in a specially built habitat. It was made with a 3D printer and had four bedrooms, a dining area, a workspace with a farm to grow food, and a medical room. They grew crops, did science experiments, and went on pretend space walks.",
+              "The year was not always easy. The crew had to log every sip of water and every shake of salt for Nasa. They also lost communication with Earth for two weeks.",
+              "To pass the time, they formed a band. They used the instruments they had brought and practised in their free time. They also recorded a podcast.",
+              "The crew left their habitat on 31 October. Now they will meet friends and family they could only email for a whole year."
+            ],
+            "word_to_know": {
+              "word": "simulated",
+              "definition": "made to seem like a real situation, even though it is not actually happening"
+            },
+            "think_about_it": "What would you miss most if you lived in a pretend Mars home for a year?"
+          },
+          "word_count": 157,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says the crew 'lost communication with Earth for two weeks', but the source only mentions 'a two-week loss of communication' and never says who the communication was with. 'With Earth' is an added detail."
+            ],
+            "error": null,
+            "seconds": 5.8,
+            "usage": {
+              "input_tokens": 2432,
+              "output_tokens": 494,
+              "cost_usd": 0.019608,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 15,
+          "writer_usage": {
+            "input_tokens": 1655,
+            "output_tokens": 1779,
+            "cost_usd": 0.008082,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 2,
+      "source_title": "What can you read into Premier League table after 10 games?",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 858,
+      "excerpt": "We are now more than a quarter of the way through the Premier League season, with each team having played 10 games.\n\nSo what can we read into it?\n\nHistory suggests the answer is quite a lot.\n\nLast season, for instance, the top two - and two of the eventual bottom three - were in the exact spots at this stage that they in finished six months later.\n\nBBC Sport has a look.\n\nArsenal are top of the table on 27 points - which is higher than the average number of points (23) champions have after 10 games.\n\nIn fact, only four teams have taken more points from their first 10 fixtures than the Gunners, ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "What the Premier League table tells us",
+            "teaser": "Arsenal lead, but can history tell us who will win?",
+            "topic": "Football",
+            "body": [
+              "Every team in the Premier League has now played 10 games. BBC Sport looked at history to see what the table can tell us.",
+              "Arsenal are top with 27 points. That is more than the average of 23 points that champions have at this stage. Only four teams have had more points after 10 games, and all four went on to win the league.",
+              "But there is a funny twist. The only two teams that had exactly 27 points at this stage in the past did not win the title.",
+              "Brighton are second with 22 points. Manchester City have 21 and Liverpool have 18. The fewest points a team has had at this stage and still become champions is 18, so Liverpool are still in with a chance.",
+              "Last season, 15 of the 20 teams finished within three places of where they were after 10 games. Still, there is plenty of time for surprises."
+            ],
+            "word_to_know": {
+              "word": "average",
+              "definition": "The usual or middle amount when you look at lots of numbers together."
+            },
+            "think_about_it": "If you could pick any team to make a big comeback this season, which team would you choose, and why?"
+          },
+          "word_count": 154,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.4,
+            "usage": {
+              "input_tokens": 3004,
+              "output_tokens": 251,
+              "cost_usd": 0.017036,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 14.9,
+          "writer_usage": {
+            "input_tokens": 3613,
+            "output_tokens": 1658,
+            "cost_usd": 0.047612,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "What the Premier League table can tell us",
+            "teaser": "Every team has played 10 games. What happens next?",
+            "topic": "Football",
+            "body": [
+              "Every Premier League team has now played 10 games. That is more than a quarter of the season. Arsenal are top on 27 points, and Brighton are second.",
+              "History can give us clues. Only four teams have won more points than Arsenal after 10 games, and all four went on to win the league. The average for champions at this stage is 23 points.",
+              "But nothing is certain. Teams on 22 points or fewer after 10 games have won the title on 16 occasions. Liverpool have 18 points, which is the fewest any champion has ever had at this stage.",
+              "Crystal Palace are bottom on seven points. Even so, 14 teams have stayed up after being bottom at this point. There is still a long way to go, and plenty of time for things to change."
+            ],
+            "word_to_know": null,
+            "think_about_it": "If you were a manager, would you worry about the table after 10 games, or would you wait and see?"
+          },
+          "word_count": 136,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.7,
+            "usage": {
+              "input_tokens": 2958,
+              "output_tokens": 282,
+              "cost_usd": 0.017472,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.6,
+          "writer_usage": {
+            "input_tokens": 3613,
+            "output_tokens": 377,
+            "cost_usd": 0.010996,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "What the Premier League table really tells us",
+            "teaser": "Ten games in - can we guess who will win the league?",
+            "topic": "Football",
+            "body": [
+              "The Premier League season is now 10 games old, and Arsenal sit proudly at the top with 27 points. Brighton are second, while Manchester City and Liverpool are chasing behind.",
+              "History suggests being top now is a good sign - but not a certain one. Only 4 teams have ever won more points from their first 10 games than Arsenal, and all 4 went on to lift the trophy. Yet strangely, the two previous teams with exactly 27 points at this stage both failed to win the title!",
+              "There is hope for the chasing pack. Teams have come back from behind at this stage to win the league before, and in only 15 of the 34 Premier League seasons so far has the team top after 10 games actually gone on to win it.",
+              "At the bottom, Crystal Palace are last, but 14 teams have stayed up after being bottom at this point. Last season, 15 of the 20 teams finished within three places of their position after 10 games - so the table often tells the truth, but not always!"
+            ],
+            "word_to_know": {
+              "word": "fixtures",
+              "definition": "The matches a team is scheduled to play."
+            },
+            "think_about_it": "If you were top of the league after 10 games, would you feel confident or nervous about the rest of the season?"
+          },
+          "word_count": 179,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "body is 179 words; it needs 100 to 160",
+              "these numbers are not in the source text: 4. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.7,
+            "usage": {
+              "input_tokens": 3062,
+              "output_tokens": 273,
+              "cost_usd": 0.017708,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.1,
+          "writer_usage": {
+            "input_tokens": 2126,
+            "output_tokens": 398,
+            "cost_usd": 0.000705,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "What 10 games tell us about the title race",
+            "teaser": "Arsenal are top, but history shows plenty can still change.",
+            "topic": "Football",
+            "body": [
+              "Arsenal are top of the Premier League after 10 games, with 27 points. That is more than the average of 23 points that champions usually have at this stage.",
+              "Only four teams have ever taken more points from their first 10 games, and all four went on to win the league. But the only two sides to have exactly 27 points at this point both missed out on the title.",
+              "Second-placed Brighton have 22 points. History says being second after 10 games is not a lucky spot: in the past 18 seasons, only one team in that position has gone on to become champions.",
+              "At the bottom, Crystal Palace have 7 points, but there is still hope. In total, 14 teams have stayed up after being bottom at this stage. Last season, 15 of the 20 teams finished within three places of where they were after 10 games, so the table can still change a lot."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Which team do you think will be top after the next 10 games?"
+          },
+          "word_count": 156,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "these numbers are not in the source text: 7. Use only numbers from the source"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says that because 15 of the 20 teams finished within three places of their position after 10 games, 'the table can still change a lot'. The source draws the opposite conclusion: things change 'not a great deal'. This misrepresents the source's claim."
+            ],
+            "error": null,
+            "seconds": 4.6,
+            "usage": {
+              "input_tokens": 2975,
+              "output_tokens": 412,
+              "cost_usd": 0.02014,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 24.1,
+          "writer_usage": {
+            "input_tokens": 2432,
+            "output_tokens": 1690,
+            "cost_usd": 0.007427,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 4,
+      "source_title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o",
+      "source_name": "BBC Sport football",
+      "topic": "Weather",
+      "source_words": 780,
+      "excerpt": "One of the most important attributes for a commentator is to be able to see the action you are trying to describe but that became a luxury for BBC Sport's Steve Bower when Altrincham hosted Notts County in an FA Cup tie on Saturday.\n\nAs thick fog enveloped the Moss Lane ground, he could barely see what was going on in a first-round game being televised live on BBC Two.\n\n\"One of the more challenging of my long career, that's about 35 years now,\" said Bower about the experience.\n\n\"I was reminded by a colleague - maybe I'm a jinx - that we had a similar thing on the BBC about three years ago when",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Fog swallows an FA Cup football match",
+            "teaser": "Fog so thick that nobody could see the ball!",
+            "topic": "Weather",
+            "body": [
+              "Thick fog rolled into a football ground on Saturday during an FA Cup match between Altrincham and Notts County. It was so thick that people could barely see the game!",
+              "Steve Bower was the BBC commentator. He said it was one of the hardest games of his 35-year career. After about the 60th minute, he could not even tell which team had the ball.",
+              "The players had to change how they played. Instead of long passes, they used short ones because they could not see far. Some players said they could not see both goals from the centre circle.",
+              "Altrincham led 2-1, but Notts County scored late and the game went to extra-time. Notts County won on penalties. Steve had to listen to the crowd's cheers to work out what had happened. He said it was a unique evening!"
+            ],
+            "word_to_know": {
+              "word": "commentator",
+              "definition": "A person who describes what is happening in a match for people watching or listening."
+            },
+            "think_about_it": "If you were describing a match you could not see, what clues would you use to work out what was happening?"
+          },
+          "word_count": 139,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.9,
+            "usage": {
+              "input_tokens": 2878,
+              "output_tokens": 456,
+              "cost_usd": 0.020632,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.6,
+          "writer_usage": {
+            "input_tokens": 3501,
+            "output_tokens": 1068,
+            "cost_usd": 0.035364,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Fog makes FA Cup match hard to see",
+            "teaser": "Thick fog hid the ball, the players and even the goals!",
+            "topic": "Weather",
+            "body": [
+              "Thick fog covered the Moss Lane ground when Altrincham played Notts County in the FA Cup first round on Saturday. The game was shown live on BBC Two.",
+              "Commentator Steve Bower said it was one of the hardest games of his 35-year career. Once play went past the centre circle, he could not see a thing. After about the 60th minute, he could not tell which team had the ball.",
+              "Altrincham led 2-1, but Notts County equalised late on. The game went to extra-time, and Notts County won on penalties.",
+              "Players said they could not see both goals from the centre circle. They played short passes instead of long ones. Fans at the far end had to listen to the crowd to know what was happening. Some Altrincham fans even shone their phone lights in the fog."
+            ],
+            "word_to_know": null,
+            "think_about_it": "How would you describe a football match if you could only hear the crowd and not see the ball?"
+          },
+          "word_count": 137,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.7,
+            "usage": {
+              "input_tokens": 2862,
+              "output_tokens": 262,
+              "cost_usd": 0.016688,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.6,
+          "writer_usage": {
+            "input_tokens": 3501,
+            "output_tokens": 398,
+            "cost_usd": 0.010982,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "The football match played in thick fog",
+            "teaser": "Commentators and players could barely see the ball!",
+            "topic": "Weather",
+            "body": [
+              "A football match in the FA Cup was almost called off because of incredibly thick fog. The game was between Altrincham and Notts County at Altrincham's Moss Lane ground on Saturday, and it was shown live on BBC Two.",
+              "BBC commentator Steve Bower, who has been describing matches for 35 years, said it was one of the hardest games of his whole career. Once the ball went near the centre circle, he could not see a thing. He could not even tell which team had it!",
+              "The players struggled too. They had to stop playing long passes and use short ones instead, because they could not see their team-mates far away. Some players said they could not see both goals or the corner flags.",
+              "Altrincham were leading 2-1, but Notts County equalised late on and won the game on penalties. Bower said it will be a match people remember for a very long time."
+            ],
+            "word_to_know": {
+              "word": "penalties",
+              "definition": "Kicks taken from the penalty spot to decide who wins a match when the scores are level."
+            },
+            "think_about_it": "How would you feel if you had to watch your favourite team in fog so thick you could not see the ball?"
+          },
+          "word_count": 154,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.5,
+            "usage": {
+              "input_tokens": 2909,
+              "output_tokens": 433,
+              "cost_usd": 0.020296,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.3,
+          "writer_usage": {
+            "input_tokens": 2019,
+            "output_tokens": 336,
+            "cost_usd": 0.002522,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Foggy FA Cup match leaves everyone guessing",
+            "teaser": "Football match played in fog so thick nobody could see.",
+            "topic": "Weather",
+            "body": [
+              "On Saturday, a football match in the FA Cup was played in very thick fog. Altrincham took on Notts County, but for much of the game nobody could see very much. BBC Sport commentator Steve Bower said it was the worst conditions in his 35-year career.",
+              "The fog was so thick that after about the 60th minute, Bower could not tell which team had the ball. He said players could not see both goals or the corner flags from the centre circle. They had to play short passes instead of long ones.",
+              "The match went to extra time and then penalties. Bower had to listen to the crowd's cheers to know what had happened. Notts County fans at the other end could not see the penalty shootout at all. The Altrincham fans waved their phone lights to try to put the visiting players off.",
+              "Bower said it will live long in his memory."
+            ],
+            "word_to_know": {
+              "word": "commentator",
+              "definition": "a person who describes a sports match on TV or radio"
+            },
+            "think_about_it": "What other weather conditions do you think could change a football match?"
+          },
+          "word_count": 153,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.9,
+            "usage": {
+              "input_tokens": 2888,
+              "output_tokens": 465,
+              "cost_usd": 0.020852,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 22.4,
+          "writer_usage": {
+            "input_tokens": 2038,
+            "output_tokens": 3732,
+            "cost_usd": 0.017469,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 3,
+      "source_title": "'I can't believe he is one of us' - inside Salah's life in Trabzon",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 1025,
+      "excerpt": "Back in August, when Mohamed Salah landed in Istanbul after flying in from his holiday in Mykonos, he wore Trabzonspor's burgundy and blue home strip as he stepped out of the plane to be greeted by thousands of fans.\n\nThat kit sold out almost instantly. Later that day, as Salah headed to Trabzon in north-east Turkey to complete the formalities of one of the most unexpected transfers after the expiry of his Liverpool contract, he asked one of his entourage what he should wear.\n\n\"The same kit,\" came the response, but Trabzonspor president Ertugrul Dogan advised Salah to wear the black away kit i",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Mohamed Salah is a superstar in Turkey",
+            "teaser": "Even a rock has been named after the Egyptian King!",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah, the famous Egyptian footballer, is now playing for a Turkish team called Trabzonspor. He joined them in August, after his time at Liverpool came to an end.",
+              "Fans in the city of Trabzon, by the Black Sea, love him. His face is on scarves, keyrings and magnets. There are even pictures of him on the walls of a fish shop! When he arrived, the club's shirts sold out almost instantly.",
+              "Salah is playing brilliantly too. He has scored 10 goals and made five assists. Trabzonspor have won seven of their first 10 games. They are just three points behind the leaders, Galatasaray.",
+              "One fan said that in Turkey, Salah is the biggest football star after Lionel Messi and Cristiano Ronaldo. Salah once posed for a photo on a rock in the hills near Trabzon. It has now been renamed Salah's Rock, and tourists go to visit it!"
+            ],
+            "word_to_know": {
+              "word": "assists",
+              "definition": "Passes that help a teammate to score a goal."
+            },
+            "think_about_it": "If a famous footballer moved to your town, how do you think people would show they were happy?"
+          },
+          "word_count": 149,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.3,
+            "usage": {
+              "input_tokens": 3619,
+              "output_tokens": 394,
+              "cost_usd": 0.022356,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10,
+          "writer_usage": {
+            "input_tokens": 4170,
+            "output_tokens": 1096,
+            "cost_usd": 0.0386,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Salah Shines in Trabzon",
+            "teaser": "How one footballer has changed a Turkish city",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah now plays for Trabzonspor, a club in the city of Trabzon in Turkey. Thousands of fans met him when he arrived in August. His first shirt sold out almost straight away, and so did the black away kit.",
+              "His face is everywhere in Trabzon. You can see it on scarves, magnets and keyrings, and even on the walls inside the fishmongers. A rock he posed on in the hills has been renamed Salah's Rock. Now people visit it.",
+              "Salah is playing very well too. He has scored 10 goals and made five assists in all competitions. Trabzonspor have won seven of their first 10 games and are three points behind the leaders, Galatasaray.",
+              "New flights from Cairo, Dubai and Riyadh now bring fans to see him. He even has a street named after him in the town of Yomra."
+            ],
+            "word_to_know": {
+              "word": "assists",
+              "definition": "Passes that help a teammate score a goal."
+            },
+            "think_about_it": "How might one famous player change a whole city?"
+          },
+          "word_count": 141,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4,
+            "usage": {
+              "input_tokens": 3561,
+              "output_tokens": 350,
+              "cost_usd": 0.021244,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4,
+          "writer_usage": {
+            "input_tokens": 4170,
+            "output_tokens": 427,
+            "cost_usd": 0.01261,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Salah's new Turkish adventure",
+            "teaser": "The Egyptian King is a hero in his new home by the Black Sea.",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah has left Liverpool and joined Trabzonspor, a football club in the city of Trabzon in north-east Turkey. Fans there are absolutely delighted to have him.",
+              "When Salah arrived in Turkey in August, thousands of fans greeted him at the airport. His new shirts sold out almost straight away, and even the fishmongers have his picture on their walls! A rock where he posed for a photo has been renamed Salahtasi, which means Salah's Rock.",
+              "Salah is doing well on the pitch too. He has scored 10 goals and made five assists, helping Trabzonspor win seven of their first 10 games. They are chasing the Turkish Super Lig title.",
+              "Egyptian fans can visit more easily too, because there are new flights from Cairo, Dubai and Riyadh to Trabzon."
+            ],
+            "word_to_know": {
+              "word": "merchandise",
+              "definition": "Things like shirts, scarves and keyrings that fans can buy with their team on them."
+            },
+            "think_about_it": "If you moved to a new city, what would you most like people there to know about you?"
+          },
+          "word_count": 129,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 61 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'Egyptian fans' can visit more easily because of new flights from Cairo, Dubai and Riyadh. The source says Trabzon is more accessible for supporters across the Arab world. Dubai and Riyadh are not in Egypt, so linking those flights only to Egyptian fans misstates the source."
+            ],
+            "error": null,
+            "seconds": 8.6,
+            "usage": {
+              "input_tokens": 3595,
+              "output_tokens": 831,
+              "cost_usd": 0.031,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 5.6,
+          "writer_usage": {
+            "input_tokens": 2367,
+            "output_tokens": 311,
+            "cost_usd": 0.004682,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Salah is a Star in Turkey",
+            "teaser": "Fans in Trabzon love Mohamed Salah so much they named a rock after him.",
+            "topic": "Football",
+            "body": [
+              "Mohamed Salah has moved to a club called Trabzonspor in Turkey. Fans there are so excited. They wear shirts with his name and even put his picture on shop walls.",
+              "Salah is scoring lots of goals. He has 10 goals and five assists in all competitions. His team is trying to win the Turkish league title.",
+              "There is a feeling of adulation around him. Fans love him so much that a rock he sat on for a photo is now called Salah's Rock and people visit it.",
+              "One fan said she still cannot believe he is one of them. Salah is known as the Egyptian King and is a hero to many people."
+            ],
+            "word_to_know": {
+              "word": "adulation",
+              "definition": "great admiration and love shown by fans"
+            },
+            "think_about_it": "Why do you think fans love Salah so much?"
+          },
+          "word_count": 113,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 71 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says Salah 'sat on' the rock for a photo, but the source only says he 'posed for a picture on a rock'. Sitting is an invented detail.",
+              "The story calls the fan 'she', but the source does not give the fan's gender (it only names Nisa Dumangoz)."
+            ],
+            "error": null,
+            "seconds": 4.4,
+            "usage": {
+              "input_tokens": 3499,
+              "output_tokens": 379,
+              "cost_usd": 0.021576,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 6.3,
+          "writer_usage": {
+            "input_tokens": 2660,
+            "output_tokens": 987,
+            "cost_usd": 0.007393,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 6,
+      "source_title": "Print commissioned by Nasa uncovered for exhibition",
+      "source_url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+      "source_name": "BBC science",
+      "topic": "Space",
+      "source_words": 467,
+      "excerpt": "A print by a Yorkshire artist commissioned by Nasa in the early days of space travel will go on show as part of a pop art exhibition.\n\nKomtek I by Michael Fossick, who studied at Bradford School of Art, was created in 1962 to celebrate a Hong Kong company that produced microcomputers in the early days of space travel.\n\nThe print was part of a Nasa project to document the effort of sending the first humans to the moon and is on display as part of the Pop Art at Cartwright Hall exhibition.\n\nThe display tells the story of the British International Print Biennale, which took place at the Bradford ",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Space-age art made for Nasa goes on show",
+            "teaser": "A Yorkshire artist made a print for Nasa in 1962!",
+            "topic": "Space",
+            "body": [
+              "A picture made for Nasa in the early days of space travel is going on show at Cartwright Hall, an art gallery in Bradford. It is called Komtek I. It was made in 1962 by an artist called Michael Fossick.",
+              "In March 1962, Nasa asked 38 artists, including Fossick, to make art about its work. Nasa was trying to send the first humans to the moon. Neil Armstrong stepped on the moon in 1969.",
+              "Fossick's print celebrates Komtek I, a small computer from Hong Kong that was important in the early space programme. The print was made from a very early computer image.",
+              "In 1968, the print won a prize at a big art show at Cartwright Hall. The new exhibition tells the story of that show and runs until March 2027.",
+              "The curator, Jill Iredale, said it was a bizarre connection that an artist from Sheffield was asked to work for Nasa."
+            ],
+            "word_to_know": {
+              "word": "curator",
+              "definition": "A person who looks after a museum or gallery's collection and plans its exhibitions."
+            },
+            "think_about_it": "If you were asked to make a picture about space travel, what would you draw?"
+          },
+          "word_count": 153,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.6,
+            "usage": {
+              "input_tokens": 2439,
+              "output_tokens": 317,
+              "cost_usd": 0.016096,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.2,
+          "writer_usage": {
+            "input_tokens": 2992,
+            "output_tokens": 994,
+            "cost_usd": 0.031848,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Nasa Art Print Goes on Show in Bradford",
+            "teaser": "A space artwork made in Yorkshire is on display",
+            "topic": "Space",
+            "body": [
+              "A special print made for Nasa is now on show at Cartwright Hall in Bradford. It is part of an exhibition called Pop Art at Cartwright Hall. The show runs until March 2027.",
+              "The print is called Komtek I. It was made by Michael Fossick, an artist who studied at Bradford School of Art. He made it in 1962, in the early days of space travel.",
+              "In March 1962, Nasa asked 38 artists to record its space achievements. Fossick was one of them. His print honours a tiny computer called a microcomputer, which helped the early space programme.",
+              "The curator, Jill Iredale, said it is a bizarre connection. An artist from Yorkshire was picked by Nasa! The print is a screen print, but it was made from a very early computerised image."
+            ],
+            "word_to_know": {
+              "word": "microcomputer",
+              "definition": "A small computer that is much smaller than the huge computers people used to have."
+            },
+            "think_about_it": "Why do you think Nasa asked artists, and not just scientists, to record its space work?"
+          },
+          "word_count": 132,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.5,
+            "usage": {
+              "input_tokens": 2401,
+              "output_tokens": 250,
+              "cost_usd": 0.014604,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.9,
+          "writer_usage": {
+            "input_tokens": 2992,
+            "output_tokens": 430,
+            "cost_usd": 0.010284,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Nasa art goes on show in Bradford",
+            "teaser": "A space agency asked artists to make art. Now you can see it!",
+            "topic": "Space",
+            "body": [
+              "A piece of art made for Nasa, the American space agency, is going on display in Bradford. The print is called Komtek I and was made by artist Michael Fossick, who went to Bradford School of Art.",
+              "In 1962, Nasa asked 38 artists to help record its work as it prepared to send the first humans to the moon. Fossick was one of them. His bright screen print celebrated an early microcomputer used in the space programme.",
+              "The artwork is part of a pop art exhibition at Cartwright Hall, which also includes work by famous artists Andy Warhol and David Hockney.",
+              "Curator Jill Iredale said it was a \"completely bizarre\" link between a Yorkshire artist and Nasa. The exhibition runs until March 2027."
+            ],
+            "word_to_know": {
+              "word": "microcomputer",
+              "definition": "a very small computer, like the ones used in early space missions"
+            },
+            "think_about_it": "If Nasa asked you to make a picture about space travel, what would you draw?"
+          },
+          "word_count": 123,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 61 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story calls it a 'bright' screen print, but the source never describes the print's colours or brightness. This detail was invented."
+            ],
+            "error": null,
+            "seconds": 3.9,
+            "usage": {
+              "input_tokens": 2383,
+              "output_tokens": 351,
+              "cost_usd": 0.016552,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 1.4,
+          "writer_usage": {
+            "input_tokens": 1605,
+            "output_tokens": 296,
+            "cost_usd": 0.001626,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Nasa print found in Bradford gallery",
+            "teaser": "A pop art print made for Nasa in 1962 is going on show in Bradford.",
+            "topic": "Space",
+            "body": [
+              "A print made for Nasa in the early days of space travel is going on show in Bradford.",
+              "The print is called Komtek I. It was created in 1962 by Michael Fossick, an artist who studied at Bradford School of Art.",
+              "Nasa asked 38 artists to make work about its space achievements. Fossick chose to celebrate a microcomputer that was important in the early years of the space programme.",
+              "The print is part of the Pop Art at Cartwright Hall exhibition. It tells the story of the British International Print Biennale, which took place at the gallery between 1968 and 1990.",
+              "The exhibition runs until March 2027. It also includes work by famous artists Andy Warhol and David Hockney."
+            ],
+            "word_to_know": {
+              "word": "microcomputer",
+              "definition": "a small computer, especially one from the early days of computing"
+            },
+            "think_about_it": "If you could make a piece of art about space travel, what would you choose to show?"
+          },
+          "word_count": 119,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 67 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.6,
+            "usage": {
+              "input_tokens": 2370,
+              "output_tokens": 244,
+              "cost_usd": 0.01436,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.3,
+          "writer_usage": {
+            "input_tokens": 1618,
+            "output_tokens": 276,
+            "cost_usd": 0.003229,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    }
+  ],
+  "totals": {
+    "anthropic:claude-opus-5-5": {
+      "stories_written": 6,
+      "passed_validation": 6,
+      "passed_checker": 5,
+      "sent_back": 1,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 146.2,
+      "writer_cost_usd": 0.244864,
+      "checker_cost_usd": 0.114388,
+      "avg_seconds_per_story": 11.4
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 5,
+      "sent_back": 1,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 136.7,
+      "writer_cost_usd": 0.073082,
+      "checker_cost_usd": 0.113816,
+      "avg_seconds_per_story": 3.9
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "stories_written": 6,
+      "passed_validation": 1,
+      "passed_checker": 3,
+      "sent_back": 3,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 146.5,
+      "writer_cost_usd": 0.014638,
+      "checker_cost_usd": 0.123156,
+      "avg_seconds_per_story": 3.1
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "stories_written": 6,
+      "passed_validation": 3,
+      "passed_checker": 2,
+      "sent_back": 4,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 137,
+      "writer_cost_usd": 0.07494,
+      "checker_cost_usd": 0.11562,
+      "avg_seconds_per_story": 14.7
+    }
+  }
+}

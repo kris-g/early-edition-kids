@@ -1,0 +1,23 @@
+# LAN address for the Kindle only, port 8080. The dashboard (port 8081) is
+# deliberately not exposed here; it goes through the Ingress and Authelia.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: early-edition-kids
+    app.kubernetes.io/name: early-edition-kids
+  name: early-edition-kids-loadbalancer
+  namespace: my-apps
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: http
+  selector:
+    app.kubernetes.io/instance: early-edition-kids
+    app.kubernetes.io/name: early-edition-kids
+  type: LoadBalancer
+  # CHANGE ME: a free address in your MetalLB pool keeps the Kindle's server_url stable.
+  # Without it MetalLB picks one, which can change if the Service is recreated.
+  # loadBalancerIP: 192.168.1.50

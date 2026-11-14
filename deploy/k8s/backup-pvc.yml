@@ -1,0 +1,18 @@
+# Nightly copies of the database, on NFS (for example a NAS through the
+# nfs-client provisioner). Separate from the live data on its node's local-path
+# volume, so losing that node loses at most a day of reading history.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: early-edition-kids-backup-pvc
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,1806 @@
+{
+  "meta": {
+    "date": "2026-11-11",
+    "generated_at": "2026-11-13T23:39:25.994Z",
+    "window_end": "2026-11-11T06:00:00.000Z",
+    "candidates": 19,
+    "feed_counts": {
+      "BBC Newsround": 80,
+      "Science News Explores": 20,
+      "BBC Sport football": 76,
+      "BBC Sport Liverpool": 24,
+      "BBC science": 41
+    },
+    "feed_log": [
+      "feed 'BBC Newsround': 80 items",
+      "feed 'Science News Explores': 20 items",
+      "feed 'BBC Sport football': 76 items",
+      "feed 'BBC Sport Liverpool': 24 items",
+      "feed 'BBC science': 41 items"
+    ],
+    "filter": {
+      "kept": 19,
+      "too_old": 212,
+      "duplicate": 3,
+      "excluded": 7,
+      "blocked": 0,
+      "recently_used": 0
+    },
+    "story_count": 6,
+    "selector": "anthropic:claude-opus-5-5",
+    "selector_used": "anthropic:claude-opus-5-5",
+    "checker": "anthropic:claude-opus-5-5",
+    "writer_effort": "medium",
+    "checker_effort": "high",
+    "checker_error": null,
+    "budget_usd": 1.33,
+    "spent_usd": 0.828904,
+    "note": "Candidates are built from the feeds as fetched now; feeds only carry recent items, so an older date can have few."
+  },
+  "models": [
+    {
+      "id": "anthropic:claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 4,
+      "output_per_mtok": 20
+    },
+    {
+      "id": "anthropic:claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "provider": "anthropic",
+      "configured": true,
+      "input_per_mtok": 2,
+      "output_per_mtok": 10
+    },
+    {
+      "id": "openrouter:z-ai/glm-5.3",
+      "name": "GLM 5.3 (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.08,
+      "output_per_mtok": 3.6
+    },
+    {
+      "id": "openrouter:deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro (OpenRouter)",
+      "provider": "openrouter",
+      "configured": true,
+      "input_per_mtok": 0.11,
+      "output_per_mtok": 4.44
+    }
+  ],
+  "selection": {
+    "anthropic:claude-sonnet-5-5": {
+      "picks": [
+        {
+          "candidate_id": 4,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 7,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 9,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 11,
+          "title": "Szoboszlai fitness call to come at 'last minute'",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Which toys would you pick for your favourite of all time list?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cqe9l92g1p32o",
+          "topic": "Games and tech"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 5,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 17,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 8,
+          "title": "Cast your vote for BBC Women's Footballer of the Year 2026",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cj20velkgnypo",
+          "topic": "Football"
+        }
+      ],
+      "input_tokens": 3816,
+      "output_tokens": 223,
+      "cost_usd": 0.009862,
+      "models_answered": [
+        "anthropic:claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 2.2,
+      "error": null
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "picks": [
+        {
+          "candidate_id": 11,
+          "title": "Szoboszlai fitness call to come at 'last minute'",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 5,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 1,
+          "title": "Which toys would you pick for your favourite of all time list?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cqe9l92g1p32o",
+          "topic": "Weird but true"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 7,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 8,
+          "title": "Cast your vote for BBC Women's Footballer of the Year 2026",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cj20velkgnypo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 17,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 2,
+          "title": "How strict is your school about phones?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cm9qzqd1nvvlo",
+          "topic": "Games and tech"
+        }
+      ],
+      "input_tokens": 2147,
+      "output_tokens": 463,
+      "cost_usd": 0.000798,
+      "models_answered": [
+        "openrouter:z-ai/glm-5.3"
+      ],
+      "stop_reason": "stop",
+      "seconds": 4.7,
+      "error": null
+    },
+    "anthropic:claude-opus-5-5": {
+      "picks": [
+        {
+          "candidate_id": 4,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 11,
+          "title": "Szoboszlai fitness call to come at 'last minute'",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+          "topic": "Liverpool FC"
+        },
+        {
+          "candidate_id": 9,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 7,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 5,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 17,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 6,
+          "title": "Scientists Say: Occultation",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/scientists-say-occultation-definition-pronunciation",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 18,
+          "title": "Print commissioned by Nasa uncovered for exhibition",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/cw98zm084dr3o",
+          "topic": "Space"
+        }
+      ],
+      "input_tokens": 3816,
+      "output_tokens": 906,
+      "cost_usd": 0.033384,
+      "models_answered": [
+        "anthropic:claude-opus-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "seconds": 9.9,
+      "error": null
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "picks": [
+        {
+          "candidate_id": 3,
+          "title": "Would you like to go into space?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+          "topic": "Space"
+        },
+        {
+          "candidate_id": 4,
+          "title": "Four T. rex footprints hint at how fast it traveled",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 5,
+          "title": "This teen piloted an underwater robot to study kelp forests",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+          "topic": "Science"
+        },
+        {
+          "candidate_id": 7,
+          "title": "Seals long ago evolved to hear above the water — and below",
+          "source": "Science News Explores",
+          "url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+          "topic": "Animals and nature"
+        },
+        {
+          "candidate_id": 9,
+          "title": "How Germany's greatest goalscorer is guiding the next generation",
+          "source": "BBC Sport football",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 17,
+          "title": "The swan sanctuary wetland fighting climate change",
+          "source": "BBC science",
+          "url": "https://www.bbc.co.uk/news/articles/c60rleej7dqgo",
+          "topic": "Science"
+        }
+      ],
+      "reserves": [
+        {
+          "candidate_id": 11,
+          "title": "Szoboszlai fitness call to come at 'last minute'",
+          "source": "BBC Sport Liverpool",
+          "url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+          "topic": "Football"
+        },
+        {
+          "candidate_id": 2,
+          "title": "How strict is your school about phones?",
+          "source": "BBC Newsround",
+          "url": "https://www.bbc.co.uk/newsround/articles/cm9qzqd1nvvlo",
+          "topic": "Games and tech"
+        }
+      ],
+      "input_tokens": 2145,
+      "output_tokens": 6434,
+      "cost_usd": 0.02831,
+      "models_answered": [
+        "openrouter:deepseek/deepseek-v4-pro-0813"
+      ],
+      "stop_reason": "stop",
+      "seconds": 54.1,
+      "error": null
+    }
+  },
+  "stories": [
+    {
+      "candidate_id": 4,
+      "source_title": "Four T. rex footprints hint at how fast it traveled",
+      "source_url": "https://www.snexplores.org/article/footprints-how-fast-t-rex-walked",
+      "source_name": "Science News Explores",
+      "topic": "Science",
+      "source_words": 457,
+      "excerpt": "Four fossilized footprints are helping scientists step into a dinosaur’s shoes. The prints form the first known set of tracks likely left by an adult Tyrannosaurus rex.\n\nA trackway is three or more consecutive footprints left by some animal. The one for this T. rex spans 7 meters (10 feet). The track spacing suggests the ancient predator had been ambling along at about 1.6 meters (5.2 feet) per second, which would be a quick walking pace for us.\n\nA few single adult T. rex footprints have been recorded. So have trackways from what might be T. rex juveniles or another related species, says Peter",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "T. rex footprints show its walking speed",
+            "teaser": "Giant fossil tracks reveal how fast T. rex walked",
+            "topic": "Science",
+            "body": [
+              "Scientists have found four fossil footprints that were probably left by an adult Tyrannosaurus rex. Together, they make the first known set of tracks from a grown-up T. rex.",
+              "A teacher and fossil hunter called Kent Hups spotted them on a steep hill in North Dakota. The first print was enormous, measuring 80 centimetres across. It had three toes.",
+              "The tracks stretch for 7 metres. By measuring the gaps between the prints, the team worked out that the dinosaur was walking at about 1.6 metres per second. That is like a person walking quickly!",
+              "The prints are about 66.5 million years old. They are not very clear, so the speed is a best guess. One footprint on its own does not tell scientists much, but a trackway shows how an animal moved along.",
+              "There may even be a fifth footprint hidden in the hill, waiting to be found."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "A line of three or more footprints left by an animal, one after another."
+            },
+            "think_about_it": "If you could follow a dinosaur's footprints, which dinosaur would you choose and why?"
+          },
+          "word_count": 150,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.8,
+            "usage": {
+              "input_tokens": 2475,
+              "output_tokens": 153,
+              "cost_usd": 0.01296,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.3,
+          "writer_usage": {
+            "input_tokens": 3045,
+            "output_tokens": 989,
+            "cost_usd": 0.03196,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "T. rex footprints show how fast it walked",
+            "teaser": "Four fossil prints reveal a giant's walking speed",
+            "topic": "Science",
+            "body": [
+              "Scientists have found four fossil footprints that were likely left by an adult T. rex. They are the first known set of tracks from a grown-up one.",
+              "A trackway is three or more footprints in a row. This one stretches 7 meters. The gaps between the prints suggest the dinosaur was ambling along at about 1.6 meters per second. That is a quick walking pace for a person.",
+              "Kent Hups found the tracks while fossil hunting in North Dakota. The first print was three-toed and huge. It measured 80 centimeters across.",
+              "A single footprint does not tell scientists much. A trackway shows how an animal placed its feet as it moved. The prints are not well preserved, so the speed is only an estimate. The team thinks a fifth step may still be hidden in the hill."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "a line of three or more footprints left by an animal as it walked"
+            },
+            "think_about_it": "What do you think scientists could learn if they found even more dinosaur tracks?"
+          },
+          "word_count": 138,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3,
+            "usage": {
+              "input_tokens": 2437,
+              "output_tokens": 152,
+              "cost_usd": 0.012788,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.9,
+          "writer_usage": {
+            "input_tokens": 3045,
+            "output_tokens": 424,
+            "cost_usd": 0.01033,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "T. rex footprints reveal walking speed",
+            "teaser": "Four giant prints show how fast a famous dinosaur strolled",
+            "topic": "Science",
+            "body": [
+              "A teacher hunting for fossils in North Dakota found four giant footprints left by a Tyrannosaurus rex. Each print is three-toed and measures 80 centimetres across. They are the first known set of tracks from an adult T. rex.",
+              "A set of three or more prints in a row is called a trackway. This one stretches 7 metres. Scientists used the space between the prints to work out how fast the dinosaur was moving: about 1.6 metres per second. That is roughly the speed of a person walking quickly.",
+              "The tracks are around 66.5 million years old. They formed when mud filled with sediment, turned hard, and stayed behind as the soft rock around it wore away.",
+              "A single footprint cannot tell scientists much. But a trackway shows how an animal placed its feet as it walked. A fifth print may still be hiding in the hillside, waiting to be uncovered."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "three or more footprints left in a row by the same animal as it walked along"
+            },
+            "think_about_it": "What would you like to learn about dinosaurs from their footprints?"
+          },
+          "word_count": 153,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says 'each print' is three-toed and 80 centimetres across, but the source only gives these details for the first print Hups found, not all four.",
+              "Minor: 'mud filled with sediment' garbles the source, which says sediment filled in the originally muddy footprints and then fossilized."
+            ],
+            "error": null,
+            "seconds": 5.2,
+            "usage": {
+              "input_tokens": 2471,
+              "output_tokens": 339,
+              "cost_usd": 0.016664,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 1.8,
+          "writer_usage": {
+            "input_tokens": 1638,
+            "output_tokens": 323,
+            "cost_usd": 0.001767,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "T. rex footprints show how it walked",
+            "teaser": "Four fossil footprints give a clue about the speed of a giant dinosaur.",
+            "topic": "Science",
+            "body": [
+              "Four fossil footprints are helping scientists learn how a Tyrannosaurus rex walked. The prints form the first known set of tracks likely left by an adult T. rex.",
+              "The tracks stretch across 7 metres. The space between them suggests the dinosaur was moving at about 1.6 metres per second. That is a quick walking pace for a person.",
+              "A single footprint does not tell scientists much. But a trackway, which is three or more footprints in a row, shows how an animal placed its feet as it moved.",
+              "Kent Hups found the trackway while fossil hunting in North Dakota last year. The first print he saw was three-toed and enormous. It measured 80 centimetres across.",
+              "Scientists think the tracks were left around 66.5 million years ago. The footprints are not well preserved, so the T. rex may have been walking a little faster or slower."
+            ],
+            "word_to_know": {
+              "word": "trackway",
+              "definition": "A line of three or more footprints left by the same animal."
+            },
+            "think_about_it": "If you left a trail of footprints for scientists to find millions of years from now, what could they learn about how you move?"
+          },
+          "word_count": 147,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 71 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.7,
+            "usage": {
+              "input_tokens": 2474,
+              "output_tokens": 184,
+              "cost_usd": 0.013576,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.2,
+          "writer_usage": {
+            "input_tokens": 1661,
+            "output_tokens": 332,
+            "cost_usd": 0.003507,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 11,
+      "source_title": "Szoboszlai fitness call to come at 'last minute'",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cmp3g31gvxkgo",
+      "source_name": "BBC Sport Liverpool",
+      "topic": "Liverpool FC",
+      "source_words": 380,
+      "excerpt": "Hungary say they will do \"everything possible\" for Liverpool midfielder Dominik Szoboszlai to feature in Nations League fixtures against Georgia and Northern Ireland over the next eight days.\n\nThe 26-year-old was replaced after 69 minutes of his club's 3-1 Premier League victory over Crystal Palace on Sunday and was described by Liverpool boss Andoni Iraola as \"not 100%\" because of a knee problem.\n\nOn Tuesday, the Hungarian Football Federation said in a statement on X that their \"national team's medical staff will do everything possible over the coming days to ensure that the team captain is a",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Liverpool win as Hungary wait on captain",
+            "teaser": "Big games ahead for Liverpool's Hungarian star",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool beat Crystal Palace 3-1 in the Premier League on Sunday. The win lifted the Reds up to fourth in the table.",
+              "Dominik Szoboszlai is a midfielder for Liverpool. He played in the match but came off after 69 minutes. Liverpool boss Andoni Iraola said his knee was \"not 100%\".",
+              "Szoboszlai is also the captain of Hungary. His country has two big Nations League games coming up. They play Georgia on Saturday and Northern Ireland on 17 November.",
+              "Hungary are second in their group, just one point behind Northern Ireland. That means the last game, in Budapest, could decide who finishes top.",
+              "Hungary's team doctors will do everything they can to help their captain play. They say the decision will probably be made at the last minute. Iraola said Szoboszlai loves playing for his country."
+            ],
+            "word_to_know": {
+              "word": "midfielder",
+              "definition": "A player who plays mostly in the middle of the pitch, helping both to attack and to defend."
+            },
+            "think_about_it": "How do you think it feels to be captain of your country's football team?"
+          },
+          "word_count": 135,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.6,
+            "usage": {
+              "input_tokens": 2274,
+              "output_tokens": 312,
+              "cost_usd": 0.015336,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 10.4,
+          "writer_usage": {
+            "input_tokens": 2850,
+            "output_tokens": 1091,
+            "cost_usd": 0.03322,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Hungary wait on Szoboszlai's knee",
+            "teaser": "Will Liverpool's Dominik Szoboszlai play for Hungary?",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool midfielder Dominik Szoboszlai has a sore knee. Hungary say they will do everything possible to get him ready for their next Nations League games.",
+              "Szoboszlai is the captain of Hungary. He was taken off after 69 minutes of Liverpool's 3-1 win over Crystal Palace on Sunday. That win lifted the Reds up to fourth in the Premier League.",
+              "Hungary play Georgia on Saturday. Then they face Northern Ireland in Budapest on 17 November. Hungary are second in their group, one point behind Northern Ireland, so that last game could be a big one.",
+              "Hungary's medical staff will check the knee over the coming days. They say a decision will almost certainly only come at the last minute."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Why might a team captain be so important in a big match?"
+          },
+          "word_count": 118,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 2202,
+              "output_tokens": 246,
+              "cost_usd": 0.013728,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4,
+          "writer_usage": {
+            "input_tokens": 2850,
+            "output_tokens": 404,
+            "cost_usd": 0.00974,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Hungary hope for Szoboszlai",
+            "teaser": "Will Liverpool's star midfielder be fit to captain his country?",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool midfielder Dominik Szoboszlai has a busy week ahead. He is hoping to play for his country, Hungary, in two big Nations League matches.",
+              "Hungary play Georgia on Saturday and then face Northern Ireland on 17 November in Budapest. Hungary are second in their group, just one point behind leaders Northern Ireland, so the final match could decide who tops the group.",
+              "The problem is that Szoboszlai has a sore knee. He came off after 69 minutes of Liverpool's 3-1 win over Crystal Palace on Sunday, and Liverpool boss Andoni Iraola said the player was not 100%.",
+              "Hungary's medical staff say they will do everything possible to help their team captain play. They say the decision on whether he features will almost certainly be made at the last minute.",
+              "Szoboszlai is Hungary's captain, and Iraola says the player loves playing for his national team."
+            ],
+            "word_to_know": {
+              "word": "Nations League",
+              "definition": "A football competition where national teams from Europe play against each other."
+            },
+            "think_about_it": "Why do you think players feel so proud when they get to captain their national team?"
+          },
+          "word_count": 144,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 63 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.6,
+            "usage": {
+              "input_tokens": 2284,
+              "output_tokens": 383,
+              "cost_usd": 0.016796,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.6,
+          "writer_usage": {
+            "input_tokens": 1519,
+            "output_tokens": 356,
+            "cost_usd": 0.000604,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Szoboszlai fitness call at last minute",
+            "teaser": "Liverpool star may play for Hungary despite knee issue",
+            "topic": "Liverpool FC",
+            "body": [
+              "Liverpool's Dominik Szoboszlai could still play for Hungary this week, even though he has a knee problem. His national team has said they will do everything possible to help him feature.",
+              "Szoboszlai came off after 69 minutes of Liverpool's 3-1 win over Crystal Palace on Sunday. Manager Andoni Iraola said he was not 100% because of the knee issue.",
+              "Hungary's football association says its medical staff will work hard over the coming days to make their captain available. But any decision will almost certainly be made at the last minute.",
+              "Hungary play Georgia on Saturday, then Northern Ireland on 17 November. Hungary are second in their group, one point behind leaders Northern Ireland, so that final match could be very important.",
+              "Iraola hopes no more Liverpool players get hurt during the international break. He said the club lost three important players after the last one, but he knows Szoboszlai loves playing for his country."
+            ],
+            "word_to_know": null,
+            "think_about_it": "Which do you think is more important: helping your club or your country? Why?"
+          },
+          "word_count": 154,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.2,
+            "usage": {
+              "input_tokens": 2253,
+              "output_tokens": 336,
+              "cost_usd": 0.015732,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 20.6,
+          "writer_usage": {
+            "input_tokens": 1804,
+            "output_tokens": 2902,
+            "cost_usd": 0.013855,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 9,
+      "source_title": "How Germany's greatest goalscorer is guiding the next generation",
+      "source_url": "https://www.bbc.co.uk/sport/football/articles/cmq8nnddpllqo",
+      "source_name": "BBC Sport football",
+      "topic": "Football",
+      "source_words": 1024,
+      "excerpt": "It is no surprise Miroslav Klose recognises the value of a true goalscorer.\n\nHe is, after all, Germany's all-time leading marksman and until this summer had netted more than any other player in men's World Cup history. Even now, only Kylian Mbappe and Lionel Messi can top his 16 across four tournaments.\n\nBut of the more than 300 goals Klose scored in a career that began in Germany's amateur leagues and spanned Kaiserslautern, Werder Bremen, Bayern Munich and Lazio, he reckons all but two came inside the penalty area.\n\n\"Thankfully, we've moved away a little from the idea of the false nine or ha",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Germany's top goalscorer now coaches stars",
+            "teaser": "Miroslav Klose is helping young players shine",
+            "topic": "Football",
+            "body": [
+              "Miroslav Klose is Germany's greatest ever goalscorer. Now he is a football coach, and he is helping young players get better.",
+              "As a player, Klose scored 16 goals at men's World Cups. Only Kylian Mbappe and Lionel Messi have scored more. He won the World Cup with Germany in 2014.",
+              "Klose scored more than 300 goals in his career. He thinks all but two of them came inside the penalty area. He studied goalkeepers closely, even checking whether their hands were high or low.",
+              "Now he is the boss of FC Nuremberg. His team is the youngest in the German second tier, and they sit second in the league. One midfielder catching the eye, Marc Kornwachs, is 17.",
+              "Klose tells his players to learn from Harry Kane, who has worked incredibly hard. He says the most important thing is to keep learning."
+            ],
+            "word_to_know": {
+              "word": "penalty area",
+              "definition": "The big box marked on the pitch in front of each goal."
+            },
+            "think_about_it": "If you could practise one football skill every day, which would you choose and why?"
+          },
+          "word_count": 142,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.6,
+            "usage": {
+              "input_tokens": 3388,
+              "output_tokens": 313,
+              "cost_usd": 0.019812,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.7,
+          "writer_usage": {
+            "input_tokens": 3975,
+            "output_tokens": 951,
+            "cost_usd": 0.03492,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Germany's top scorer now trains young stars",
+            "teaser": "Miroslav Klose scored 16 World Cup goals. Now he is coaching.",
+            "topic": "Football",
+            "body": [
+              "Miroslav Klose is Germany's all-time leading goalscorer. He scored 16 goals across four World Cups. Now he is a coach at FC Nuremberg, and he helps young players grow.",
+              "Klose started in Germany's amateur leagues. He was never in a big academy. He trained as a carpenter while he played. He was 36 when he won the World Cup with Germany in 2014.",
+              "Klose says a team needs someone in the box who can score. He also loves practising the final ball, such as a cross or a shot. When players get to know each other, he says, the team plays in harmony.",
+              "His Nuremberg team are the youngest in the German second tier. They are second in the league. Seven of the 11 players with the most minutes are 22 years old or under. Klose tells them to keep learning, just like Harry Kane has."
+            ],
+            "word_to_know": {
+              "word": "amateur",
+              "definition": "Someone who plays a sport for fun, not as their main job."
+            },
+            "think_about_it": "Why do you think practising the same skill again and again can make a player better?"
+          },
+          "word_count": 146,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 61 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.7,
+            "usage": {
+              "input_tokens": 3383,
+              "output_tokens": 328,
+              "cost_usd": 0.020092,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.3,
+          "writer_usage": {
+            "input_tokens": 3975,
+            "output_tokens": 447,
+            "cost_usd": 0.01242,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "The goal king teaching new stars",
+            "teaser": "A World Cup hero is now helping young players score big",
+            "topic": "Football",
+            "body": [
+              "Miroslav Klose scored more goals at the men's World Cup than almost anyone. The German striker netted 16 goals across four World Cups, and only Kylian Mbappe and Lionel Messi have scored more.",
+              "Now Klose is a manager at FC Nuremberg in Germany. His team is full of young players, and he loves helping them get better.",
+              "Klose says the secret is hard work. As a player, he studied how goalkeepers stood so he could work out where to shoot. He believes young players should keep learning every single day.",
+              "He tells his players to copy stars like Harry Kane, who worked incredibly hard to become one of the best.",
+              "Klose's young team is doing well. They are second in their league and have scored more goals than almost everyone else."
+            ],
+            "word_to_know": {
+              "word": "striker",
+              "definition": "A player whose main job is to score goals for their team."
+            },
+            "think_about_it": "What skill would you practise extra hard at, like Klose practised his shooting?"
+          },
+          "word_count": 131,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "uses blocked words: shooting"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The source says Nuremberg are the league's joint-top scorers. The story says they 'have scored more goals than almost everyone else', which wrongly suggests another team has scored more.",
+              "'Keep learning every single day' adds 'every single day', which is not in the source. Klose only says 'You have to keep learning.'",
+              "The phrase 'so he could work out where to shoot' and the Think about it line saying Klose 'practised his shooting' go beyond the source. The source says he studied goalkeepers' position and shape and believes in practising the final ball as a coach."
+            ],
+            "error": null,
+            "seconds": 7.9,
+            "usage": {
+              "input_tokens": 3340,
+              "output_tokens": 763,
+              "cost_usd": 0.02862,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.6,
+          "writer_usage": {
+            "input_tokens": 2340,
+            "output_tokens": 296,
+            "cost_usd": 0.002256,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Klose's tips for young goalscorers",
+            "teaser": "Germany's top scorer guides young players to goal",
+            "topic": "Football",
+            "body": [
+              "Miroslav Klose scored more goals for Germany than any other player and won the World Cup in 2014. Now, as boss of FC Nuremberg, he is guiding the next generation of goalscorers.",
+              "Klose scored over 300 goals in a career that began in Germany's amateur leagues. Nearly all of them came inside the penalty area, close to the goal. He says every team needs someone in the box ready to score.",
+              "That is why he makes players practise the final ball, such as a cross or a shot. He tells his young players to watch Harry Kane and keep learning. If they work hard, they can become different players.",
+              "Nuremberg are the youngest team in the German second tier, with an average age of 23.3 years. They sit second this season and are joint-top scorers."
+            ],
+            "word_to_know": {
+              "word": "penalty area",
+              "definition": "the box in front of the goal where footballers try to score"
+            },
+            "think_about_it": "Which player do you enjoy watching score goals, and what makes their finishing special?"
+          },
+          "word_count": 136,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.3,
+            "usage": {
+              "input_tokens": 3350,
+              "output_tokens": 383,
+              "cost_usd": 0.02106,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 28.1,
+          "writer_usage": {
+            "input_tokens": 2621,
+            "output_tokens": 3370,
+            "cost_usd": 0.016779,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 7,
+      "source_title": "Seals long ago evolved to hear above the water — and below",
+      "source_url": "https://www.snexplores.org/article/seal-ears-hearing-air-underwater",
+      "source_name": "Science News Explores",
+      "topic": "Animals and nature",
+      "source_words": 667,
+      "excerpt": "On land, a mother seal can pick out her pup’s cry on a noisy beach. Underwater, seals listen for songs of potential mates or calls warning of predators. This ability to hear well both in and out of the water is unique among mammals. And some marine mammals evolved it nearly 26.7 million years ago, a new study finds.\n\nSeals, sea lions and walruses are known as pinnipeds. They have amphibious hearing — or ears adapted to work well on land and in water. This is “something of a superpower,” says paleontologist James Rule. “They are the only mammals which can do this.” Rule works at Monash Universi",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Seals have super hearing in water and air",
+            "teaser": "Their ears have a clever trick for diving",
+            "topic": "Animals and nature",
+            "body": [
+              "Seals have a special hearing trick. They can hear well on land and underwater. Scientists have now found out that their ancestors developed this skill nearly 26.7 million years ago.",
+              "Seals, sea lions and walruses are called pinnipeds. They are the only mammals that can hear clearly both in air and in water. One scientist, James Rule, calls it \"something of a superpower\".",
+              "Our ears are filled with air, so we hear badly underwater. Pinnipeds have spongy tissue inside their ears. It fills with blood when they dive. Sound travels well through blood, so they can hear clearly and tell which direction a sound comes from.",
+              "The team used X-rays to scan 217 ears from museums around the world, including fossils of ancient animals. They shared what they found on 15 July.",
+              "This amazing hearing also gives many pinnipeds great rhythm. Like parrots, they can copy speaking and singing!"
+            ],
+            "word_to_know": {
+              "word": "fossils",
+              "definition": "The remains of animals or plants from long ago, kept safe in rock."
+            },
+            "think_about_it": "If you could hear clearly underwater, what sounds would you most like to listen to?"
+          },
+          "word_count": 150,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.1,
+            "usage": {
+              "input_tokens": 2871,
+              "output_tokens": 244,
+              "cost_usd": 0.016364,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.8,
+          "writer_usage": {
+            "input_tokens": 3434,
+            "output_tokens": 979,
+            "cost_usd": 0.033316,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Seals Have a Hearing Superpower",
+            "teaser": "How seal ears work both in air and under the sea",
+            "topic": "Animals and nature",
+            "body": [
+              "Seals, sea lions and walruses can hear well on land and underwater. Scientists say no other mammals can do this. A new study found that some of these animals evolved this skill nearly 26.7 million years ago.",
+              "Human ears do not work well underwater. Water is over 800 times more dense than air, so very little sound gets through. Seal ears are different. They have spongy tissue that fills with blood when the animal dives. Sound can travel well through blood, so the seal hears clearly.",
+              "The team used X-rays to scan 217 ear samples from museums. The samples came from 119 mammal species. The scans made detailed 3-D pictures, which helped the scientists work out when the special hearing began.",
+              "Seal ears are also very sensitive. Loud noise from boats can change how seals behave, including how they care for their young."
+            ],
+            "word_to_know": {
+              "word": "evolved",
+              "definition": "changed very slowly over many, many years"
+            },
+            "think_about_it": "Why do you think good hearing helps seals so much when they dive into deep, dark water?"
+          },
+          "word_count": 144,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 2832,
+              "output_tokens": 239,
+              "cost_usd": 0.016108,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4,
+          "writer_usage": {
+            "input_tokens": 3434,
+            "output_tokens": 430,
+            "cost_usd": 0.011168,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Seals have super-powered ears",
+            "teaser": "How do seals hear above water AND below it?",
+            "topic": "Animals and nature",
+            "body": [
+              "Seals, sea lions and walruses can hear well on land and underwater. Scientists call this amphibious hearing. Researcher James Rule says it is \"something of a superpower\" and that seals are the only mammals that can do it.",
+              "Human ears work badly underwater. Water is over 800 times more dense than air, so less than one percent of underwater sound reaches our ears.",
+              "Seal ears are different. Inside them is spongy tissue that fills with blood when the seal dives. Blood is closer in density to water than air is, so sound waves travel through it clearly.",
+              "The team X-ray scanned 217 ears from museums, including all 34 modern seal, sea lion and walrus species. This showed the special ears evolved almost 26.7 million years ago.",
+              "The scans also suggest seals are very sensitive to loud noises, like boat engines, which can disturb how mothers care for their pups."
+            ],
+            "word_to_know": {
+              "word": "density",
+              "definition": "How tightly packed the stuff in something is. Denser things, like water, feel heavier than less dense things, like air."
+            },
+            "think_about_it": "If you could hear as well underwater as seals can, what sounds would you want to listen for in the sea?"
+          },
+          "word_count": 150,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says Rule called 'seals' the only mammals that can do this, but in the source he says pinnipeds (seals, sea lions and walruses together) are the only mammals. This misreports his claim and clashes with the story's own first sentence.",
+              "'Boat engines' is not in the source, which only mentions loud sounds 'such as from boats'.",
+              "The source does not say the scans showed the sensitivity to noise. Rule makes that point as a consequence of the findings."
+            ],
+            "error": null,
+            "seconds": 8.6,
+            "usage": {
+              "input_tokens": 2877,
+              "output_tokens": 822,
+              "cost_usd": 0.027948,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3,
+          "writer_usage": {
+            "input_tokens": 1895,
+            "output_tokens": 363,
+            "cost_usd": 0.00064,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Seals have a hearing superpower",
+            "teaser": "Scientists scanned 217 ears to find out how seals hear so well",
+            "topic": "Animals and nature",
+            "body": [
+              "Seals, sea lions and walruses have a superpower. They are the only mammals that can hear well both on land and underwater.",
+              "These animals are known as pinnipeds. Inside their ears is spongy tissue. When they dive, it fills with blood. Because blood is much closer to water than air, sound waves travel through it easily. That lets them hear clearly below the waves.",
+              "Scientists wanted to find out when this clever trick first appeared. They used powerful X-ray scans to look at 217 ears from museums around the world. The scans showed ears from all 34 kinds of pinnipeds alive today, plus other animals like otters and fossils.",
+              "The team found that pinnipeds evolved this special hearing nearly 26.7 million years ago. It probably helped them survive as they moved into deeper seas.",
+              "The study was shared on 15 July in the journal Proceedings of the Royal Society B: Biological Sciences."
+            ],
+            "word_to_know": {
+              "word": "pinnipeds",
+              "definition": "A group of mammals with flippers that includes seals, sea lions and walruses"
+            },
+            "think_about_it": "Why do you think hearing underwater might help a seal survive?"
+          },
+          "word_count": 153,
+          "validation": {
+            "ok": false,
+            "reasons": [
+              "teaser is 62 characters; the limit is 60"
+            ]
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.3,
+            "usage": {
+              "input_tokens": 2879,
+              "output_tokens": 332,
+              "cost_usd": 0.018156,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 24.3,
+          "writer_usage": {
+            "input_tokens": 1900,
+            "output_tokens": 3012,
+            "cost_usd": 0.013493,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 5,
+      "source_title": "This teen piloted an underwater robot to study kelp forests",
+      "source_url": "https://www.snexplores.org/article/underwater-robot-kelp-forests-jic",
+      "source_name": "Science News Explores",
+      "topic": "Science",
+      "source_words": 463,
+      "excerpt": "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, Calif. There, he sees kelp beds off the coast on his way to school. California’s kelp severely declined in the 2010s due to a heat wave and other factors, Linden recently learned. But some of them near Santa Cruz have begun to bounce back. That made him wonder: Was that because the recovering beds had fewer sea urchins, which graze on kelp?\n\nTo find out, Linden looked at satellite data from a site called Kelpwatch. It helped him choose two declining, two recovering and two stable kelp beds in Santa Cruz. He then borrowed a remotely op",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Teen steers robot to explore kelp forests",
+            "teaser": "Why are some underwater forests growing back?",
+            "topic": "Science",
+            "body": [
+              "A 14-year-old called Linden Hunter-Pinsky has used an underwater robot to study kelp forests. Big beds of kelp grow in the sea near his home in Santa Cruz, California.",
+              "California's kelp shrank a lot in the 2010s, partly because of a heat wave. Now some beds near Santa Cruz are growing back. Linden wondered if those beds had fewer sea urchins, which eat kelp.",
+              "He picked beds that were shrinking, growing back or staying the same. He and his dad rowed out, and Linden steered a borrowed robot underwater to film them. He even got seasick!",
+              "The videos showed that none of the beds had many sea urchins. So something else may matter more. Kelp forests are home to many animals and protect shores from erosion.",
+              "Linden became a finalist in a big science competition in 2026. His advice is simple. Choose a project you really enjoy."
+            ],
+            "word_to_know": {
+              "word": "erosion",
+              "definition": "When land is slowly worn away, for example by waves or wind."
+            },
+            "think_about_it": "If you could send a robot anywhere to explore, where would you send it and what would you hope to find?"
+          },
+          "word_count": 147,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 4.6,
+            "usage": {
+              "input_tokens": 2436,
+              "output_tokens": 361,
+              "cost_usd": 0.016964,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.9,
+          "writer_usage": {
+            "input_tokens": 3001,
+            "output_tokens": 1005,
+            "cost_usd": 0.032104,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "Teen uses underwater robot to study kelp",
+            "teaser": "A 14-year-old steered a robot to find out why kelp is back",
+            "topic": "Science",
+            "body": [
+              "Linden Hunter-Pinsky, 14, lives by the ocean in Santa Cruz, California. He sees kelp beds on his way to school. Kelp is a big seaweed. Some beds near him had shrunk a lot, but some had started to bounce back.",
+              "Linden wondered if the healthy beds had fewer sea urchins, which graze on kelp. To find out, he borrowed a remotely operated vehicle, or ROV, from a local nonprofit. He steered it underwater with a remote control and filmed six kelp beds.",
+              "The videos showed that no kelp bed had many sea urchins. So urchins are probably not the reason only some beds are recovering. Linden thinks other things, such as runoff, may matter more.",
+              "This is important because kelp forests are home to many species. They also protect shores and trap carbon. Linden says he had lots of fun watching the fish swim past."
+            ],
+            "word_to_know": {
+              "word": "ROV",
+              "definition": "A remotely operated vehicle. It is a small robot that you steer from far away, often underwater."
+            },
+            "think_about_it": "If you could steer a robot anywhere underwater, what would you want to look for?"
+          },
+          "word_count": 145,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The story says Linden filmed 'six kelp beds', but the source never gives that number. It lists two declining, two recovering and two stable beds, so 'six' was worked out by adding them up.",
+              "The 'Word to know' calls the ROV a 'small' robot, but the source never describes its size."
+            ],
+            "error": null,
+            "seconds": 4.9,
+            "usage": {
+              "input_tokens": 2448,
+              "output_tokens": 398,
+              "cost_usd": 0.017752,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.2,
+          "writer_usage": {
+            "input_tokens": 3001,
+            "output_tokens": 478,
+            "cost_usd": 0.010782,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Teen pilots robot beneath the kelp",
+            "teaser": "A teen pilots an underwater robot to explore kelp forests.",
+            "topic": "Science",
+            "body": [
+              "A 14-year-old from California has piloted an underwater robot to study giant kelp forests. Linden Hunter-Pinsky lives by the ocean in Santa Cruz, where he spotted kelp beds on his way to school.",
+              "Linden learned that California's kelp declined badly in the 2010s during a heat wave. But some beds near his home have started to recover, and he wanted to know why. He wondered if sea urchins, which munch on kelp, were the reason.",
+              "He chose six kelp beds using satellite data, then borrowed a robot called an ROV, which stands for remotely operated vehicle. Steering it with a remote control, he filmed underwater at each bed.",
+              "The footage showed few sea urchins anywhere. So urchins are probably not the answer. Linden thinks other things, such as runoff, may matter more.",
+              "Kelp forests shelter many species and trap carbon that warms the planet. Linden's project made him a finalist in the 2026 Thermo Fisher Scientific Junior Innovators Challenge."
+            ],
+            "word_to_know": {
+              "word": "runoff",
+              "definition": "water, often carrying dirt or chemicals, that flows off the land into rivers or the sea"
+            },
+            "think_about_it": "If you could send a robot anywhere to explore, where would you send it and what would you hope to see?"
+          },
+          "word_count": 159,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The number 'six kelp beds' is not stated in the source. It was worked out by adding two declining, two recovering and two stable beds.",
+              "The word 'giant' in 'giant kelp forests' is not in the source."
+            ],
+            "error": null,
+            "seconds": 3.1,
+            "usage": {
+              "input_tokens": 2497,
+              "output_tokens": 223,
+              "cost_usd": 0.014448,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 4.3,
+          "writer_usage": {
+            "input_tokens": 1625,
+            "output_tokens": 358,
+            "cost_usd": 0.001567,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "Teen pilots robot to study kelp",
+            "teaser": "Linden, 14, finds out why some kelp beds recover",
+            "topic": "Science",
+            "body": [
+              "Linden Hunter-Pinsky is 14 and lives in Santa Cruz, California. He sees kelp beds in the ocean on his way to school. California's kelp declined in the 2010s, but some kelp beds near Santa Cruz began to recover.",
+              "Linden wondered if recovering kelp beds had fewer sea urchins, which eat kelp. He used satellite data to pick two declining, two recovering and two stable kelp beds. Then he borrowed an ROV, a remotely operated vehicle. He steered the ROV underwater with a remote control to collect video.",
+              "The video showed no kelp bed had many sea urchins. So sea urchins are probably not why only some kelp beds came back. Other things, like water runoff, may matter more. Kelp forests are home to many species and protect shores. They also trap carbon that warms the climate. Linden's work made him a finalist in the 2026 Thermo Fisher Scientific Junior Innovators Challenge. He says to choose a project you like."
+            ],
+            "word_to_know": {
+              "word": "ROV",
+              "definition": "A remotely operated vehicle, a robot you control from a distance to explore underwater."
+            },
+            "think_about_it": "What would you like to explore with an underwater robot?"
+          },
+          "word_count": 159,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The teaser says Linden 'finds out why some kelp beds recover', but the source says he only found that sea urchins are likely not the reason. He merely suspects other factors such as runoff, so the teaser overstates his findings."
+            ],
+            "error": null,
+            "seconds": 3.8,
+            "usage": {
+              "input_tokens": 2471,
+              "output_tokens": 314,
+              "cost_usd": 0.016164,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 40.6,
+          "writer_usage": {
+            "input_tokens": 1918,
+            "output_tokens": 6154,
+            "cost_usd": 0.026882,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    },
+    {
+      "candidate_id": 3,
+      "source_title": "Would you like to go into space?",
+      "source_url": "https://www.bbc.co.uk/newsround/articles/ckj0l0r76229o",
+      "source_name": "BBC Newsround",
+      "topic": "Space",
+      "source_words": 344,
+      "excerpt": "Ever dreamed of flying to the Moon and helping to build a base there?\n\nWell, there are a few things you'll need to do before you can make that dream come true.\n\nNasa has opened applications for astronauts to help in their next chapter of human spaceflight, so we've been checking out what they're looking for.\n\nThe chosen applicants will join the US space agency as they aim to return to the Moon, build a Moon base and lay groundwork for first crewed missions to Mars.\n\nNow if you think that sounds like a cool job let us know in the vote and have your say in the comments below.\n\nLast time Nasa put",
+      "extract_error": null,
+      "results": {
+        "anthropic:claude-opus-5-5": {
+          "story": {
+            "title": "Nasa wants new astronauts for the Moon",
+            "teaser": "Who will help build a base on the Moon?",
+            "topic": "Space",
+            "body": [
+              "Nasa, the US space agency, is looking for new astronauts. People can now apply to join, and applications are open until 3 December.",
+              "The new astronauts could help Nasa return to the Moon and build a Moon base there. They could also help get ready for the first crewed missions to Mars.",
+              "Nasa has only 32 active astronauts, so it needs more recruits. Last time it asked, more than 8,000 people applied, and only 10 were picked. One astronaut said, \"We have far more work than we have astronauts.\"",
+              "It is not an easy job to get. You must be a US citizen, so people in the UK cannot apply. You also need a master's degree in a subject like science or engineering, and at least three years of work experience.",
+              "Nasa expects to choose its new astronauts in late 2027."
+            ],
+            "word_to_know": {
+              "word": "recruits",
+              "definition": "New people who join a team or a group to help with its work."
+            },
+            "think_about_it": "If you could live and work on a Moon base, what would you most like to do there?"
+          },
+          "word_count": 142,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 3.6,
+            "usage": {
+              "input_tokens": 2114,
+              "output_tokens": 237,
+              "cost_usd": 0.013196,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 8.9,
+          "writer_usage": {
+            "input_tokens": 2732,
+            "output_tokens": 916,
+            "cost_usd": 0.029248,
+            "models_answered": [
+              "anthropic:claude-opus-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "anthropic:claude-sonnet-5-5": {
+          "story": {
+            "title": "NASA Wants New Astronauts for the Moon",
+            "teaser": "Could you help build a base on the Moon?",
+            "topic": "Space",
+            "body": [
+              "NASA has opened applications for new astronauts. The US space agency wants people to help it return to the Moon, build a Moon base and get ready for the first crewed missions to Mars.",
+              "NASA says it needs more astronauts. It has only 32 active astronauts, and it says it has far more work than astronauts to do it. Last time NASA asked for applications, more than 8,000 people applied and only 10 made the final cut.",
+              "There are rules for applying. You have to be a US citizen, so people in the UK cannot apply. You also need a master's degree in a STEM field, such as engineering or computer science, and at least three years of related work experience.",
+              "Applications are open until 3rd December. NASA expects to choose its new astronauts in late 2027."
+            ],
+            "word_to_know": {
+              "word": "STEM",
+              "definition": "A group of school and work subjects: science, technology, engineering and maths."
+            },
+            "think_about_it": "If you could work on a Moon base, what job would you most like to do there?"
+          },
+          "word_count": 138,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 2.9,
+            "usage": {
+              "input_tokens": 2109,
+              "output_tokens": 177,
+              "cost_usd": 0.011976,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 3.7,
+          "writer_usage": {
+            "input_tokens": 2732,
+            "output_tokens": 410,
+            "cost_usd": 0.009564,
+            "models_answered": [
+              "anthropic:claude-sonnet-5-5"
+            ],
+            "stop_reason": "end_turn"
+          }
+        },
+        "openrouter:z-ai/glm-5.3": {
+          "story": {
+            "title": "Nasa is looking for new astronauts",
+            "teaser": "Could a future Moon explorer be picked this year?",
+            "topic": "Space",
+            "body": [
+              "The US space agency Nasa is looking for new astronauts. The lucky people who are chosen could fly to the Moon, help build a Moon base, and maybe even prepare for trips to Mars.",
+              "Applications are open until 3 December, but there are some big rules. You must be a US citizen and have a master's degree in a STEM subject, such as science or engineering. You also need at least three years of work experience.",
+              "Nasa says it needs more explorers because it has only 32 active astronauts. Randy Bresnik, who will command the Artemis III Moon mission, said: \"We have far more work than we have astronauts.\"",
+              "Last time Nasa asked for astronauts, more than 8,000 people applied and only 10 were picked. Nasa will announce its final choices in late 2027. The new recruits will be part of Nasa's 25th astronaut class."
+            ],
+            "word_to_know": {
+              "word": "astronaut",
+              "definition": "a person trained to travel and work in space"
+            },
+            "think_about_it": "If you could visit anywhere in space, where would you go and what would you want to see?"
+          },
+          "word_count": 146,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": false,
+            "reasons": [
+              "The teaser asks whether a future Moon explorer could be 'picked this year', but the source says Nasa expects to make its final selection in late 2027, so the teaser is misleading and not supported.",
+              "The story says Nasa 'will announce' its final choices in late 2027 as a certainty, while the source only says Nasa 'expects to' make its final selection then."
+            ],
+            "error": null,
+            "seconds": 4.1,
+            "usage": {
+              "input_tokens": 2135,
+              "output_tokens": 313,
+              "cost_usd": 0.0148,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 2.6,
+          "writer_usage": {
+            "input_tokens": 1460,
+            "output_tokens": 318,
+            "cost_usd": 0.001001,
+            "models_answered": [
+              "openrouter:z-ai/glm-5.3"
+            ],
+            "stop_reason": "stop"
+          }
+        },
+        "openrouter:deepseek/deepseek-v4-pro-0813": {
+          "story": {
+            "title": "NASA wants new astronauts for Moon and Mars",
+            "teaser": "Could you be part of building a Moon base?",
+            "topic": "Space",
+            "body": [
+              "NASA has opened applications for new astronauts. They will help people return to the Moon and build a Moon base.",
+              "The space agency says it needs more recruits. Last time, more than 8,000 people applied and only 10 were chosen. There are just 32 active astronauts now.",
+              "To apply, you need a master's degree in a STEM field, such as engineering or computer science. You also need at least three years of related work experience. Applications are open until 3 December.",
+              "There is a catch for readers in the UK: you have to be a US citizen to apply. NASA hopes to pick its new team in late 2027.",
+              "This is an extraordinary time to join NASA's astronaut corps, said NASA Administrator Jared Isaacman. The people we select could walk on the Moon and help pioneer systems that will carry crews to Mars."
+            ],
+            "word_to_know": {
+              "word": "STEM",
+              "definition": "Subjects that help us understand and build things: Science, Technology, Engineering and Maths."
+            },
+            "think_about_it": "If you could live on a Moon base, what would you most like to do there?"
+          },
+          "word_count": 144,
+          "validation": {
+            "ok": true,
+            "reasons": []
+          },
+          "checker": {
+            "safe": true,
+            "supported": true,
+            "reasons": [],
+            "error": null,
+            "seconds": 5.1,
+            "usage": {
+              "input_tokens": 2137,
+              "output_tokens": 424,
+              "cost_usd": 0.017028,
+              "models_answered": [
+                "anthropic:claude-opus-5-5"
+              ],
+              "stop_reason": "end_turn"
+            }
+          },
+          "refused": false,
+          "refusal_category": null,
+          "error": null,
+          "seconds": 9.9,
+          "writer_usage": {
+            "input_tokens": 1469,
+            "output_tokens": 1616,
+            "cost_usd": 0.007358,
+            "models_answered": [
+              "openrouter:deepseek/deepseek-v4-pro-0813"
+            ],
+            "stop_reason": "stop"
+          }
+        }
+      }
+    }
+  ],
+  "totals": {
+    "anthropic:claude-opus-5-5": {
+      "stories_written": 6,
+      "passed_validation": 6,
+      "passed_checker": 6,
+      "sent_back": 0,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 144.3,
+      "writer_cost_usd": 0.228152,
+      "checker_cost_usd": 0.094632,
+      "avg_seconds_per_story": 9.8
+    },
+    "anthropic:claude-sonnet-5-5": {
+      "stories_written": 6,
+      "passed_validation": 5,
+      "passed_checker": 5,
+      "sent_back": 1,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 138.2,
+      "writer_cost_usd": 0.073866,
+      "checker_cost_usd": 0.092444,
+      "avg_seconds_per_story": 4
+    },
+    "openrouter:z-ai/glm-5.3": {
+      "stories_written": 6,
+      "passed_validation": 4,
+      "passed_checker": 1,
+      "sent_back": 5,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 147.2,
+      "writer_cost_usd": 0.008633,
+      "checker_cost_usd": 0.119276,
+      "avg_seconds_per_story": 3.2
+    },
+    "openrouter:deepseek/deepseek-v4-pro-0813": {
+      "stories_written": 6,
+      "passed_validation": 4,
+      "passed_checker": 5,
+      "sent_back": 1,
+      "refused": 0,
+      "errors": 0,
+      "avg_words": 148.8,
+      "writer_cost_usd": 0.110184,
+      "checker_cost_usd": 0.101716,
+      "avg_seconds_per_story": 21
+    }
+  }
+}

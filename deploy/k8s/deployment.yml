@@ -1,0 +1,123 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: early-edition-kids
+  namespace: my-apps
+  labels:
+    app.kubernetes.io/name: early-edition-kids
+    app.kubernetes.io/instance: early-edition-kids
+spec:
+  replicas: 1
+  # One SQLite writer on an RWO local-path volume: never run two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: early-edition-kids
+      app.kubernetes.io/instance: early-edition-kids
+  template:
+    metadata:
+      name: early-edition-kids
+      labels:
+        app.kubernetes.io/name: early-edition-kids
+        app.kubernetes.io/instance: early-edition-kids
+      annotations:
+        # Bump (or use `kubectl rollout restart`) after changing the ConfigMap.
+        early-edition-kids/config-revision: "1"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: early-edition-kids
+          image: registry.gitlab.com/kris-g/early-edition-kids:latest
+          imagePullPolicy: Always
+          ports:
+          # Kindle API (LAN LoadBalancer).
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          # Parent dashboard: ClusterIP + Ingress only, behind Authelia.
+          - containerPort: 8081
+            name: dashboard
+            protocol: TCP
+          env:
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "8080"
+            - name: DASHBOARD_PORT
+              value: "8081"
+            - name: EARLY_EDITION_KIDS_DATA_DIR
+              value: /data
+            - name: EARLY_EDITION_KIDS_CONFIG
+              value: /config/config.yaml
+            - name: TZ
+              value: Europe/London
+          envFrom:
+            - secretRef:
+                name: early-edition-kids-secrets
+            # LLM_API_KEY only, created by hand so it never sits in a file:
+            #   kubectl -n my-apps create secret generic \
+            #     early-edition-kids-llm-key --from-literal=LLM_API_KEY=...
+            - secretRef:
+                name: early-edition-kids-llm-key
+                optional: true
+            # OPENROUTER_API_KEY only (enables OpenRouter models), created by hand the same way:
+            #   kubectl -n my-apps create secret generic \
+            #     early-edition-kids-openrouter-key --from-literal=OPENROUTER_API_KEY=...
+            - secretRef:
+                name: early-edition-kids-openrouter-key
+                optional: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Generous: a generation run makes ~13 LLM calls and must not be
+          # killed half way because /healthz was briefly slow.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 6
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: early-edition-kids-pvc
+        - name: config
+          configMap:
+            name: early-edition-kids-config

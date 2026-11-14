@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>{{ topic }} · {{ title }}</title>
+<style>
+body { font-family: serif; line-height: 1.45; margin: 0; }
+p { margin: 0 0 0.8em 0; text-indent: 0; text-align: left; }
+.kicker { font-family: sans-serif; font-size: 0.7em; font-weight: bold; letter-spacing: 0.12em; margin: 0 0 0.5em 0; page-break-after: avoid; }
+/* KOReader's default stylesheet puts a page break before every h1; keep the headline on page 1. */
+h1 { font-size: 1.6em; line-height: 1.2; font-weight: bold; margin: 0 0 0.6em 0; text-align: left; page-break-before: avoid; page-break-after: avoid; }
+.box { border: 2px solid #000; padding: 0.6em 0.8em; margin: 1.2em 0 1em 0; font-family: sans-serif; font-size: 0.85em; page-break-inside: avoid; }
+.box p { margin: 0; }
+.box .label { font-size: 0.8em; font-weight: bold; letter-spacing: 0.12em; margin: 0 0 0.3em 0; }
+.source { font-family: sans-serif; font-size: 0.7em; margin: 1.5em 0 0 0; }
+</style>
+</head>
+<body>
+<p class="kicker">{{ topic | upper }} · {{ minutes }} MINUTE READ</p>
+<h1>{{ title }}</h1>
+{{ body_html }}
+{%- if word_to_know %}
+<div class="box">
+<p class="label">WORD TO KNOW</p>
+<p><b>{{ word_to_know.word | capitalize_first }}</b>: {{ word_to_know.definition }}</p>
+</div>
+{%- endif %}
+{%- if think_about_it %}
+<div class="box">
+<p class="label">THINK ABOUT IT</p>
+<p>{{ think_about_it }}</p>
+</div>
+{%- endif %}
+<p class="source">Source: {{ source_name }}</p>
+</body>
+</html>

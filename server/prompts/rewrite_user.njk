@@ -1,0 +1,22 @@
+Today is {{ today_long }}. The source was published on {{ published_long }}.
+
+Topic for this story: {{ topic }}
+source_name: {{ source_name }}
+source_url: {{ source_url }}
+{%- if favourite_players | length %}
+Favourite players (mention only if they are in the source): {{ favourite_players | join(", ") }}
+{%- endif %}
+
+SOURCE ARTICLE
+Headline: {{ source_title }}
+Summary: {{ source_summary }}
+
+{{ source_text }}
+END OF SOURCE ARTICLE
+{% if problems | length %}
+Your previous version was rejected for these reasons. Fix every one of them:
+{% for p in problems -%}
+- {{ p }}
+{% endfor %}
+{%- endif %}
+Write the story now. Reply with the JSON object only.

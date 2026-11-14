@@ -1,0 +1,33 @@
+# Model comparison harness (scripts/compare-models.ts): a server-only image, no web/ build.
+# Build from the REPO ROOT:
+#   docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile.compare \
+#     -t registry.gitlab.com/kris-g/early-edition-kids:compare --push .
+# It never opens the live database: the script works in a throwaway temp dir and writes its JSON
+# to stdout as one line starting "COMPARE_RESULT_JSON " (progress goes to stderr).
+
+FROM node:22-slim AS deps
+WORKDIR /app
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+
+FROM node:22-slim
+ENV NODE_ENV=production \
+    NODE_OPTIONS=--disable-warning=ExperimentalWarning \
+    EARLY_EDITION_KIDS_CONFIG=/config/config.yaml \
+    COMPARE_FORMAT=marker
+
+# UID/GID 10001, as the main image.
+RUN groupadd --system --gid 10001 early-edition-kids \
+ && useradd --system --uid 10001 --gid 10001 --home-dir /app --shell /usr/sbin/nologin early-edition-kids
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY server/package.json server/tsconfig.json ./
+COPY server/src ./src
+COPY server/scripts ./scripts
+COPY server/prompts ./prompts
+COPY server/templates ./templates
+COPY server/config.example.yaml /config/config.yaml
+
+USER 10001:10001
+CMD ["node", "--import", "tsx", "scripts/compare-models.ts"]

@@ -1,0 +1,25 @@
+# In-cluster address, used by the CronJob: http://early-edition-kids.my-apps.svc.cluster.local:8080
+# Port 8081 (dashboard) is ClusterIP only: it is reached through ingress.yaml,
+# behind Authelia, never directly from the LAN.
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: early-edition-kids
+    app.kubernetes.io/name: early-edition-kids
+  name: early-edition-kids
+  namespace: my-apps
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: http
+  - name: dashboard
+    port: 8081
+    protocol: TCP
+    targetPort: dashboard
+  selector:
+    app.kubernetes.io/instance: early-edition-kids
+    app.kubernetes.io/name: early-edition-kids
+  type: ClusterIP
