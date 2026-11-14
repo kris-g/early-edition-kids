@@ -1,5 +1,14 @@
 # Early Edition Kids
 
+> [!IMPORTANT]
+> ## 🤖 This is an AI-assisted project
+>
+> **Most of the code, docs and diagrams in this repo were written by AI.** The design came out of a chat with Claude on claude.ai, and the server, KOReader plugin, parent dashboard, tests and docs were then built with Claude Code (Anthropic's coding agent). A person directed the work, made the decisions, and tested it on a real Kindle and a home k3s cluster.
+>
+> It runs every morning for one family. Read the code before you rely on it, and treat it as a starting point rather than a finished product.
+>
+> The daily stories themselves are also written by an AI model, and checked by a second AI call before they reach the Kindle. See [the model comparison](docs/model-comparison.md) for how well that works.
+
 Early Edition Kids is a daily news brief for a child's jailbroken Kindle: a small server on the home k3s cluster picks about six stories each morning from kids' and UK news feeds, rewrites them at an 8 year old's reading level with an LLM, and checks them for safety. A KOReader plugin downloads the issue when the Kindle is woken, shows a headline list, and reports what was read so a parent can see it and tomorrow's selection can follow it.
 
 | Front page | Today's paper | End of a story | Back issues |
