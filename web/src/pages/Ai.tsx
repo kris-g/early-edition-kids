@@ -269,7 +269,7 @@ function ModelChooser({ data, onSaved }: { data: AiPage; onSaved: (v: AiPage) =>
             <select
               value={draft.check_model}
               onChange={(e) => pick({ check_model: e.target.value })}
-              className="min-h-[46px] w-full rounded-[10px] border border-line bg-card px-3 text-[15px] font-semibold text-ink"
+              className="min-h-[46px] w-full rounded-[10px] border border-line bg-card px-3 text-base font-semibold text-ink"
             >
               {byGroup.map((g) => (
                 <optgroup key={g.provider} label={groupName(g.provider)}>

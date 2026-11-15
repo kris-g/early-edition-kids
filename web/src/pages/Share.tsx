@@ -208,7 +208,7 @@ export function Share() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="First name or initial"
-                className="min-h-11 rounded-xl border border-line bg-bg px-3 text-[15px] text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+                className="min-h-11 rounded-xl border border-line bg-bg px-3 text-base text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               />
               <p className="m-0 text-xs leading-[1.45] text-muted">
                 Leave it blank to keep his name off. It is kept on this device only and never sent to the server.

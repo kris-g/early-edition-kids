@@ -9,9 +9,11 @@ import '@fontsource/playfair-display/latin-800.css'
 import '@fontsource/playfair-display/latin-900.css'
 import './index.css'
 import App from './App.tsx'
+import { blockZoom } from './lib/nozoom'
 import { startTheme } from './lib/theme'
 
 startTheme()
+blockZoom()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

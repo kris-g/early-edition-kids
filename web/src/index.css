@@ -74,6 +74,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* No double-tap zoom; pinch zoom is blocked in index.html and lib/nozoom.ts. */
+  touch-action: manipulation;
 }
 
 html,
