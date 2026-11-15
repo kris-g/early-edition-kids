@@ -210,6 +210,13 @@ function EarlyEditionKids:addToMainMenu(menu_items)
         text = "Early Edition settings",
         sorting_hint = "tools",
         sub_item_table = {
+            {
+                text_func = function()
+                    local url = Controller.ready and Controller:serverUrl() or ""
+                    return "Server address: " .. (url ~= "" and url or "not set")
+                end,
+                callback = later(function() Controller:editServerUrl() end),
+            },
             { text = "Check for news", callback = later(function() Controller:checkNow() end) },
             {
                 -- Covers KOReader start and a new issue arriving with no

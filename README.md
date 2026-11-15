@@ -73,7 +73,11 @@ docker run -d --name early-edition-kids --restart unless-stopped \
 
 ### 2. Install the plugin on the Kindle
 
-Follow [`plugin/README.md`](plugin/README.md): copy the plugin folder to the Kindle, and set `server_url` in its `config.lua` to the server's address on your network, such as `http://192.168.1.50:8080`.
+1. Download `earlyeditionkids.koplugin-<version>.zip` from the [latest release](https://github.com/kris-g/early-edition-kids/releases/latest) and unzip it.
+2. Copy the `earlyeditionkids.koplugin` folder to `koreader/plugins/` on the Kindle over USB, then restart KOReader.
+3. Open **Tools → Early Edition settings → Server address** and type the server's address on your network, such as `http://192.168.1.50:8080`. **Save and check** fetches today's paper straight away.
+
+[`plugin/README.md`](plugin/README.md) has the recommended KOReader settings and how it works with Simple UI.
 
 ### 3. Open the dashboard
 

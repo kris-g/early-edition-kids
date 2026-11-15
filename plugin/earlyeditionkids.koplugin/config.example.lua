@@ -1,6 +1,8 @@
--- Early Edition Kids settings. Copy this file to config.lua (in the same folder),
--- edit it, then restart KOReader. config.lua is yours: updates to the plugin
--- never overwrite it, and git ignores it.
+-- Optional. The server address is normally set on the Kindle, in
+-- Tools → Early Edition settings → Server address, which takes precedence over
+-- this file. To use a file instead, copy this to config.lua (in the same
+-- folder), edit it and restart KOReader. Release zips never contain config.lua,
+-- so updating the plugin never overwrites it, and git ignores it.
 return {
     -- Where the Early Edition Kids server is on the home network. Plain HTTP is fine on
     -- the LAN. No trailing slash needed.

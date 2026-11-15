@@ -1,0 +1,54 @@
+# Tests the KOReader plugin and, for a version tag (v1.2.3), attaches
+# earlyeditionkids.koplugin-1.2.3.zip to a GitHub Release. The same tag also
+# publishes the matching server image (image.yml).
+name: Plugin
+
+on:
+  push:
+    branches: [main]
+    paths: ["plugin/**", ".github/workflows/plugin.yml"]
+    tags: ["v*"]
+  pull_request:
+    paths: ["plugin/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the plugin tests under LuaJIT
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq luajit
+          sh plugin/spec/run.sh
+
+      - name: Build the zip
+        id: zip
+        run: |
+          version="${GITHUB_REF_NAME}"
+          [ "${GITHUB_REF_TYPE}" = "tag" ] || version="dev-${GITHUB_SHA::7}"
+          echo "path=$(sh plugin/package.sh "$version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: earlyeditionkids.koplugin
+          path: ${{ steps.zip.outputs.path }}
+
+      - name: Attach it to the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          notes="**Install the plugin:** download \`$(basename "${{ steps.zip.outputs.path }}")\`, unzip it, and copy the \`earlyeditionkids.koplugin\` folder to \`koreader/plugins/\` on the Kindle (over USB). Restart KOReader, then set the address in **Tools → Early Edition settings → Server address**. Updating keeps your settings.
+
+          **Server:** \`docker pull ghcr.io/${GITHUB_REPOSITORY_OWNER}/early-edition-kids:${tag#v}\` (or \`:latest\`). See the README's getting started."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "${{ steps.zip.outputs.path }}" --clobber
+          else
+            gh release create "$tag" "${{ steps.zip.outputs.path }}" --title "$tag" --notes "$notes" --generate-notes
+          fi

@@ -51,6 +51,7 @@ local Syncer = require("earlyeditionkids/syncer")
 local UIManager = require("ui/uimanager")
 local UUID = require("earlyeditionkids/uuid")
 local Api = require("earlyeditionkids/api")
+local ServerUrl = require("earlyeditionkids/serverurl")
 local ffiutil = require("ffi/util")
 local lfs = require("libs/libkoreader-lfs")
 local logger = require("logger")
@@ -68,7 +69,8 @@ local Controller = {
     clock = os.time,       -- wall clock, replaced by Env.now in setup
 }
 
--- No default server: it must come from config.lua (copied from config.example.lua).
+-- No default server: it is set on the Kindle (Early Edition settings → Server
+-- address) or, for people who prefer files, in config.lua.
 local DEFAULT_CONFIG = {
     server_url = "",
     earliest_fetch_hour = 5,
@@ -83,16 +85,17 @@ local function loadConfig(plugin_path)
     for k, v in pairs(DEFAULT_CONFIG) do cfg[k] = v end
     -- dofile, not require: a bare require("config") could pick up another
     -- plugin's config.lua from package.path.
-    local ok, user = pcall(dofile, plugin_path .. "/config.lua")
-    if ok and type(user) == "table" then
-        for k, v in pairs(user) do cfg[k] = v end
-    else
-        logger.warn("Early Edition Kids: could not read config.lua, using defaults:", user)
+    -- config.lua is optional: the server address is normally set from the menu.
+    local file = plugin_path .. "/config.lua"
+    if isFile(file) then
+        local ok, user = pcall(dofile, file)
+        if ok and type(user) == "table" then
+            for k, v in pairs(user) do cfg[k] = v end
+        else
+            logger.warn("Early Edition Kids: could not read config.lua, using defaults:", user)
+        end
     end
-    if type(cfg.server_url) ~= "string" or cfg.server_url == "" then
-        logger.warn("Early Edition Kids: no server_url; copy config.example.lua to config.lua and set it")
-        cfg.server_url = ""
-    end
+    if type(cfg.server_url) ~= "string" then cfg.server_url = "" end
     cfg.earliest_fetch_hour = tonumber(cfg.earliest_fetch_hour) or DEFAULT_CONFIG.earliest_fetch_hour
     return cfg
 end
@@ -119,7 +122,7 @@ function Controller:setup(plugin_path)
             root = self.root, fs = self.fs, json = JSON, store = self.store,
             on_delete_file = Env.cleanupDocFile,
         }
-        self.api = Api.new{ base_url = self.config.server_url, transport = Env.transport, json = JSON }
+        self.api = Api.new{ base_url = self:serverUrl(), transport = Env.transport, json = JSON }
         self.device_id = self.store:deviceId(UUID.v4)
         self.simpleui = SimpleUI.new(Env.simpleUI())
         -- Wall clock (device epoch); injectable so the tests do not depend on the real date.
@@ -130,8 +133,57 @@ function Controller:setup(plugin_path)
         return false
     end
     self.ready = true
-    logger.info("Early Edition Kids: ready; server", self.config.server_url, "data", self.root, "json", JSON.backend)
+    logger.info("Early Edition Kids: ready; version", Const.VERSION, "server", self:serverUrl() ~= "" and self:serverUrl() or "not set",
+                "data", self.root, "json", JSON.backend)
     return true
+end
+
+--- The server address: the one set on the Kindle, else config.lua's, else "".
+function Controller:serverUrl()
+    local s = self.store and self.store:setting("server_url")
+    if type(s) == "string" and s ~= "" then return s end
+    return self.config and self.config.server_url or ""
+end
+
+--- Saves the address typed on the Kindle ("" clears it, falling back to config.lua).
+function Controller:setServerUrl(url)
+    self.store:setSetting("server_url", (url and url ~= "") and url or nil)
+    self.store:save()
+    self.api = Api.new{ base_url = self:serverUrl(), transport = Env.transport, json = JSON }
+    logger.info("Early Edition Kids: server address set to", self:serverUrl())
+end
+
+--- Early Edition settings → Server address: type it, save, and check for news at once.
+function Controller:editServerUrl()
+    if not self.ready then return end
+    local InputDialog = require("ui/widget/inputdialog")
+    local dialog
+    dialog = InputDialog:new{
+        title = "Early Edition server address",
+        input = self:serverUrl() ~= "" and self:serverUrl() or "http://",
+        input_hint = ServerUrl.HINT,
+        description = "The address of the computer running the Early Edition server, with port 8080, for example "
+            .. ServerUrl.HINT .. ". The Kindle must be on the same network.",
+        buttons = { {
+            { text = "Cancel", id = "close", callback = function() UIManager:close(dialog) end },
+            {
+                text = "Save and check",
+                is_enter_default = true,
+                callback = function()
+                    local url, err = ServerUrl.normalize(dialog:getInputText())
+                    if not url then
+                        UIManager:show(InfoMessage:new{ text = err, timeout = 5 })
+                        return
+                    end
+                    UIManager:close(dialog)
+                    self:setServerUrl(url)
+                    if url ~= "" then UIManager:nextTick(function() self:checkNow() end) end
+                end,
+            },
+        } },
+    }
+    UIManager:show(dialog)
+    dialog:onShowKeyboard()
 end
 
 function Controller:today()
@@ -201,6 +253,7 @@ end
 
 function Controller:autoSync()
     if not self.ready or self.syncing then return end
+    if self:serverUrl() == "" then return end -- nothing to sync with until the address is set
     local should, reason, info = self:decide(false)
     logger.dbg("Early Edition Kids: auto sync?", should, reason, info.today, info.hour)
     if should then
@@ -212,6 +265,11 @@ end
 function Controller:checkNow()
     if not self.ready then return end
     if self.syncing then return end
+    if self:serverUrl() == "" then
+        UIManager:show(InfoMessage:new{
+            text = "Set the server address first: Early Edition settings → Server address.", timeout = 5 })
+        return
+    end
     local _, _, info = self:decide(true)
     self:startSync{ manual = true, expect_new = info.expect_new, reason = "manual" }
 end
@@ -582,7 +640,8 @@ function Controller:showStatus()
     end
     UIManager:show(InfoMessage:new{
         text = T("%1\n\nServer: %2\nToday's issue: %3\nLast check: %4 (%5)\nLast success: %6\nQueued events: %7\nDevice id: %8\nClock skew: %9 s",
-            Const.NAME, self.config.server_url ~= "" and self.config.server_url or "not set (copy config.example.lua to config.lua)",
+            Const.NAME .. " " .. Const.VERSION,
+            self:serverUrl() ~= "" and self:serverUrl() or "not set (Early Edition settings → Server address)",
             self.store:get("current_date") or "none",
             when(st.last_attempt_at), st.last_result or "-", when(st.last_success_at),
             self.queue:count(), self.device_id, self.store:get("clock_skew") or 0),

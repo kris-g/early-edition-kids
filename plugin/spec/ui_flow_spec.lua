@@ -78,6 +78,10 @@ local function fresh(opts)
     local mono = { t = 0 }
     S.mono = mono
     local backends = {}
+    -- The server address as set from the menu; opts.server_url = false leaves it unset.
+    if opts.server_url ~= false then
+        backends["earlyeditionkids.lua"] = H.memBackend({ settings = { server_url = opts.server_url or "http://eek.test:8080" } })
+    end
     package.loaded["earlyeditionkids/env"] = {
         fs = function() return fs end,
         transport = http.fn,
@@ -491,6 +495,37 @@ describe("plugin flow (stubbed KOReader)", function()
         S.run()
         local last = S.UIManager.shown[#S.UIManager.shown]
         truthy(last.text and last.text:find("Couldn't reach", 1, true))
+    end)
+end)
+
+describe("server address (stubbed KOReader)", function()
+    it("with no address: no automatic sync, and Check for news says where to set it", function()
+        local S = fresh{ server_url = false }
+        S.serve("2026-11-13", 1, { 41 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(#S.http.requests, 0)
+        eq(S.Controller:serverUrl(), "")
+        S.Controller:checkNow()
+        S.run()
+        eq(#S.http.requests, 0)
+        local last = S.UIManager.shown[#S.UIManager.shown]
+        truthy(last.text and last.text:find("Server address", 1, true))
+    end)
+
+    it("setting the address from the menu lets the next check fetch the paper", function()
+        local S = fresh{ server_url = false }
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        S.Controller:setServerUrl("http://192.168.1.50:8080")
+        eq(S.Controller:serverUrl(), "http://192.168.1.50:8080")
+        eq(S.Controller.store:setting("server_url"), "http://192.168.1.50:8080")
+        S.Controller:checkNow()
+        S.run()
+        truthy(#S.http.requests > 0)
+        truthy(S.http.requests[#S.http.requests].url:find("^http://192%.168%.1%.50:8080/"))
+        eq(S.Controller.store:get("current_date"), "2026-11-13")
     end)
 end)
 

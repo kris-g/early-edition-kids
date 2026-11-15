@@ -7,6 +7,8 @@ KOReader's plugin list.
 
 local Const = {
     NAME = "Early Edition Kids",
+    -- Stamped by plugin/package.sh when a release is built; "dev" in a git checkout.
+    VERSION = "dev",
     -- Fallback screen title until an issue arrives (the server sends its own `title`).
     DEFAULT_TITLE = "Early Edition",
 

@@ -7,18 +7,28 @@ KOReader's normal reader, and reports what was read.
 
 ## Install
 
-1. Copy `earlyeditionkids.koplugin/config.example.lua` to `config.lua` in the same folder, and edit it.
-   Git ignores `config.lua`, so your address stays out of the repo and a plugin update never overwrites it.
-   - `server_url`: the Early Edition Kids server, e.g. `http://192.168.1.50:8080`. Use an
-     IP address unless the Kindle can resolve a local hostname. Plain HTTP on
-     the LAN is fine.
-   - `earliest_fetch_hour`: no automatic look for today's issue before this
-     hour, Europe/London time (default 5; the server builds the issue at 05:30).
-2. Connect the Kindle by USB and copy the whole `earlyeditionkids.koplugin` folder to
-   `/mnt/us/koreader/plugins/` (on the USB drive: `koreader/plugins/`).
+1. Download `earlyeditionkids.koplugin-<version>.zip` from the [latest release](https://github.com/kris-g/early-edition-kids/releases/latest) and unzip it.
+2. Connect the Kindle by USB and copy the `earlyeditionkids.koplugin` folder to
+   `koreader/plugins/` on the Kindle's drive (`/mnt/us/koreader/plugins/` on the device).
 3. Restart KOReader. "Early Edition" (opens the front page) and "Early
    Edition settings" appear in the Tools menu (the spanner tab), in both the
    file browser and the reader.
+4. Open **Tools → Early Edition settings → Server address** and type the server's
+   address, such as `http://192.168.1.50:8080`: the IP address of the computer running
+   the server, and port 8080. Use an IP address unless the Kindle can resolve a local
+   hostname; plain HTTP on the home network is fine. **Save and check** fetches today's
+   paper straight away, or says what went wrong.
+
+To update, copy the new release's folder over the old one. The server address and
+reading history are kept in KOReader's settings, not in the plugin folder.
+
+**Prefer a file?** Copy `config.example.lua` to `config.lua` in the plugin folder and set
+`server_url` there instead. Release zips never contain `config.lua`, so an update never
+overwrites it. An address set from the menu takes precedence over the file. The file can
+also set `earliest_fetch_hour`: no automatic look for today's issue before this hour,
+London time (default 5).
+
+From a git checkout, the plugin is the `plugin/earlyeditionkids.koplugin` folder itself.
 
 Recommended KOReader settings:
 
@@ -206,12 +216,27 @@ KO_HOME=/path/to/copy EMULATE_READER_W=536 EMULATE_READER_H=724 EMULATE_READER_D
   KOREADER_WINDOW_POS_X=40 KOREADER_WINDOW_POS_Y=80 EEK_SCREENSHOT_TOUR=1 ../MacOS/koreader
 ```
 
+## Releases
+
+Pushing a version tag builds the release:
+
+```sh
+git tag v1.0.0 && git push github v1.0.0
+```
+
+The Plugin workflow (`.github/workflows/plugin.yml`) runs these tests under LuaJIT, then
+`plugin/package.sh` builds `earlyeditionkids.koplugin-1.0.0.zip` with the version stamped
+into `const.lua` and `_meta.lua` (shown on the Status screen), and attaches it to a GitHub
+Release. The same tag makes the Image workflow publish the server image as `:1.0.0`.
+`sh plugin/package.sh v1.0.0` builds the same zip locally, into `dist/`.
+
 ## Files
 
 ```
 earlyeditionkids.koplugin/
   _meta.lua, main.lua, config.example.lua (copy to config.lua)
-  earlyeditionkids/const.lua            names and numbers
+  earlyeditionkids/const.lua            names, numbers and the version
+  earlyeditionkids/serverurl.lua        checks and tidies the server address typed on the Kindle
   earlyeditionkids/clock.lua            Europe/London dates, clock skew
   earlyeditionkids/store.lua            state in the settings file
   earlyeditionkids/events.lua           event queue
