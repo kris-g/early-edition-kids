@@ -4,7 +4,7 @@ name: Image
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "server/**"
       - "web/**"
