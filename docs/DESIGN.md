@@ -57,7 +57,7 @@ Stack: Node.js and TypeScript run with `tsx` (no compile step; `tsc --noEmit` fo
 5. **Rewrite** each pick with its own LLM call (section 4.2). The calls can run in parallel, three at a time.
 6. **Check** each story (section 4.3). On failure, rewrite once more with the reason supplied; on a second failure, drop it and take a reserve.
 7. **Store** the issue: one row per story, plus one standalone HTML file per story and a JSON index.
-8. **Fallback:** if the LLM is unreachable or fewer than 3 stories pass, publish a catch-up issue (section 4.4). Feed text is never published unrewritten, from any source.
+8. **Fallback:** if the LLM is unreachable or fewer than 3 stories pass (fewer than `STORY_COUNT` when it is under 3), publish a catch-up issue (section 4.4). Feed text is never published unrewritten, from any source.
 
 A normal run makes about 13 LLM calls: one to select, six to rewrite, six to check.
 
@@ -101,7 +101,7 @@ Each story must pass all three stages.
 - `supported`: every name and claim in the story is in the source text.
 - It uses the writer's endpoint by default; `CHECK_LLM_MODEL` can point it at a different model. The writer never marks its own work.
 
-**Issue level:** fewer than 3 stories passing means the run failed; use the fallback.
+**Issue level:** fewer than 3 stories passing means the run failed; use the fallback. When `STORY_COUNT` is under 3, every story must pass instead.
 
 ### 4.4 Topic weighting and the catch-up fallback
 
@@ -129,7 +129,7 @@ Per topic, over the last 14 days: engagement rate = (engaged + 1) / (shown + 2).
 
 Effective weight = base weight x (0.5 + engagement rate), so between 0.5x and 1.5x base. Parents can pin or block a topic from the dashboard; that overrides the maths.
 
-**Catch-up fallback.** When a run fails, build the issue from stories in the last 7 days that no device opened, newest first, up to `STORY_COUNT`. They were already rewritten and checked. Store them as copies with new ids and `reused_from` set, and mark the issue `fallback: true`. If fewer than 3 are available, publish nothing: `/api/issue/today` stays 404 and the Kindle keeps showing the previous issue.
+**Catch-up fallback.** When a run fails, build the issue from stories in the last 7 days that no device opened, newest first, up to `STORY_COUNT`. They were already rewritten and checked. Store them as copies with new ids and `reused_from` set, and mark the issue `fallback: true`. If fewer than 3 are available (fewer than `STORY_COUNT` when it is under 3), publish nothing: `/api/issue/today` stays 404 and the Kindle keeps showing the previous issue.
 
 ### 4.5 Sources
 

@@ -27,7 +27,7 @@ flowchart TD
     check{"Check each story<br/>automatic checks, then a checker LLM call"}
     retry["Rewrite once more<br/>with the reasons"]
     reserve["Drop it and take a reserve"]
-    enough{"At least 3 stories passed?"}
+    enough{"At least 3 stories passed?<br/>(all of them if story_count is under 3)"}
     store["Store the issue<br/>one HTML file per story"]
     fallback["Publish a catch-up issue<br/>from stories he hasn't opened"]
 

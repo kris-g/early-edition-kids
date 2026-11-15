@@ -50,7 +50,7 @@ curl -X POST -H 'X-Admin-Token: dev' http://localhost:8080/admin/generate
 
 The reply is `{"date", "version", "fallback", "story_count", "status"}`; `status` is `created` or `exists`. With several profiles it makes each one's paper in turn and adds `"profiles": {"<id>": {...}}`; `?profile=<id>` makes just one. It is idempotent per date: a second call returns `exists`. Add `?force=true` for a new version, and `&date=YYYY-MM-DD` for another date.
 
-If no issue could be made (the LLM is down and there are fewer than 3 unopened stories from the last 7 days to reuse), the reply is HTTP 503 with `"status": "failed"`. A forced run that fails keeps the existing version.
+If no issue could be made (the LLM is down and there are fewer than 3 unopened stories from the last 7 days to reuse, or fewer than `story_count` when it is under 3), the reply is HTTP 503 with `"status": "failed"`. A forced run that fails keeps the existing version.
 
 In the cluster, the CronJob makes this call at 05:30 Europe/London. The pipeline is fully async, so `/healthz` keeps answering while it waits on the LLM. Generation and parent adds share a lock: a second generate call for the same date waits, then returns `exists`.
 
@@ -146,7 +146,7 @@ Edit them and restart the server. In the cluster they are baked into the image. 
 5. One rewrite call per story, three at a time.
 6. Mechanical checks: schema, lengths (title 45, teaser 60, body within `story_words` (120 to 200 in the example config, 100 to 160 if unset) in 3 to 5 paragraphs), topic, `source_url`, every number in the title, teaser and body present in the source, blocklist. Then a separate checker call returns `{safe, supported, reasons}`. A mechanical or "unsupported" failure gets one rewrite with the reasons; a second failure takes a reserve. "Not safe" takes a reserve straight away.
 7. Store the issue: database rows, one HTML file per story, `index.json`.
-8. If the LLM is unreachable or fewer than 3 stories pass, publish a catch-up issue from unopened stories of the last 7 days, or nothing if fewer than 3 are left.
+8. If the LLM is unreachable or fewer than 3 stories pass, publish a catch-up issue from unopened stories of the last 7 days, or nothing if fewer than 3 are left. With `story_count` under 3, the bar is `story_count` instead of 3.
 
 ## Tests and type checking
 

@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { issuesDir } from "../src/config.js";
 import { LLMUnavailable, StubLLM, type ChatMessage } from "../src/llm.js";
-import { fallbackCandidates, generate, type Context } from "../src/pipeline.js";
+import { fallbackCandidates, generate, minStories, type Context } from "../src/pipeline.js";
 import { addDays } from "../src/timeutil.js";
 import { NOW, TODAY, fixturePageFetcher, makeCtx } from "./helpers.js";
 
@@ -186,6 +186,34 @@ describe("pipeline", () => {
     expect(result.status).toBe("failed");
     expect(result.version).toBeNull();
     expect(ctx.db.getIssue(TODAY)).toBeUndefined();
+  });
+
+  it("publishes a paper of one or two stories when story_count asks for that few", async () => {
+    expect(minStories(6)).toBe(3);
+    expect(minStories(3)).toBe(3);
+    expect(minStories(2)).toBe(2);
+    expect(minStories(1)).toBe(1);
+    for (const n of [1, 2]) {
+      ctx = makeCtx();
+      ctx.config = { ...ctx.config, storyCount: n };
+      const result = await generate(ctx, TODAY, NOW);
+      expect(result.status).toBe("created");
+      expect(result.fallback).toBe(false);
+      expect(result.story_count).toBe(n);
+      ctx.cleanup();
+    }
+  });
+
+  it("publishes a two-story catch-up issue when story_count is 2", async () => {
+    ctx = makeCtx();
+    await seedIssue(ctx, addDays(TODAY, -1), [1, 2, 3, 4]);
+    ctx.config = { ...ctx.config, storyCount: 2 };
+    ctx.writer = new DownLLM();
+    ctx.checker = ctx.writer;
+    const result = await generate(ctx, TODAY, NOW);
+    expect(result.status).toBe("created");
+    expect(result.fallback).toBe(true);
+    expect(result.story_count).toBe(2);
   });
 
   it("ignores hidden, old and opened stories for catch-up", async () => {

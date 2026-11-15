@@ -47,6 +47,11 @@ import { countWords, parseVerdict, storyWordCount, validateStory, type Story } f
 import { minutesFor, storyStats, topicStats, type TopicStat } from "./weights.js";
 
 export const MIN_STORIES = 3;
+
+/** Stories a paper needs to be published: 3, or every story when story_count is smaller. */
+export function minStories(storyCount: number): number {
+  return Math.min(MIN_STORIES, Math.max(1, storyCount));
+}
 export const ARCHIVE_DAYS = 30;
 
 /** Serialises generation and parent adds, so only one of them changes an issue at a time. */
@@ -213,7 +218,7 @@ async function generateLocked(ctx: Context, date: string, now: Date, force: bool
   }
 
   let result: GenerateResult;
-  if (drafts.length >= MIN_STORIES) {
+  if (drafts.length >= minStories(ctx.config.storyCount)) {
     result = publishFresh(ctx, date, drafts);
     detail.push(`published ${result.story_count} stories as v${result.version}`);
     updateRequests(ctx.db, date, drafts, failedRequests);
@@ -454,7 +459,7 @@ async function buildFresh(
 
   const results = await Promise.all(picks.map(fillSlot));
   const drafts = results.filter((d): d is Draft => d !== null);
-  if (state.down && drafts.length < MIN_STORIES) throw new LLMUnavailable(state.down);
+  if (state.down && drafts.length < minStories(cfg.storyCount)) throw new LLMUnavailable(state.down);
   return drafts;
 }
 
@@ -865,7 +870,7 @@ export function fallbackCandidates(db: Database, target: string, days: number, l
 
 function publishFallback(ctx: Context, date: string, detail: string[]): GenerateResult {
   const picks = fallbackCandidates(ctx.db, date, ctx.config.fallbackDays, ctx.config.storyCount);
-  if (picks.length < MIN_STORIES) {
+  if (picks.length < minStories(ctx.config.storyCount)) {
     detail.push(`catch-up: only ${picks.length} unopened stories; publishing nothing`);
     return { date, version: null, fallback: true, story_count: 0, status: "failed", detail: [] };
   }
