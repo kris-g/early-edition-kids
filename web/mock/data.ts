@@ -191,6 +191,7 @@ export function makeStory(
       active_seconds: active,
       expected_seconds: expected,
       engaged: stats === 'engaged',
+      read_on: stats === 'finished' || stats === 'engaged' ? date : null,
     },
     body_html: bodyHtml(t, minutes),
     word_to_know: t.word ? { word: t.word[0], definition: t.word[1] } : null,

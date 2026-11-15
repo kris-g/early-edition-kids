@@ -11,6 +11,8 @@ export type StoryStats = {
   active_seconds: number;
   expected_seconds: number;
   engaged: boolean;
+  /** London date he first read it to the end, or null. Can be after the paper's own date. */
+  read_on: string | null;
 };
 
 export type StoryCard = {
@@ -50,6 +52,29 @@ export type IssueView = {
   read_count: number;
   /** Includes hidden ones, flagged. */
   stories: StoryCard[];
+};
+
+/** One story he read (or opened) on a day, from any paper. */
+export type DayRead = {
+  story: StoryCard;
+  /** When he last closed it that day (UTC ISO, the Kindle's time). */
+  at: string;
+  /** Reading time that day. */
+  active_seconds: number;
+  /** Read to the end that day. */
+  finished: boolean;
+};
+
+/** GET /day/:date: what he read that day, and that day's paper. */
+export type DayView = {
+  date: string;
+  /** Stories read to the end that day, from any paper. */
+  read: number;
+  minutes: number;
+  /** Everything opened that day, oldest first. */
+  reads: DayRead[];
+  /** That day's own paper, or null if there was none. */
+  paper: IssueView | null;
 };
 
 export type IssueSummary = { date: string; version: number; fallback: boolean; story_count: number; read_count: number };
@@ -94,6 +119,8 @@ export type Summary = {
   last_run_cost: RunCost | null;
   /** When the Kindle last synced (asked for today's paper or sent reading), or null. */
   kindle_seen_at: string | null;
+  /** Stories from earlier papers read to the end today. */
+  catch_up_today: number;
 };
 
 export type GenerateResponse = {

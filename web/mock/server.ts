@@ -86,6 +86,8 @@ app.get('/api/dashboard/summary', (_req, res) => {
     last_run: db.runs[0] ?? null,
     streak_detail: detail,
     last_run_cost: today ? lastRunCost() : null,
+    kindle_seen_at: today?.downloaded_by[0]?.received_at ?? null,
+    catch_up_today: 0,
   })
 })
 
@@ -138,6 +140,28 @@ app.get('/api/dashboard/issues/:date', (req, res) => {
   const rec = db.issues.get(req.params.date)
   if (!rec) return fail(res, 404, 'There is no issue for that date.')
   res.json(toIssueView(rec))
+})
+
+// The mock has no catching up: each paper is read on its own day.
+app.get('/api/dashboard/day/:date', (req, res) => {
+  const date = req.params.date
+  const rec = db.issues.get(date)
+  const paper = rec ? toIssueView(rec) : null
+  const reads = (paper?.stories ?? [])
+    .filter((s) => s.stats.opened)
+    .map((s, i) => ({
+      story: s,
+      at: new Date(Date.parse(`${date}T07:30:00Z`) + i * 4 * 60_000).toISOString(),
+      active_seconds: s.stats.active_seconds,
+      finished: s.stats.reached_end,
+    }))
+  res.json({
+    date,
+    read: reads.filter((r) => r.finished).length,
+    minutes: Math.round(reads.reduce((n, r) => n + r.active_seconds, 0) / 6) / 10,
+    reads,
+    paper,
+  })
 })
 
 app.get('/api/dashboard/stories/:id', (req, res) => {

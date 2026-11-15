@@ -3,6 +3,7 @@ import { api } from '../api/endpoints'
 import { ChevronRight } from '../components/Icons'
 import { Badge, ErrorNote, Loading, PageHeader } from '../components/ui'
 import { londonToday, longDate } from '../lib/format'
+import { dayPath } from '../lib/day'
 import { useApi } from '../lib/useApi'
 
 export function Issues() {
@@ -22,7 +23,7 @@ export function Issues() {
           {issues.data.map((i) => (
             <li key={`${i.date}-${i.version}`}>
               <Link
-                to={i.date === today ? '/' : `/issues/${i.date}`}
+                to={dayPath(i.date, 'paper')}
                 className="flex min-h-16 items-center gap-3 px-4 py-3 transition hover:bg-chip"
               >
                 <div className="min-w-0 flex-1">

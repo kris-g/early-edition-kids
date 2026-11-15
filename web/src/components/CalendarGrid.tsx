@@ -3,13 +3,14 @@ import type { CalendarView } from '../api/types'
 import { cx } from '../lib/cx'
 import { calendarCells, cellClass, type CalendarCell } from '../lib/stats'
 import { dayTip } from '../lib/tips'
+import { CheckIcon } from './Icons'
 import { useRoving } from './tooltip/useRoving'
 import { useTip } from './tooltip/useTip'
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 function cellText(c: CalendarCell, today: string): string {
-  return dayTip({ date: c.date, issue: c.issue, stories: c.stories, read: c.read, minutes: c.minutes }, today)
+  return dayTip({ date: c.date, issue: c.issue, stories: c.stories, read: c.read, minutes: c.minutes, allRead: c.allRead }, today)
 }
 
 /** Month grid, Monday first. Interactive (buttons) on the Calendar page, plain on the overview. */
@@ -47,10 +48,13 @@ export function CalendarGrid({
             <>
               <span className={cx('font-semibold', compact ? 'text-xs' : 'text-[13px]')}>{c.day}</span>
               <span className="min-h-[13px] text-[11px] font-bold">{c.inMonth && !c.future ? c.read : ''}</span>
+              {c.inMonth && c.allRead && (
+                <CheckIcon aria-hidden="true" className={cx('absolute top-0.5 right-0.5 text-accent', c.shade === 3 && 'text-on-accent', compact ? 'size-2.5' : 'size-3')} />
+              )}
             </>
           )
           const cls = cx(
-            'box-border flex flex-col items-center justify-center gap-px p-0',
+            'relative box-border flex flex-col items-center justify-center gap-px p-0',
             height,
             cellClass(c),
             c.isToday && 'outline-2 outline-offset-2 outline-ink',
@@ -112,7 +116,11 @@ export function CalendarLegend() {
         <span className="shade-2 size-3.5 rounded" />3 to 4
       </span>
       <span className="flex items-center gap-[5px]">
-        <span className="size-3.5 rounded bg-accent" />5 to 6
+        <span className="size-3.5 rounded bg-accent" />5 or more
+      </span>
+      <span className="flex items-center gap-[5px]">
+        <CheckIcon aria-hidden="true" className="size-3.5 text-accent" />
+        That day’s paper all read
       </span>
     </div>
   )

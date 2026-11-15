@@ -7,9 +7,12 @@ import { injected, type Context } from "../pipeline.js";
 import { LONDON, addDays, londonDate } from "../timeutil.js";
 import { callsInMonth } from "../usage.js";
 import { storyStats } from "../weights.js";
+import { cardsFor, issueView } from "./views.js";
 import type {
   AiView,
   CalendarView,
+  DayRead,
+  DayView,
   ModelOption,
   ReadingDay,
   ReadingView,
@@ -25,8 +28,10 @@ const round6 = (x: number) => Math.round(x * 1e6) / 1e6;
 // ---- reading events ----
 
 export interface Closed {
-  /** London date the server received it. */
+  /** London date he closed it (the Kindle's time; when the server got it, if that is missing). */
   date: string;
+  /** When he closed it, seconds since the epoch. */
+  at: number;
   storyId: number;
   seconds: number;
   read: boolean;
@@ -37,20 +42,24 @@ const toInt = (v: unknown) => {
   return Number.isFinite(n) ? Math.trunc(n) : 0;
 };
 
-/** Every story_closed event in the order received, dated by when the server received it (Europe/London). */
+/**
+ * Every story_closed event, oldest first, dated by when he closed it on the Kindle (Europe/London).
+ * Reading done at night and uploaded in the morning still counts on the night he read it.
+ */
 export function closedEvents(ctx: Context, from?: string, to?: string): Closed[] {
   const out: Closed[] = [];
-  for (const e of ctx.db.query("SELECT story_id, received_at, payload_json FROM events WHERE type = 'story_closed' ORDER BY received_at, id")) {
-    const at = new Date(e.received_at);
+  for (const e of ctx.db.query("SELECT story_id, ts, received_at, payload_json FROM events WHERE type = 'story_closed'")) {
+    const ts = toInt(e.ts);
+    const at = ts > 0 ? new Date(ts * 1000) : new Date(e.received_at);
     if (Number.isNaN(at.getTime())) continue;
     const date = londonDate(at);
     if ((from && date < from) || (to && date > to)) continue;
     const p = loadsJson<Record<string, any>>(e.payload_json, {}) ?? {};
     const total = toInt(p.pages_total);
     const read = p.finished === true || (total > 0 && toInt(p.max_page) >= total);
-    out.push({ date, storyId: Number(e.story_id), seconds: Math.max(0, toInt(p.active_seconds)), read });
+    out.push({ date, at: at.getTime() / 1000, storyId: Number(e.story_id), seconds: Math.max(0, toInt(p.active_seconds)), read });
   }
-  return out;
+  return out.sort((a, b) => a.at - b.at);
 }
 
 interface DayTotals {
@@ -367,4 +376,46 @@ export function aiView(ctx: Context, now: Date): AiView {
     },
     provider_last_used: lastCall ? String(lastCall.provider) : null,
   };
+}
+
+// ---- one day ----
+
+/** What he read on `date` (from any paper), and that day's own paper. */
+export function dayView(ctx: Context, date: string, today: string): DayView {
+  const closed = closedEvents(ctx, date, date);
+  const byStory = new Map<number, { at: number; seconds: number; finished: boolean }>();
+  for (const e of closed) {
+    const r = byStory.get(e.storyId) ?? { at: e.at, seconds: 0, finished: false };
+    r.at = Math.max(r.at, e.at);
+    r.seconds += e.seconds;
+    r.finished ||= e.read;
+    byStory.set(e.storyId, r);
+  }
+  const rows = [...byStory.keys()].map((id) => ctx.db.getStory(id)).filter((r): r is Row => Boolean(r));
+  const cards = new Map(cardsFor(ctx, rows, today).map((c) => [c.id, c]));
+  const reads: DayRead[] = [...byStory.entries()]
+    .filter(([id]) => cards.has(id))
+    .sort((a, b) => a[1].at - b[1].at)
+    .map(([id, r]) => ({
+      story: cards.get(id)!,
+      at: new Date(r.at * 1000).toISOString(),
+      active_seconds: r.seconds,
+      finished: r.finished,
+    }));
+  return {
+    date,
+    read: reads.filter((r) => r.finished).length,
+    minutes: round1(closed.reduce((n, e) => n + e.seconds, 0) / 60),
+    reads,
+    paper: issueView(ctx, date, today),
+  };
+}
+
+/** Stories from earlier papers read to the end today. */
+export function catchUpToday(ctx: Context, today: string): number {
+  const ids = new Set(closedEvents(ctx, today, today).filter((e) => e.read).map((e) => e.storyId));
+  if (!ids.size) return 0;
+  return ctx.db
+    .query(`SELECT issue_date FROM stories WHERE id IN (${[...ids].map(() => "?").join(",")})`, [...ids])
+    .filter((r) => r.issue_date < today).length;
 }

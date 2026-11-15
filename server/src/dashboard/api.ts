@@ -14,7 +14,7 @@ import { londonDate } from "../timeutil.js";
 import { fullStreak, storyStats, topicStats } from "../weights.js";
 import { requireHeader } from "./guard.js";
 import { shareView } from "./share.js";
-import { aiView, calendarView, lastRunCost, readingView, streakDetail } from "./stats.js";
+import { aiView, calendarView, catchUpToday, dayView, lastRunCost, readingView, streakDetail } from "./stats.js";
 import { Jobs } from "./jobs.js";
 import type { ArticleHit, Job, Summary, TopicMode } from "./types.js";
 import {
@@ -66,6 +66,7 @@ export function dashboardApi(deps: DashboardDeps): Router {
       streak_detail: streakDetail(ctx, t),
       last_run_cost: lastRunCost(ctx),
       kindle_seen_at: kindleSeenAt(ctx.db),
+      catch_up_today: catchUpToday(ctx, t),
     };
     res.json(body);
   });
@@ -79,6 +80,13 @@ export function dashboardApi(deps: DashboardDeps): Router {
     const month = typeof req.query.month === "string" && req.query.month ? req.query.month : today().slice(0, 7);
     if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new HttpError(400, "The month must look like 2026-11.");
     res.json(calendarView(ctx, today(), month));
+  });
+
+  router.get("/day/:date", (req, res) => {
+    const date = String(req.params.date);
+    const t = today();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > t) throw new HttpError(404, "not a day yet");
+    res.json(dayView(ctx, date, t));
   });
 
   router.get("/share", (_req, res) => {

@@ -24,7 +24,7 @@ describe('chart tooltips', () => {
   it('every bar carries its text as an accessible name', () => {
     renderBars()
     expect(screen.getByRole('img', { name: 'Mon 9 Nov · Not read' })).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Tue 10 Nov · 5 of 6 stories read · 9 min reading' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Tue 10 Nov · 5 stories read · 9 min reading' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Wed 11 Nov · No paper' })).toBeInTheDocument()
   })
 
@@ -38,7 +38,7 @@ describe('chart tooltips', () => {
     expect(screen.getByRole('tooltip')).toHaveTextContent('Wed 11 Nov · No paper')
 
     await user.keyboard('{ArrowLeft}')
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Tue 10 Nov · 5 of 6 stories read · 9 min reading')
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Tue 10 Nov · 5 stories read · 9 min reading')
 
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()

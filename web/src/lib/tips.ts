@@ -3,7 +3,7 @@
 import type { ReadingDay } from '../api/types'
 import { money, oneDecimal, plural, shortDate } from './format'
 
-export type TipDay = Pick<ReadingDay, 'date' | 'issue' | 'stories' | 'read' | 'minutes'>
+export type TipDay = Pick<ReadingDay, 'date' | 'issue' | 'stories' | 'read' | 'minutes'> & { allRead?: boolean }
 
 function minutesText(minutes: number): string | null {
   if (!minutes || minutes <= 0) return null
@@ -11,7 +11,7 @@ function minutesText(minutes: number): string | null {
   return `${oneDecimal(minutes)} min reading`
 }
 
-/** "Tue 10 Nov · 5 of 6 stories read · 9 min reading", "… · Not read", "… · No paper", "… · Not yet". */
+/** "Tue 10 Nov · 5 stories read · 9 min reading", "… · Not read", "… · No paper", "… · Not yet". */
 export function dayTip(day: TipDay, today: string): string {
   const date = shortDate(day.date)
   if (day.date > today) return `${date} · Not yet`
@@ -21,9 +21,10 @@ export function dayTip(day: TipDay, today: string): string {
       ? [date, 'No paper', `${plural(day.read, 'story', 'stories')} read`, mins].filter(Boolean).join(' · ')
       : `${date} · No paper`
   }
-  if (day.read <= 0) return `${date} · Not read`
-  const read = day.stories > 0 ? `${day.read} of ${day.stories} stories read` : `${plural(day.read, 'story', 'stories')} read`
-  return [date, read, mins].filter(Boolean).join(' · ')
+  // The count is what he read that day, from any paper, so it can be more than the day's own paper.
+  const paper = day.allRead ? 'Paper all read' : null
+  if (day.read <= 0) return [date, 'Not read', paper].filter(Boolean).join(' · ')
+  return [date, `${plural(day.read, 'story', 'stories')} read`, mins, paper].filter(Boolean).join(' · ')
 }
 
 /** "Tue 10 Nov · $0.36 · 15 calls" (calls only when known). */

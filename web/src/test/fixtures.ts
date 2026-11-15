@@ -3,7 +3,7 @@ import type { ReadingView, ShareView } from '../api/types'
 import type { Job, StoryCard, StoryStats } from '../api/types'
 
 export function stats(over: Partial<StoryStats> = {}): StoryStats {
-  return { opened: false, reached_end: false, active_seconds: 0, expected_seconds: 90, engaged: false, ...over }
+  return { opened: false, reached_end: false, active_seconds: 0, expected_seconds: 90, engaged: false, read_on: null, ...over }
 }
 
 export function card(over: Partial<StoryCard> = {}): StoryCard {

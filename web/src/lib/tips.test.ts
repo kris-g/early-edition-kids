@@ -4,9 +4,9 @@ import { costTip, dayTip, stageTip, topicTip } from './tips'
 const today = '2026-11-13'
 
 describe('tooltip text', () => {
-  it('a read day: date, stories read of the paper, minutes', () => {
+  it('a read day: date, stories read that day, minutes', () => {
     expect(dayTip({ date: '2026-11-10', issue: true, stories: 6, read: 5, minutes: 9 }, today)).toBe(
-      'Tue 10 Nov · 5 of 6 stories read · 9 min reading',
+      'Tue 10 Nov · 5 stories read · 9 min reading',
     )
   })
 
@@ -27,13 +27,13 @@ describe('tooltip text', () => {
 
   it('keeps one decimal like the chart labels', () => {
     expect(dayTip({ date: '2026-11-08', issue: true, stories: 6, read: 6, minutes: 11.9 }, today)).toBe(
-      'Sun 8 Nov · 6 of 6 stories read · 11.9 min reading',
+      'Sun 8 Nov · 6 stories read · 11.9 min reading',
     )
   })
 
   it('a short read with no whole minute', () => {
     expect(dayTip({ date: '2026-11-13', issue: true, stories: 6, read: 1, minutes: 0.5 }, today)).toBe(
-      'Fri 13 Nov · 1 of 6 stories read · 0.5 min reading',
+      'Fri 13 Nov · 1 story read · 0.5 min reading',
     )
   })
 
@@ -46,5 +46,17 @@ describe('tooltip text', () => {
     expect(stageTip('Writing', 7, 0.3, 0.46)).toBe('Writing · 7 calls · $0.30 (65%)')
     expect(topicTip('Football', 10, 13)).toBe('Football · 10 of 13 read (77%)')
     expect(topicTip('Weather', 0, 0)).toBe('Weather · none shown')
+  })
+})
+
+describe('dayTip and catching up', () => {
+  it('counts what he read that day, and says when the paper itself is all read', () => {
+    const today = '2026-11-15'
+    expect(dayTip({ date: '2026-11-15', issue: true, stories: 6, read: 9, minutes: 34.3, allRead: true }, today)).toBe(
+      'Sun 15 Nov · 9 stories read · 34.3 min reading · Paper all read',
+    )
+    expect(dayTip({ date: '2026-11-12', issue: true, stories: 2, read: 0, minutes: 0, allRead: true }, today)).toBe(
+      'Thu 12 Nov · Not read · Paper all read',
+    )
   })
 })

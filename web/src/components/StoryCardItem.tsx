@@ -12,8 +12,8 @@ const PILL: Record<StoryStatusKind, string> = {
 }
 
 /** "Read to the end · 1 min 50 s", "Opened · 20 s" or "Not opened yet". */
-export function StatusPill({ stats, short }: { stats: StoryStats; short?: boolean }) {
-  const s = storyStatus(stats, short)
+export function StatusPill({ stats, short, paperDate }: { stats: StoryStats; short?: boolean; paperDate?: string }) {
+  const s = storyStatus(stats, short, paperDate)
   return (
     <span className={cx('inline-flex rounded-full px-[9px] py-1 text-xs leading-none font-bold', PILL[s.kind])}>
       {s.label}
@@ -44,7 +44,7 @@ export function StoryCardItem({
           {story.title}
         </span>
         <span className="flex flex-wrap items-center gap-1.5">
-          <StatusPill stats={story.stats} />
+          <StatusPill stats={story.stats} paperDate={story.date} />
           {story.hidden && <Badge tone="amber">Hidden</Badge>}
           {story.added_by_parent && <Badge>Added by you</Badge>}
           {story.reused && <Badge title="Reused from an earlier issue">From an earlier day</Badge>}

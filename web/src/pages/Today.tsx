@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { api } from '../api/endpoints'
 import type { StoryCard } from '../api/types'
 import { AiRunRow, IssueBadges, KindlePill, StreakCard } from '../components/home'
+import { CatchUpLink } from '../components/CatchUpLink'
 import { RefreshIcon } from '../components/Icons'
 import { ProgressSegments } from '../components/charts/Bars'
 import { IssueStories } from '../components/IssueStories'
@@ -84,6 +85,7 @@ function PhoneToday() {
                 </div>
                 <ProgressSegments read={issue.read_count} total={visibleCount(issue)} />
                 <IssueBadges issue={issue} />
+                <CatchUpLink count={data.catch_up_today} today={today} />
               </>
             ) : (
               <div className="flex flex-col gap-1">

@@ -151,6 +151,11 @@ export function weekdayDayMonth(date: string): string {
   return fmt({ weekday: 'long', day: 'numeric', month: 'long' }).format(dateOnly(date))
 }
 
+/** "Sun 15 Nov" */
+export function weekdayDayMonthShort(date: string): string {
+  return fmt({ weekday: 'short', day: 'numeric', month: 'short' }).format(dateOnly(date))
+}
+
 /** "Fri 13" */
 export function weekdayShortDay(date: string): string {
   return fmt({ weekday: 'short', day: 'numeric' }).format(dateOnly(date))
@@ -236,9 +241,16 @@ export function prettyModel(id: string): string {
 /** "Read to the end · 1 min 50 s" and friends, for the story status pills. */
 export type StoryStatusKind = 'read' | 'opened' | 'none'
 
-export function storyStatus(stats: StoryStats, short = false): { kind: StoryStatusKind; label: string } {
+/** With `paperDate`, a story read on a later day says when: "Read on Sun 15 Nov · 3 min 27 s". */
+export function storyStatus(
+  stats: StoryStats,
+  short = false,
+  paperDate?: string,
+): { kind: StoryStatusKind; label: string } {
   if (stats.reached_end) {
-    return { kind: 'read', label: `${short ? 'Read' : 'Read to the end'} · ${duration(stats.active_seconds)}` }
+    const later = paperDate && stats.read_on && stats.read_on !== paperDate
+    const what = later ? `Read on ${weekdayDayMonthShort(stats.read_on!)}` : short ? 'Read' : 'Read to the end'
+    return { kind: 'read', label: `${what} · ${duration(stats.active_seconds)}` }
   }
   if (stats.opened) return { kind: 'opened', label: `Opened · ${duration(stats.active_seconds)}` }
   return { kind: 'none', label: 'Not opened yet' }

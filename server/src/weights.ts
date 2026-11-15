@@ -39,6 +39,8 @@ export interface StoryStat {
   activeSeconds: number;
   expectedSeconds: number;
   engaged: boolean;
+  /** Seconds since the epoch when he first read it to the end (the Kindle's time), or null. */
+  finishedAt: number | null;
   hasEvents: boolean;
 }
 
@@ -98,7 +100,7 @@ export function storyStats(
   const ids = rows.map((r) => Number(r.id));
   const eventsByStory = new Map<number, Array<Record<string, any>>>();
   for (const ev of db.query(
-    `SELECT story_id, type, payload_json FROM events WHERE story_id IN (${ids.map(() => "?").join(",")})`,
+    `SELECT story_id, type, ts, payload_json FROM events WHERE story_id IN (${ids.map(() => "?").join(",")})`,
     ids,
   )) {
     const sid = Number(ev.story_id);
@@ -128,6 +130,7 @@ export function storyStats(
       activeSeconds: 0,
       expectedSeconds: expectedSeconds(Number(r.word_count), config.readingWpm),
       engaged: false,
+      finishedAt: null,
       hasEvents: false,
     };
     const evs = eventsByStory.get(s.id) ?? [];
@@ -142,6 +145,8 @@ export function storyStats(
         const max = toInt(p.max_page) ?? 0;
         if (total > 0 && max >= total) finished = true;
         s.finished = s.finished || finished;
+        const at = toInt(ev.ts);
+        if (finished && at !== null && (s.finishedAt === null || at < s.finishedAt)) s.finishedAt = at;
       }
     }
     const listed = shownVersions.has(`${s.issueDate}|${s.issueVersion}`) || shownVersions.has(`${s.issueDate}|*`);

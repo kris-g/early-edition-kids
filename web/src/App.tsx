@@ -5,7 +5,7 @@ import { SignedOutNotice } from './components/SignedOutNotice'
 import { TooltipProvider } from './components/tooltip/TooltipProvider'
 import { BASE_PATH } from './config'
 import { Find } from './pages/Find'
-import { IssueDetail } from './pages/IssueDetail'
+import { Day, IssueRedirect } from './pages/Day'
 import { Issues } from './pages/Issues'
 import { Ai } from './pages/Ai'
 import { Calendar } from './pages/Calendar'
@@ -29,7 +29,8 @@ export function AppRoutes() {
             <Route index element={<Today />} />
             <Route path="story/:id" element={<Story />} />
             <Route path="issues" element={<Issues />} />
-            <Route path="issues/:date" element={<IssueDetail />} />
+            <Route path="issues/:date" element={<IssueRedirect />} />
+            <Route path="day/:date" element={<Day />} />
             <Route path="find" element={<Find />} />
             <Route path="topics" element={<Topics />} />
             <Route path="reading" element={<Reading />} />

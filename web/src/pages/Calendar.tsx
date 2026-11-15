@@ -1,12 +1,15 @@
-import { useSearchParams } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
-import type { CalendarView, IssueView } from '../api/types'
+import type { CalendarView, StoryCard } from '../api/types'
 import { CalendarGrid, CalendarLegend } from '../components/CalendarGrid'
-import { CheckCircleIcon, ChevronLeft, ChevronRight, EmptyCircleIcon, HalfCircleIcon } from '../components/Icons'
-import { BigNumber, Card, ErrorNote, LinkButton, Loading, PageHeader, SectionTitle } from '../components/ui'
-import { cx } from '../lib/cx'
-import { addMonths, clockTime, duration, londonToday, monthTitle, weekdayDayMonth } from '../lib/format'
+import { ChevronLeft, ChevronRight } from '../components/Icons'
+import { BigNumber, Card, ErrorNote, Loading, PageHeader, SectionTitle } from '../components/ui'
+import { dayPath, type DayMode } from '../lib/day'
+import { addMonths, londonToday, monthTitle, weekdayDayMonth } from '../lib/format'
+import { withStory } from '../lib/issue'
 import { useApi } from '../lib/useApi'
+import { ModeSwitch, PaperOfDay, ReadThatDay } from './Day'
 
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/
 
@@ -79,7 +82,7 @@ export function Calendar() {
               <Total value={view.all_read_days} label={view.all_read_days === 1 ? 'all-read day' : 'all-read days'} />
             </div>
           </div>
-          {picked && <DayPanel date={picked} view={view} today={today} />}
+          {picked && <DayPanel key={picked} date={picked} today={today} />}
         </div>
       )}
     </div>
@@ -95,78 +98,32 @@ function Total({ value, label }: { value: number; label: string }) {
   )
 }
 
-function DayPanel({ date, view, today }: { date: string; view: CalendarView; today: string }) {
-  const info = view.days.find((d) => d.date === date)
-  const issue = useApi(info?.issue ? `issue:${date}` : null, (s) => api.issue(date, s))
-  const read = info?.read ?? 0
-  const stories = info?.stories ?? 0
-  const summary = !info?.issue
-    ? read > 0
-      ? `${read} read`
-      : 'No paper'
-    : info.all_read
-      ? `All ${stories} read`
-      : `${read} of ${stories} read`
+function DayPanel({ date, today }: { date: string; today: string }) {
+  const [mode, setMode] = useState<DayMode>('read')
+  const day = useApi(`day:${date}`, (s) => api.day(date, s))
+  const { mutate } = day
+  const onStoryChange = useCallback(
+    (card: StoryCard) => mutate((d) => (d && d.paper ? { ...d, paper: withStory(d.paper, card) } : d)),
+    [mutate],
+  )
+  const data = day.data?.date === date ? day.data : undefined
   return (
-    <Card label="Selected day" className="flex flex-col gap-3">
+    <section aria-label="Selected day" className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
         <SectionTitle>{weekdayDayMonth(date)}</SectionTitle>
-        <span className="text-[13px] font-bold whitespace-nowrap text-accent">{summary}</span>
+        <Link to={dayPath(date, mode)} className="text-[13px] font-bold whitespace-nowrap text-accent hover:underline">
+          Open day
+        </Link>
       </div>
-      {!info?.issue && (
-        <p className="m-0 text-sm leading-[1.45] text-muted">
-          There was no paper that day{read > 0 ? `, but he read ${read} from an earlier one` : ''}.
-        </p>
-      )}
-      {info?.issue && issue.error && <ErrorNote onRetry={issue.reload}>{issue.error.message}</ErrorNote>}
-      {info?.issue && !issue.data && !issue.error && <Loading />}
-      {issue.data && <DayStories issue={issue.data} read={read} />}
-      {info?.issue && (
-        <LinkButton to={date === today ? '/' : `/issues/${date}`} className="min-h-[46px]">
-          Open this day’s paper
-        </LinkButton>
-      )}
-    </Card>
-  )
-}
-
-function DayStories({ issue, read }: { issue: IssueView; read: number }) {
-  const first = issue.downloaded_by[0]
-  const stories = [...issue.stories].filter((s) => !s.hidden).sort((a, b) => a.position - b.position)
-  return (
-    <>
-      {read === 0 && (
-        <p className="m-0 text-sm leading-[1.45] text-muted">
-          No stories read.
-          {first ? ` The paper was on the Kindle from ${clockTime(first.received_at)}, so it was there if he wanted it.` : ''}
-        </p>
-      )}
-      <ul className="m-0 flex list-none flex-col p-0">
-        {stories.map((s) => {
-          const state = s.stats.reached_end ? 'read' : s.stats.opened ? 'opened' : 'none'
-          const label = state === 'read' ? 'Read to the end' : state === 'opened' ? 'Opened' : 'Not opened'
-          return (
-            <li key={s.id} className="box-border flex min-h-11 items-center gap-3 border-t border-line py-[11px]">
-              <span role="img" aria-label={label} className={cx('shrink-0', state === 'none' ? 'text-muted' : state === 'opened' ? 'text-warm' : 'text-accent')}>
-                {state === 'read' ? (
-                  <CheckCircleIcon className="size-5" />
-                ) : state === 'opened' ? (
-                  <HalfCircleIcon className="size-5" />
-                ) : (
-                  <EmptyCircleIcon className="size-5" />
-                )}
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-sm leading-[1.3] font-semibold">{s.title}</span>
-                <span className="text-xs text-muted">
-                  {s.topic}
-                  {s.stats.opened ? ` · ${duration(s.stats.active_seconds)}` : ''}
-                </span>
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-    </>
+      <ModeSwitch mode={mode} onChange={setMode} isToday={date === today} />
+      {day.error && !data && <ErrorNote onRetry={day.reload}>{day.error.message}</ErrorNote>}
+      {!data && !day.error && <Loading />}
+      {data &&
+        (mode === 'read' ? (
+          <ReadThatDay day={data} today={today} onShowPaper={() => setMode('paper')} />
+        ) : (
+          <PaperOfDay day={data} onStoryChange={onStoryChange} />
+        ))}
+    </section>
   )
 }

@@ -40,9 +40,24 @@ function renderAi() {
 }
 
 describe('AI page', () => {
+  it('on a phone, shows the models in use and opens the choice on a tap', async () => {
+    const user = userEvent.setup()
+    renderAi()
+    const models = await screen.findByRole('region', { name: 'Models' })
+    expect(models).toHaveTextContent('Writes the storiesClaude Opus 5.5')
+    expect(models).toHaveTextContent('Checks themClaude Opus 5.5 · high effort')
+    expect(models).toHaveTextContent('About $0.46 a day')
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Change models' }))
+    expect(screen.getByRole('radio', { name: /Claude Sonnet 5.5/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Done' }))
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+  })
+
   it('shows the live estimate and saves only what changed', async () => {
     const user = userEvent.setup()
     renderAi()
+    await user.click(await screen.findByRole('button', { name: 'Change models' }))
     const use = await screen.findByRole('button', { name: 'Use from tomorrow’s paper' })
     expect(use).toBeDisabled()
     expect(screen.getByText('$0.46')).toBeInTheDocument() // 0.34 + 0.12
@@ -62,6 +77,7 @@ describe('AI page', () => {
   it('sends the checker and effort together when both change', async () => {
     const user = userEvent.setup()
     renderAi()
+    await user.click(await screen.findByRole('button', { name: 'Change models' }))
     await screen.findByRole('button', { name: 'Use from tomorrow’s paper' })
     await user.click(screen.getByRole('button', { name: 'Haiku 5.5' }))
     await user.click(screen.getByRole('button', { name: 'Medium' }))

@@ -7,6 +7,7 @@ import { KindlePage } from '../components/KindlePage'
 import { StatusPill } from '../components/StoryCardItem'
 import { Badge, Button, Card, ErrorNote, LinkButton, Loading, SectionTitle, TopicChip } from '../components/ui'
 import { ENGAGED_EXPLAINER, londonToday, longDate, statsSentence } from '../lib/format'
+import { dayPath } from '../lib/day'
 import { useApi } from '../lib/useApi'
 import { useHideToggle } from '../lib/useHideToggle'
 
@@ -25,7 +26,7 @@ export function Story() {
   if (!s) return <Loading />
 
   const isToday = s.date === londonToday()
-  const backTo = isToday ? '/' : `/issues/${s.date}`
+  const backTo = isToday ? '/' : dayPath(s.date, 'paper')
 
   return (
     <div>
@@ -39,7 +40,7 @@ export function Story() {
 
       <div className="mt-1 mb-4 flex flex-wrap items-center gap-2">
         <TopicChip topic={s.topic} />
-        <StatusPill stats={s.stats} />
+        <StatusPill stats={s.stats} paperDate={s.date} />
         {s.hidden && <Badge tone="amber">Hidden</Badge>}
         {s.added_by_parent && <Badge tone="violet">Added by you</Badge>}
         {s.reused && <Badge>From an earlier day</Badge>}

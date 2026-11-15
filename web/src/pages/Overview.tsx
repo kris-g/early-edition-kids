@@ -12,6 +12,7 @@ import { RangePills } from '../components/RangePills'
 import type { RangeDays } from '../lib/ranges'
 import { StatusPill } from '../components/StoryCardItem'
 import { useRegenerate } from '../components/useRegenerate'
+import { CatchUpLink } from '../components/CatchUpLink'
 import { BigNumber, Button, ErrorNote, Eyebrow, LinkButton, Loading, SectionTitle, Spinner } from '../components/ui'
 import { cx } from '../lib/cx'
 import { londonToday, money, moneyShort, monthName, oneDecimal, plural, prettyModel } from '../lib/format'
@@ -195,6 +196,7 @@ export function Overview() {
             )}
           </div>
           {issue && <IssueBadges issue={issue} />}
+          {summary.data && <CatchUpLink count={summary.data.catch_up_today} today={today} />}
           {hide.error && <ErrorNote>{hide.error}</ErrorNote>}
           {!issue && summary.data && (
             <p className="border-t border-line pt-3 text-sm text-muted">

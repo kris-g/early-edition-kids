@@ -21,6 +21,7 @@ import {
 } from '../lib/format'
 import { stageTip } from '../lib/tips'
 import { useApi } from '../lib/useApi'
+import { DESK_QUERY, useMedia } from '../lib/useMedia'
 
 const EFFORTS: { id: Effort; label: string }[] = [
   { id: 'low', label: 'Low' },
@@ -64,6 +65,20 @@ export function Ai() {
 
 function AiBody({ data, onSaved }: { data: AiPage; onSaved: (v: AiPage) => void }) {
   const today = londonToday()
+  const desk = useMedia(DESK_QUERY)
+  if (!desk) {
+    // Phone: how it's going first; the models, changed rarely, at the bottom.
+    return (
+      <div className="flex flex-col gap-4">
+        <RunBanner data={data} today={today} />
+        <MonthCost data={data} today={today} onSaved={onSaved} />
+        {data.last_run && <MoneyGoes run={data.last_run} />}
+        <Quality data={data} />
+        <Providers data={data} />
+        <PhoneModels data={data} onSaved={onSaved} />
+      </div>
+    )
+  }
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4 desk:grid-cols-2 desk:items-start">
       <div className="flex flex-col gap-4">
@@ -120,6 +135,55 @@ function RunBanner({ data, today }: { data: AiPage; today: string }) {
         </span>
       </div>
     </section>
+  )
+}
+
+/** Phone: the models in use, with the full choice one tap away. */
+function PhoneModels({ data, onSaved }: { data: AiPage; onSaved: (v: AiPage) => void }) {
+  const [open, setOpen] = useState(false)
+  const s = data.settings
+  if (open || data.models.length === 0) {
+    return (
+      <>
+        {open && (
+          <div className="flex items-center justify-between gap-3">
+            <SectionTitle>Change models</SectionTitle>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Done
+            </Button>
+          </div>
+        )}
+        <ModelChooser data={data} onSaved={onSaved} />
+      </>
+    )
+  }
+  const name = (id: string) => data.models.find((m) => m.id === id)?.name ?? prettyModel(id)
+  const effort = EFFORTS.find((e) => e.id === s.check_effort)?.label.toLowerCase() ?? s.check_effort
+  const est = estimateDay(data.models, { writer_model: s.writer_model, check_model: s.check_model, check_effort: s.check_effort }, s)
+  return (
+    <Card label="Models" className="flex flex-col gap-3">
+      <SectionTitle>Who writes and checks</SectionTitle>
+      <dl className="m-0 flex flex-col gap-2.5 text-sm">
+        <div className="flex flex-col gap-0.5">
+          <dt className="text-xs text-muted">Writes the stories</dt>
+          <dd className="m-0 text-[15px] font-bold">{name(s.writer_model)}</dd>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <dt className="text-xs text-muted">Checks them</dt>
+          <dd className="m-0 text-[15px] font-bold">
+            {name(s.check_model)} <span className="font-medium text-muted">· {effort} effort</span>
+          </dd>
+        </div>
+      </dl>
+      {est !== null && (
+        <span className="text-[13px] text-muted">
+          About {money(est)} a day · {money(est * DAYS_PER_MONTH)} a month
+        </span>
+      )}
+      <Button className="min-h-12 text-[15px]" onClick={() => setOpen(true)}>
+        Change models
+      </Button>
+    </Card>
   )
 }
 

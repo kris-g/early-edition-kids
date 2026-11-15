@@ -3,6 +3,7 @@
 import { loadsJson, type Row } from "../db.js";
 import type { Context } from "../pipeline.js";
 import { parseWordToKnow, renderStory } from "../render.js";
+import { londonDate } from "../timeutil.js";
 
 import { minutesFor, storyStats, type StoryStat, type TopicStat } from "../weights.js";
 import type { IssueSummary, IssueView, RunView, StoryCard, StoryDetail, TopicView } from "./types.js";
@@ -30,6 +31,7 @@ export function storyCard(ctx: Context, row: Row, stat: StoryStat | undefined): 
       active_seconds: stat?.activeSeconds ?? 0,
       expected_seconds: Math.round(stat?.expectedSeconds ?? 0),
       engaged: stat?.engaged ?? false,
+      read_on: stat?.finishedAt != null ? londonDate(new Date(stat.finishedAt * 1000)) : null,
     },
   };
 }

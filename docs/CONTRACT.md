@@ -207,11 +207,19 @@ type AiView = { settings: AiSettings; models: ModelOption[];          // models 
 
 | Method and path | Returns |
 |---|---|
-| `GET /summary` | gains `streak_detail: Streak` and `last_run_cost: RunCost \| null`, and `kindle_seen_at: string \| null` (when the Kindle last asked for today's paper or sent reading, UTC ISO); existing fields unchanged |
+| `GET /summary` | gains `streak_detail: Streak` and `last_run_cost: RunCost \| null`, `kindle_seen_at: string \| null` (when the Kindle last asked for today's paper or sent reading, UTC ISO), and `catch_up_today: number` (stories from earlier papers read to the end today); existing fields unchanged |
+| `GET /day/YYYY-MM-DD` | `DayView`: `{ date, read, minutes, reads: { story: StoryCard; at; active_seconds; finished }[], paper: IssueView \| null }`. `reads` is everything opened that day from any paper, oldest first; `paper` is that day's own paper. 404 for a future date. |
 | `GET /reading?days=14` | `ReadingView` for the last `days` days (7–120, default 14) ending today |
 | `GET /calendar?month=YYYY-MM` | `CalendarView` (default this month) |
 | `GET /ai` | `AiView` |
 | `PUT /ai` `Partial<{writer_model, check_model, writer_effort, check_effort, monthly_limit_usd}>` | `AiView`; 400 `{error}` for a model not offered by the provider, a bad effort, or a negative limit. `monthly_limit_usd: null` removes the limit. Needs `X-Early-Edition: 1`. |
+
+### Reading days and catching up (added 15 November 2026)
+
+- **A reading day is the London date he closed the story on the Kindle** (the event's `ts`, already corrected for clock skew by the plugin), not when the server received it. Events without a `ts` fall back to `received_at`. This dates the streak, the bars, the calendar cells and `/day`.
+- **Counts per day are reading, not the paper.** `ReadingDay.read` and calendar `read` count stories finished that day from any paper, so they can exceed that day's `stories`. A day's paper being fully read, whenever it happened, is `all_read`.
+- **`StoryStats.read_on`**: the London date he first read the story to the end, or null. The dashboard shows "Read on Sun 15 Nov" when it differs from the paper's date.
+- The dashboard's Day screen (`/dashboard/day/:date`, `?view=paper` for the paper) replaces the issue page; `/dashboard/issues/:date` redirects to it.
 
 ### Two providers side by side: Anthropic and OpenRouter (added 13 November 2026)
 

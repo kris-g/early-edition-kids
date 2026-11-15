@@ -17,7 +17,7 @@ const STORY_CARD_KEYS = [
 
 function expectStoryCard(c: any) {
   expect(Object.keys(c).sort()).toEqual(STORY_CARD_KEYS);
-  expect(Object.keys(c.stats).sort()).toEqual(["active_seconds", "engaged", "expected_seconds", "opened", "reached_end"]);
+  expect(Object.keys(c.stats).sort()).toEqual(["active_seconds", "engaged", "expected_seconds", "opened", "reached_end", "read_on"]);
 }
 
 describe("two ports, no login", () => {
@@ -87,7 +87,7 @@ describe("dashboard routes", () => {
     const empty = (await t.agent.get("/api/dashboard/summary")).body;
     expect(empty).toEqual({
       today: null, streak: 0, week_read: 0, last_run: null, last_run_cost: null,
-      kindle_seen_at: null,
+      kindle_seen_at: null, catch_up_today: 0,
       streak_detail: { current: 0, current_since: null, longest: 0, longest_from: null, longest_to: null },
     });
 
@@ -113,8 +113,55 @@ describe("dashboard routes", () => {
     expect(v.downloaded_by).toEqual([{ device: "device-1", version: 1, received_at: expect.any(String) }]);
     expect(v.stories.length).toBe(6);
     v.stories.forEach(expectStoryCard);
-    expect(v.stories[0].stats).toEqual({ opened: true, reached_end: true, active_seconds: 300, expected_seconds: expect.any(Number), engaged: true });
+    expect(v.stories[0].stats).toEqual({ opened: true, reached_end: true, active_seconds: 300, expected_seconds: expect.any(Number), engaged: true, read_on: null });
     expect(v.stories[0].source_url).toContain("https://");
+  });
+
+  it("shows a day two ways: what he read that day, and that day's paper", async () => {
+    t = makeApp();
+    await generateReq(t, { date: "2026-11-13" });
+    await generateReq(t);
+    const friday = (await t.agent.get("/api/dashboard/issues/2026-11-13")).body.stories[0].id;
+    const saturday = (await t.agent.get("/api/dashboard/issues/2026-11-14")).body.stories[0].id;
+    const at = (iso: string) => Math.floor(Date.parse(iso) / 1000);
+    const closed = (id: number, ceid: string, ts: number) => ({
+      client_event_id: ceid, type: "story_closed", story_id: id, ts,
+      payload: { active_seconds: 120, pages_total: 2, max_page: 2, finished: true },
+    });
+    // Saturday morning he reads Saturday's paper, then catches up on Friday's.
+    await postEvents(t, [closed(saturday, "a", at("2026-11-14T08:00:00Z")), closed(friday, "b", at("2026-11-14T08:10:00Z"))]);
+
+    const day = (await t.agent.get("/api/dashboard/day/2026-11-14")).body;
+    expect(day.read).toBe(2);
+    expect(day.minutes).toBe(4);
+    expect(day.reads.map((r: any) => [r.story.id, r.story.date, r.finished])).toEqual([
+      [saturday, "2026-11-14", true],
+      [friday, "2026-11-13", true],
+    ]);
+    expect(day.reads[1].at).toBe("2026-11-14T08:10:00.000Z");
+    expect(day.paper.date).toBe("2026-11-14");
+
+    // Friday: nothing read that day, but its paper shows when the story was read.
+    const fri = (await t.agent.get("/api/dashboard/day/2026-11-13")).body;
+    expect(fri.read).toBe(0);
+    expect(fri.reads).toEqual([]);
+    expect(fri.paper.stories.find((s: any) => s.id === friday).stats.read_on).toBe("2026-11-14");
+
+    expect((await t.agent.get("/api/dashboard/summary")).body.catch_up_today).toBe(1);
+    expect((await t.agent.get("/api/dashboard/day/2026-11-15")).status).toBe(404); // the future
+  });
+
+  it("counts reading on the day he read it, not the day it was uploaded", async () => {
+    t = makeApp();
+    await generateReq(t, { date: "2026-11-13" });
+    const id = (await t.agent.get("/api/dashboard/issues/2026-11-13")).body.stories[0].id;
+    // Read at 21:00 on Friday 13th, uploaded on Saturday 14th (the test clock's today).
+    await postEvents(t, [{
+      client_event_id: "late", type: "story_closed", story_id: id, ts: Math.floor(Date.parse("2026-11-13T21:00:00Z") / 1000),
+      payload: { active_seconds: 60, pages_total: 1, max_page: 1, finished: true },
+    }]);
+    const days = (await t.agent.get("/api/dashboard/reading?days=7")).body.days;
+    expect(days.slice(-2).map((d: any) => [d.date, d.read])).toEqual([["2026-11-13", 1], ["2026-11-14", 0]]);
   });
 
   it("lists issues and shows one", async () => {
