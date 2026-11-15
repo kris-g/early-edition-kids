@@ -18,6 +18,12 @@
         "mkdir -p /tmp/claude-501/early-edition-kids-dev && cd server && HOST=0.0.0.0 PORT=8080 DASHBOARD_PORT=8081 EARLY_EDITION_KIDS_DATA_DIR=/tmp/claude-501/early-edition-kids-dev EARLY_EDITION_KIDS_CONFIG=config.example.yaml EARLY_EDITION_KIDS_WEB_DIR=../web/dist LLM_BASE_URL=stub ADMIN_TOKEN=dev-admin npm start"
       ],
       "port": 8081
+    },
+    {
+      "name": "ipad-reader-mock",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["docs/mockups/ipad-reader/serve.mjs"],
+      "port": 8095
     }
   ]
 }

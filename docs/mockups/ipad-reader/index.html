@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Early Edition on iPad: mock-up board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@700&display=swap" rel="stylesheet">
+<style>
+:root { --paper: #fafaf7; --ink: #121212; --soft: #55554f; --sun: #ffd21f; --scale: 0.4; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #dfe3e6; color: var(--ink); font: 400 16px/1.55 'Noto Sans', system-ui, sans-serif; }
+::selection { background: var(--sun); }
+main { max-width: 1240px; margin: 0 auto; padding: 48px 32px 96px; }
+h1 { font: 700 40px/1.1 'Noto Serif', Georgia, serif; letter-spacing: -0.01em; margin: 0 0 14px; }
+.intro { max-width: 68ch; margin: 0 0 12px; }
+.intro code, li code { font: inherit; font-weight: 700; }
+ul.notes { max-width: 68ch; margin: 0 0 8px; padding-left: 20px; }
+h2 { font: 700 24px/1.2 'Noto Serif', Georgia, serif; margin: 56px 0 6px; }
+h2 + p { margin: 0 0 22px; color: var(--soft); max-width: 68ch; }
+.shelf { display: flex; flex-wrap: wrap; gap: 32px 28px; align-items: flex-start; }
+figure { margin: 0; }
+.device { display: block; overflow: hidden; border: 6px solid var(--ink); border-radius: 18px; background: var(--paper); }
+.device.p { width: calc(820px * var(--scale) + 12px); height: calc(1180px * var(--scale) + 12px); }
+.device.l { width: calc(1180px * var(--scale) + 12px); height: calc(820px * var(--scale) + 12px); }
+.device iframe { border: 0; transform: scale(var(--scale)); transform-origin: 0 0; display: block; }
+.device.p iframe { width: 820px; height: 1180px; }
+.device.l iframe { width: 1180px; height: 820px; }
+figcaption { margin-top: 10px; font-size: 15px; max-width: 340px; }
+figcaption a { color: var(--ink); font-weight: 700; text-underline-offset: 3px; }
+figcaption a:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Early Edition on iPad</h1>
+  <p class="intro">A working mock-up of the child's reader: the Kindle paper, with photos and colour. Every frame below is live, so you can tap through it here or open it full size. On an iPad, open <code>reader.html</code> and add it to the Home Screen.</p>
+  <ul class="notes">
+    <li>Reading mode is a setting: <code>?mode=pages</code> turns pages like the Kindle, <code>?mode=scroll</code> runs the six stories down one long page. With a keyboard, M switches between them.</li>
+    <li>Type size follows the profile's age: <code>?age=6</code>, <code>8</code> or <code>10</code>.</li>
+    <li>The stories are sample text and the photos are stand-ins from Wikimedia Commons. Back issues and My week are not drawn yet.</li>
+  </ul>
+
+  <h2>Front page</h2>
+  <p>The lead is the first unread story, and the other five are listed under it with a tick on each one read. This is the only place stories are chosen from.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html" title="Front page, upright" loading="lazy"></iframe></span><figcaption>Upright. <a href="reader.html">Open</a></figcaption></figure>
+    <figure><span class="device l"><iframe src="reader.html" title="Front page, on its side" loading="lazy"></iframe></span><figcaption>On its side. <a href="reader.html">Open</a></figcaption></figure>
+  </div>
+
+  <h2>A story, in pages</h2>
+  <p>Nothing scrolls. Tap the right of the page, swipe, or use Next page. The running head leads back to the front page and shows which story of the six this is. On its side the iPad shows a spread, with the photo as the left-hand page.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html?screen=story&story=1" title="Story page one, upright" loading="lazy"></iframe></span><figcaption>Page one. <a href="reader.html?screen=story&story=1">Open</a></figcaption></figure>
+    <figure><span class="device p"><iframe src="reader.html?screen=story&story=1&page=2" title="Story last page, upright" loading="lazy"></iframe></span><figcaption>The last page: Word to know, Think about it, the source. <a href="reader.html?screen=story&story=1&page=2">Open</a></figcaption></figure>
+    <figure><span class="device l"><iframe src="reader.html?screen=story&story=4" title="Story spread, on its side" loading="lazy"></iframe></span><figcaption>A spread. <a href="reader.html?screen=story&story=4">Open</a></figcaption></figure>
+  </div>
+
+  <h2>A story with no photo</h2>
+  <p>The topic's colour opens the story instead, so it never looks like something is missing.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html?screen=story&story=6" title="Story with no photo, upright" loading="lazy"></iframe></span><figcaption>Upright. <a href="reader.html?screen=story&story=6">Open</a></figcaption></figure>
+    <figure><span class="device l"><iframe src="reader.html?screen=story&story=6" title="Story with no photo, on its side" loading="lazy"></iframe></span><figcaption>On its side. <a href="reader.html?screen=story&story=6">Open</a></figcaption></figure>
+  </div>
+
+  <h2>End of a story</h2>
+  <p>Turning on from the last page stamps the story as read and offers the next unread one.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html?screen=finished&story=1" title="Story finished, upright" loading="lazy"></iframe></span><figcaption>Upright. <a href="reader.html?screen=finished&story=1">Open</a></figcaption></figure>
+    <figure><span class="device l"><iframe src="reader.html?screen=finished&story=1" title="Story finished, on its side" loading="lazy"></iframe></span><figcaption>On its side. <a href="reader.html?screen=finished&story=1">Open</a></figcaption></figure>
+  </div>
+
+  <h2>A story, scrolling</h2>
+  <p>The six stories run down one page. A story is stamped when its end comes into view, and the running head follows the story on screen.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html?mode=scroll&screen=story&story=4" title="Scrolling story, upright" loading="lazy"></iframe></span><figcaption>Upright. <a href="reader.html?mode=scroll&screen=story&story=4">Open</a></figcaption></figure>
+    <figure><span class="device l"><iframe src="reader.html?mode=scroll&screen=story&story=3" title="Scrolling story, on its side" loading="lazy"></iframe></span><figcaption>On its side: the photo stays put while the story scrolls. <a href="reader.html?mode=scroll&screen=story&story=3">Open</a></figcaption></figure>
+  </div>
+
+  <h2>By age</h2>
+  <p>The same page for a younger and an older reader.</p>
+  <div class="shelf">
+    <figure><span class="device p"><iframe src="reader.html?screen=story&story=5&age=6" title="Story at age 6" loading="lazy"></iframe></span><figcaption>Age 6. <a href="reader.html?screen=story&story=5&age=6">Open</a></figcaption></figure>
+    <figure><span class="device p"><iframe src="reader.html?screen=story&story=5&age=10" title="Story at age 10" loading="lazy"></iframe></span><figcaption>Age 10. <a href="reader.html?screen=story&story=5&age=10">Open</a></figcaption></figure>
+  </div>
+</main>
+</body>
+</html>
