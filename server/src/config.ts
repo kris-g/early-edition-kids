@@ -42,6 +42,8 @@ export interface Settings {
   host: string;
   port: number;
   dashboardPort: number;
+  /** GENERATE_AT: "HH:MM" London time for the built-in daily run; empty means none (a CronJob calls /admin/generate). */
+  generateAt: string;
 }
 
 export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings {
@@ -61,6 +63,7 @@ export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings 
     host: env.HOST || "127.0.0.1",
     port: Number(env.PORT || 8080),
     dashboardPort: Number(env.DASHBOARD_PORT || 8081),
+    generateAt: (env.GENERATE_AT || "").trim(),
   };
 }
 

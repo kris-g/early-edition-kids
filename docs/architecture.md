@@ -4,7 +4,7 @@ Three pictures: what runs where, how the paper is made each morning, and how it 
 
 ## What runs where
 
-One server pod does everything on the cluster. It listens on two ports so the Kindle and the dashboard never share a route: the Kindle's port is on the LAN only, and the dashboard's is reachable only through Authelia.
+One server process does everything: a single Docker container, or one pod on Kubernetes. It listens on two ports so the Kindle and the dashboard never share a route: the Kindle's port is on the LAN only, and the dashboard's should only be reachable through a login, such as Authelia. The picture shows the Kubernetes setup; with Docker, the server's own `GENERATE_AT` schedule takes the CronJob's place.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/architecture/system-dark.svg">
@@ -47,13 +47,13 @@ The Kindle can't wake itself, so the paper is made at 05:30 and waits. The downl
 
 ```mermaid
 sequenceDiagram
-    participant Cron as CronJob
+    participant Cron as Schedule (GENERATE_AT or a CronJob)
     participant Server
     participant LLM
     participant Kindle as Kindle plugin
     participant Parent as Parent dashboard
 
-    Cron->>Server: 05:30 POST /admin/generate
+    Cron->>Server: 05:30 make today's paper
     Server->>LLM: select, rewrite, check
     LLM-->>Server: about six stories
     Note over Server: Issue stored, waiting

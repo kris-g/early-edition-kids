@@ -57,18 +57,18 @@ function draw(c) {
 
   // ---- The cluster panel and the server pod ----
   rect(290, 110, 560, 540, { fill: c.panel, stroke: c.panelStroke, rx: 14 });
-  text(312, 137, "HOME K3S CLUSTER", { size: 12, weight: 700, fill: c.muted, ls: 2 });
+  text(312, 137, "HOME SERVER · DOCKER OR KUBERNETES", { size: 12, weight: 700, fill: c.muted, ls: 2 });
   rect(316, 240, 454, 320, { fill: c.pod, rx: 10 });
-  text(752, 544, "SERVER · ONE POD", { size: 11.5, weight: 700, fill: c.muted, anchor: "end", ls: 1.6 });
+  text(752, 544, "SERVER · ONE CONTAINER", { size: 11.5, weight: 700, fill: c.muted, anchor: "end", ls: 1.6 });
 
   // The 05:30 CronJob.
-  rect(340, 150, 200, 50, { rx: 25 });
+  rect(340, 150, 222, 50, { rx: 25 });
   add(`<circle cx="367" cy="175" r="11" fill="none" stroke="${c.ink}" stroke-width="1.6"/>`);
   path("M367,168 V175 L372,178", { sw: 1.6 });
   text(388, 172, "05:30 every morning", { size: 14.5, weight: 700 });
-  text(388, 189, "CronJob", { size: 12.5, fill: c.muted });
+  text(388, 189, "GENERATE_AT or a CronJob", { size: 12.5, fill: c.muted });
   path("M423,200 V274", { end: "ink" });
-  text(434, 225, "POST /admin/generate", { font: MONO, size: 12.5, fill: c.muted });
+  text(434, 225, "make today's paper", { size: 13.5, fill: c.muted });
 
   // The pipeline's four steps.
   const steps = ["Fetch the feeds", "Select stories", "Rewrite for age 8", "Check each one"];
@@ -200,7 +200,7 @@ function draw(c) {
     `refX="${start ? 1 : 10}" refY="5" orient="auto"><path d="${start ? "M11,0 L0,5 L11,10 Z" : "M0,0 L11,5 L0,10 Z"}" fill="${fill}"/></marker>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t d">
 <title id="t">Early Edition Kids: how it fits together</title>
-<desc id="d">A CronJob on the home k3s cluster calls the server at 05:30. The server fetches news feeds, uses an AI model to select, rewrite and check about six stories, and stores them in SQLite. The Kindle downloads the paper over the LAN from port 8080 and sends back what was read. A parent reaches the dashboard on port 8081 over HTTPS through Authelia. A nightly job backs the database up to a NAS.</desc>
+<desc id="d">Every morning at 05:30, the server on a home machine (Docker or Kubernetes) starts the day's run. The server fetches news feeds, uses an AI model to select, rewrite and check about six stories, and stores them in SQLite. The Kindle downloads the paper over the LAN from port 8080 and sends back what was read. A parent reaches the dashboard on port 8081 over HTTPS through Authelia. A nightly job backs the database up to a NAS.</desc>
 <defs>${marker("ink", c.ink)}${marker("ink", c.ink, true)}${marker("muted", c.muted)}<marker id="end-small" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="${c.ink}"/></marker></defs>
 <rect width="${W}" height="${H}" fill="${c.bg}"/>
 ${out.join("\n")}

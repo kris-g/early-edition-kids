@@ -6,6 +6,8 @@
 
 import type { Server } from "node:http";
 import { createApp } from "./app.js";
+import { generate } from "./pipeline.js";
+import { makeScheduler, parseGenerateAt } from "./schedule.js";
 
 const earlyEditionKids = createApp();
 const { host, port, dashboardPort } = earlyEditionKids.ctx.settings;
@@ -14,6 +16,19 @@ const servers: Server[] = [
   earlyEditionKids.kindleApp.listen(port, host, () => console.log(`Kindle API on http://${host}:${port}`)),
   earlyEditionKids.dashboardApp.listen(dashboardPort, host, () => console.log(`dashboard on http://${host}:${dashboardPort}/dashboard/`)),
 ];
+// Optional built-in daily run (GENERATE_AT), for a plain docker run with no CronJob.
+let stopSchedule = () => {};
+try {
+  const at = parseGenerateAt(earlyEditionKids.ctx.settings.generateAt);
+  if (at !== null) {
+    stopSchedule = makeScheduler({ at, run: (date, now) => generate(earlyEditionKids.ctx, date, now) }).start();
+    console.log(`schedule: today's issue is made daily from ${earlyEditionKids.ctx.settings.generateAt} London time`);
+  }
+} catch (err) {
+  console.error((err as Error).message);
+  process.exit(1);
+}
+
 for (const s of servers) {
   s.on("error", (err) => {
     console.error(`cannot listen: ${err.message}`);
@@ -23,6 +38,7 @@ for (const s of servers) {
 
 function shutdown(signal: string) {
   console.log(`${signal}: shutting down`);
+  stopSchedule();
   let open = servers.length;
   const done = () => {
     earlyEditionKids.close();

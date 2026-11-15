@@ -1,8 +1,8 @@
 # Early Edition Kids: deployment
 
-Example manifests and build tooling for running the Early Edition Kids server on a k3s cluster. [DESIGN.md](../docs/DESIGN.md) section 4.10 is the spec; [CONTRACT.md](../docs/CONTRACT.md) pins the port, paths and secret names.
+Example manifests and build tooling for running the Early Edition Kids server on Kubernetes. On a single machine, the one `docker run` in the [README](../README.md#getting-started) is much simpler; this guide is for people who already run a cluster. [DESIGN.md](../docs/DESIGN.md) section 4.10 is the spec; [CONTRACT.md](../docs/CONTRACT.md) pins the port, paths and secret names.
 
-The manifests are examples: they assume k3s with Traefik, MetalLB, the `local-path` and `nfs-client` storage classes, and Authelia in front of the dashboard. Change the addresses, hostname and storage to suit your cluster. Lines marked `CHANGE ME` need your own values.
+The manifests are examples, tested on k3s. They assume Traefik for the ingress and the `local-path` storage class (both come with k3s), MetalLB for the LAN address, an `nfs-client` storage class for backups, and Authelia in front of the dashboard. On other Kubernetes distributions, swap in your own ingress controller and storage classes. Change the addresses, hostname and storage to suit your cluster. Lines marked `CHANGE ME` need your own values.
 
 `CronJob.spec.timeZone` needs Kubernetes 1.27 or later.
 

@@ -107,9 +107,10 @@ Environment variables (secrets never go in the YAML file):
 | `CHECK_LLM_MODEL` | `LLM_MODEL` | Default checker model, from either provider |
 | `LLM_EFFORT` | `medium` | Effort for choosing and writing (Anthropic effort / OpenRouter reasoning effort) |
 | `CHECK_LLM_EFFORT` | `high` | Effort for the safety and fact check |
+| `GENERATE_AT` | none | `HH:MM`, London time: the server makes the day's paper itself at that time, or at start if it's later and there's no paper yet. For setups with no CronJob, such as a plain `docker run`. |
 | `ADMIN_TOKEN` | none | Required header `X-Admin-Token` for `POST /admin/generate`. Unset means the endpoint refuses every call. |
 | `PORT` | `8080` | Kindle port |
-| `DASHBOARD_PORT` | `8081` | Dashboard port (behind Authelia in the cluster) |
+| `DASHBOARD_PORT` | `8081` | Dashboard port. It has no login, so keep it behind an authenticating proxy or bound to localhost. |
 | `HOST` | `127.0.0.1` (`0.0.0.0` in the image) | Address both ports bind to |
 
 `config.example.yaml` is the starting config: title, child's age, story count, reading speed, topics with base weights, the four feeds with their exclude patterns (regular expressions, case-insensitive), the blocklist and favourite players. A feed URL may be `file:///path/feed.xml` for offline testing.
@@ -155,10 +156,12 @@ The image is built from the repo root so it can include the web app:
 
 ```sh
 docker build -f server/Dockerfile -t early-edition-kids .
-docker run --rm -p 8080:8080 -p 8081:8081 -e LLM_BASE_URL=stub -e ADMIN_TOKEN=dev early-edition-kids
+docker run --rm -p 8080:8080 -p 127.0.0.1:8081:8081 -e LLM_BASE_URL=stub -e GENERATE_AT=05:30 early-edition-kids
 ```
 
-It runs `node --import tsx src/server.ts` as UID/GID 10001, listens on 8080 (Kindle) and 8081 (dashboard) on `0.0.0.0`, and keeps its data in the `/data` volume. A copy of `config.example.yaml` sits at `/config/config.yaml`; the ConfigMap is mounted over it. There are no native modules (SQLite is `node:sqlite`), so `docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile .` builds both arches; the web stage runs once on the build machine's arch.
+CI publishes the same image as `ghcr.io/kris-g/early-edition-kids` (see the README's getting started).
+
+It runs `node --import tsx src/server.ts` as UID/GID 10001, listens on 8080 (Kindle) and 8081 (dashboard) on `0.0.0.0`, and keeps its data in the `/data` volume. A copy of `config.example.yaml` sits at `/config/config.yaml`; mount your own file (or, on Kubernetes, the ConfigMap) over it. There are no native modules (SQLite is `node:sqlite`), so `docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile .` builds both arches; the web stage runs once on the build machine's arch.
 
 ## Backups
 
