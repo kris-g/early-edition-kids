@@ -51,6 +51,8 @@ local function fresh(opts)
     S.now = opts.now or (require("earlyeditionkids/clock").daysFromCivil(2026, 11, 13) * 86400 + 7 * 3600)
     collectLogs(S)
     S.stock_popup = 0
+    S.uploaded = nil -- the stubs module is shared between scenarios
+    S.connected = true
     S.install{ fs = fs, reader_settings = { lastfile = BOOK, wifi_enable_action = "turn_on" } }
     S.ReadHistory.hist = { { file = BOOK } }
 
@@ -531,6 +533,80 @@ describe("server address (stubbed KOReader)", function()
         truthy(#S.http.requests > 0)
         truthy(S.http.requests[#S.http.requests].url:find("^http://192%.168%.1%.50:8080/"))
         eq(S.Controller.store:get("current_date"), "2026-11-13")
+    end)
+end)
+
+describe("upload after reading (stubbed KOReader)", function()
+    -- Opens the first story from the front page and reads it to the end.
+    local function readFirstStory(S)
+        local front = S.UIManager:top()
+        front.on_start(front.model.first_up)
+        S.run(1)
+        local rui = S.ReaderUI.instance
+        S.mono.t = S.mono.t + 30; rui:turnPage()
+        S.mono.t = S.mono.t + 40; rui:turnPage() -- EndOfBook: the finished panel
+        return rui
+    end
+    local function closedUploads(S)
+        local n = 0
+        for _, ev in ipairs(S.uploaded or {}) do if ev.type == "story_closed" then n = n + 1 end end
+        return n
+    end
+    local function issueFetches(S)
+        local n = 0
+        for _, req in ipairs(S.http.requests) do if req.url:find("/api/issue/today", 1, true) then n = n + 1 end end
+        return n
+    end
+
+    it("sends what he read after the story closes, without fetching the paper again", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        local fetches = issueFetches(S)
+        local rui = readFirstStory(S)
+        rui:onClose()
+        eq(closedUploads(S), 0, "not straight away")
+        truthy(S.Controller._upload_task, "an upload is scheduled")
+        S.run()
+        eq(closedUploads(S), 1, "sent after the delay")
+        eq(S.Controller.queue:count(), 0)
+        eq(issueFetches(S), fetches, "upload only: no issue fetch")
+    end)
+
+    it("waits while the next story is open, and never turns Wi-Fi on", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        local rui = readFirstStory(S)
+        rui:onClose()
+        -- He opens another story before the minute is up.
+        S.ReaderUI:showReader(ROOT .. "/2026-11-13/42.html")
+        S.Controller:uploadNow()
+        eq(closedUploads(S), 0, "not while a story is open")
+        truthy(S.Controller._upload_task, "tried again later")
+        S.ReaderUI.instance:onClose()
+        S.connected = false
+        S.Controller:uploadNow()
+        eq(closedUploads(S), 0, "Wi-Fi off: left for the next sync")
+        S.connected = true
+        S.Controller:uploadNow()
+        truthy(closedUploads(S) >= 1, "sent once Wi-Fi is on and no story is open")
+    end)
+
+    it("going to sleep cancels the pending upload; waking syncs as usual", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        readFirstStory(S):onClose()
+        S.Controller:onSuspend()
+        falsy(S.Controller._upload_task)
+        eq(closedUploads(S), 0)
+        S.Controller:onResume()
+        S.run()
+        eq(closedUploads(S), 1, "the wake-up sync sent it")
     end)
 end)
 

@@ -278,6 +278,15 @@ local function catchUp(ctx, result)
 end
 Syncer.catchUp = catchUp
 
+--- Uploads queued reading events only: no issue fetch, no downloads. Used
+-- shortly after a story closes, so the dashboard doesn't wait for the next wake.
+function Syncer.upload(ctx)
+    local result = { events_sent = 0, events_accepted = 0, events_dropped = 0 }
+    result.kind, result.message = uploadEvents(ctx, result)
+    ctx.store:save()
+    return result
+end
+
 function Syncer.run(ctx)
     local result = { events_sent = 0, events_accepted = 0, events_dropped = 0 }
 

@@ -30,6 +30,8 @@ London time (default 5).
 
 From a git checkout, the plugin is the `plugin/earlyeditionkids.koplugin` folder itself.
 
+**When it syncs.** On KOReader start and whenever the Kindle wakes, it uploads what he read and fetches the paper (CONTRACT.md, "Plugin sync rules"). It also sends what he read a minute after he finishes a story, if Wi-Fi is on, so the parent dashboard is up to date soon after he reads. "Check for news" syncs straight away.
+
 Recommended KOReader settings:
 
 - **Network → Action when Wi-Fi is off → Turn on.** Without this, Early Edition Kids

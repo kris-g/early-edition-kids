@@ -19,6 +19,7 @@ local Const = {
     KEEP_ISSUE_DAYS = 7,                    -- DESIGN 5.1 step 10
     LOG_KEEP_DAYS = 366,                    -- DESIGN 5.1 step 8: "keep a year of it"
 
+    UPLOAD_DELAY = 60,                      -- send reading this long after a story closes
     BACKOFF_NOT_READY = 30 * 60,            -- after a 404 (DESIGN 5.1 step 2)
     BACKOFF_NETWORK = 2 * 60,               -- after a network failure
     RECHECK_INTERVAL = 30 * 60,             -- CONTRACT sync rule 3

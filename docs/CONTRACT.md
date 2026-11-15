@@ -257,4 +257,6 @@ On start and on resume, the plugin syncs if any of:
 2. there are queued events;
 3. it has today's issue and its last successful check was more than 30 minutes ago (this is how hides and new versions reach it).
 
+After a story closes, the plugin also uploads queued events on their own, with no issue fetch: one minute after the last story closed, only if Wi-Fi is already on, and not while another story is open (it waits until that one closes). Going to sleep cancels it; the wake-up sync sends them instead. This keeps the dashboard current within a minute or two of his reading.
+
 A sync uploads events, then fetches `/api/issue/today`. If the date and version match what it has, it applies `hidden` (removes those stories from the headline list and deletes their files). A higher version replaces the stored issue only if no story from it has been opened.

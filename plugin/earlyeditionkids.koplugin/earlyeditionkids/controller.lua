@@ -295,7 +295,46 @@ function Controller:onResume()
     self:scheduleAutoSync(3)
 end
 
+--[[--
+Sends what he read soon after a story closes, so the parent dashboard doesn't
+wait for the next wake. One upload a minute after the last story closed (so
+three stories in a row make one upload); only when Wi-Fi is already on, with
+no notice; and never while a story is open, since the upload briefly holds the
+screen. Anything not sent goes at the next normal sync.
+]]
+function Controller:scheduleUpload(delay)
+    if not self.ready then return end
+    if self._upload_task then UIManager:unschedule(self._upload_task) end
+    self._upload_task = function()
+        self._upload_task = nil
+        self:uploadNow()
+    end
+    UIManager:scheduleIn(delay or Const.UPLOAD_DELAY, self._upload_task)
+end
+
+function Controller:uploadNow()
+    if not self.ready or self.syncing or self:serverUrl() == "" or not self.queue:hasFresh() then return end
+    if self:openStoryPath() then
+        self:scheduleUpload() -- reading the next story: try again after it
+        return
+    end
+    if not NetworkMgr:isConnected() then return end -- never turn Wi-Fi on for this
+    self.syncing = true
+    local ok, result = pcall(Syncer.upload, self:syncContext())
+    self.syncing = false
+    if not ok then
+        logger.err("Early Edition Kids: upload crashed:", result)
+        return
+    end
+    logger.info("Early Edition Kids: upload after reading ->", result.kind, result.message or "",
+                "events sent", result.events_sent, "accepted", result.events_accepted)
+end
+
 function Controller:onSuspend()
+    if self._upload_task then
+        UIManager:unschedule(self._upload_task)
+        self._upload_task = nil
+    end
     if self._auto_task then
         UIManager:unschedule(self._auto_task)
         self._auto_task = nil
@@ -314,6 +353,16 @@ function Controller:notify(text)
     UIManager:show(Notification:new{ text = text, timeout = 3 })
 end
 
+function Controller:syncContext()
+    return {
+        api = self.api, store = self.store, queue = self.queue, issues = self.issues,
+        json = JSON, device_id = self.device_id,
+        now = self.clock,
+        protected_path = self:openStoryPath(),
+        log = function(level, ...) (logger[level] or logger.info)("Early Edition Kids:", ...) end,
+    }
+end
+
 function Controller:runSync(opts)
     if self.syncing then return end
     self.waiting_for_network = nil
@@ -322,14 +371,7 @@ function Controller:runSync(opts)
         self:notify("Getting today's news…")
         UIManager:forceRePaint() -- the sync below blocks the UI for a moment
     end
-    local ctx = {
-        api = self.api, store = self.store, queue = self.queue, issues = self.issues,
-        json = JSON, device_id = self.device_id,
-        now = self.clock,
-        protected_path = self:openStoryPath(),
-        log = function(level, ...) (logger[level] or logger.info)("Early Edition Kids:", ...) end,
-    }
-    local ok, result = pcall(Syncer.run, ctx)
+    local ok, result = pcall(Syncer.run, self:syncContext())
     self.syncing = false
     if not ok then
         logger.err("Early Edition Kids: sync crashed:", result)
@@ -818,6 +860,7 @@ function Controller:onStoryClosed(story, figures)
         sess.return_pending = true
     end
     self.store:save()
+    self:scheduleUpload()
 end
 
 --- A file manager instance has started (e.g. after Home from a story).
