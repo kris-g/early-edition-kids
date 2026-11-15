@@ -72,7 +72,7 @@ function PhoneToday() {
           <section aria-label="Today's paper" className="flex flex-col gap-3.5 rounded-2xl border border-line bg-card p-[18px]">
             <div className="flex items-center justify-between gap-2">
               <SectionTitle>Today’s paper</SectionTitle>
-              <KindlePill issue={issue} />
+              <KindlePill issue={issue} seenAt={data.kindle_seen_at} />
             </div>
             {issue ? (
               <>

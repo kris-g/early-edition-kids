@@ -87,6 +87,7 @@ describe("dashboard routes", () => {
     const empty = (await t.agent.get("/api/dashboard/summary")).body;
     expect(empty).toEqual({
       today: null, streak: 0, week_read: 0, last_run: null, last_run_cost: null,
+      kindle_seen_at: null,
       streak_detail: { current: 0, current_since: null, longest: 0, longest_from: null, longest_to: null },
     });
 
@@ -101,6 +102,7 @@ describe("dashboard routes", () => {
     ]);
     const s = (await t.agent.get("/api/dashboard/summary")).body;
     expect(s.streak).toBe(1);
+    expect(s.kindle_seen_at).toBe(t.clock.fn().toISOString()); // the Kindle's last check-in
     expect(s.week_read).toBe(1);
     expect(Object.keys(s.last_run).sort()).toEqual(["date", "detail", "finished_at", "started_at", "status"]);
     expect(s.last_run.status).toBe("created");

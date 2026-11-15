@@ -8,6 +8,7 @@ import { SettingsError, updateAiSettings } from "../aisettings.js";
 import { addArticle, searchArchive } from "../articles.js";
 import { topicNames } from "../config.js";
 import { HttpError } from "../http.js";
+import { kindleSeenAt } from "../kindleseen.js";
 import { generate, injected, resultApi, type Context } from "../pipeline.js";
 import { londonDate } from "../timeutil.js";
 import { fullStreak, storyStats, topicStats } from "../weights.js";
@@ -64,6 +65,7 @@ export function dashboardApi(deps: DashboardDeps): Router {
       last_run: last ? runView(last) : null,
       streak_detail: streakDetail(ctx, t),
       last_run_cost: lastRunCost(ctx),
+      kindle_seen_at: kindleSeenAt(ctx.db),
     };
     res.json(body);
   });

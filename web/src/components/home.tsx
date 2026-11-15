@@ -11,8 +11,20 @@ import { useTip } from './tooltip/useTip'
 import { ChevronRight, FlameIcon, SparkleIcon } from './Icons'
 import { Badge, BigNumber, Eyebrow } from './ui'
 
-/** "On the Kindle 06:42" from the first download of the current version. */
-export function KindlePill({ issue, large }: { issue: IssueView | null; large?: boolean }) {
+/**
+ * "Kindle synced 19:22" from the Kindle's last check-in, so a parent can tell
+ * whether the latest reading has arrived; "On the Kindle 06:42" (the first
+ * download of the current version) when there is no later check-in to show.
+ */
+export function KindlePill({
+  issue,
+  seenAt,
+  large,
+}: {
+  issue: IssueView | null
+  seenAt?: string | null
+  large?: boolean
+}) {
   const first = issue?.downloaded_by[0]
   const cls = cx(
     'inline-flex items-center rounded-full font-bold whitespace-nowrap',
@@ -20,7 +32,12 @@ export function KindlePill({ issue, large }: { issue: IssueView | null; large?: 
   )
   if (!issue) return null
   if (!first) return <span className={cx(cls, 'bg-chip text-muted')}>Not on the Kindle yet</span>
-  return <span className={cx(cls, 'bg-accent-soft text-accent')}>On the Kindle {clockTime(first.received_at)}</span>
+  const synced = seenAt && Date.parse(seenAt) >= Date.parse(first.received_at) ? seenAt : null
+  return (
+    <span className={cx(cls, 'bg-accent-soft text-accent')}>
+      {synced ? `Kindle synced ${clockTime(synced)}` : `On the Kindle ${clockTime(first.received_at)}`}
+    </span>
+  )
 }
 
 export function StreakCard({

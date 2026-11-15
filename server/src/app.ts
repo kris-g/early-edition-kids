@@ -16,6 +16,7 @@ import { Database, utcnowIso } from "./db.js";
 import type { FeedFetcher, PageFetcher } from "./feeds.js";
 import type { LLM } from "./llm.js";
 import { buildContext, generate, resultApi, storyFile, storyPath, type Context } from "./pipeline.js";
+import { markKindleSeen } from "./kindleseen.js";
 import { beforeReset, readingSince } from "./readingreset.js";
 import { parseWordToKnow, renderStory } from "./render.js";
 import { isIsoDate, londonDate } from "./timeutil.js";
@@ -111,6 +112,7 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
 
 function kindleRoutes(app: express.Express, ctx: Context): express.Express {
   app.get("/api/issue/today", (req, res) => {
+    markKindleSeen(ctx.db, req.app.locals.clock());
     const today = londonDate(req.app.locals.clock());
     const payload = issuePayload(ctx, today);
     if (!payload) throw new HttpError(404, `no issue for ${today} yet`);
@@ -140,6 +142,7 @@ function kindleRoutes(app: express.Express, ctx: Context): express.Express {
   });
 
   app.post("/api/events", express.json({ limit: "5mb" }), (req, res) => {
+    markKindleSeen(ctx.db, req.app.locals.clock());
     res.json(ingestEvents(ctx, req.body));
   });
 

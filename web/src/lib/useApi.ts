@@ -14,8 +14,9 @@ export type ApiState<T> = {
 }
 
 /**
- * Fetch `fetcher` whenever `key` changes (null skips). Keeps the last data while
- * reloading so the page does not flash, and aborts stale requests.
+ * Fetch `fetcher` whenever `key` changes (null skips) and whenever the page comes
+ * back into view. Keeps the last data while reloading so the page does not
+ * flash, and aborts stale requests.
  */
 export function useApi<T>(key: string | null, fetcher: (signal: AbortSignal) => Promise<T>): ApiState<T> {
   const [state, setState] = useState<State<T>>({ key: null, run: -1 })
@@ -42,6 +43,18 @@ export function useApi<T>(key: string | null, fetcher: (signal: AbortSignal) => 
     )
     return () => ctrl.abort()
   }, [key, run])
+
+  // A phone keeps the home-screen app alive in the background, so without this a
+  // parent coming back to it sees whatever it showed last time. Fetch again
+  // whenever the page comes back into view.
+  useEffect(() => {
+    if (key === null) return
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') setRun((r) => r + 1)
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [key])
 
   const reload = useCallback(() => setRun((r) => r + 1), [])
   const mutate = useCallback(

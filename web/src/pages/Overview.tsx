@@ -64,7 +64,7 @@ export function Overview() {
           <h1 className="m-0 font-display text-[40px] leading-[1.1] font-black">Overview</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <KindlePill issue={issue} large />
+          <KindlePill issue={issue} seenAt={summary.data?.kindle_seen_at} large />
           <Button onClick={regen.start} busy={regen.running}>
             {issue ? 'Make it again' : 'Make today’s paper'}
           </Button>

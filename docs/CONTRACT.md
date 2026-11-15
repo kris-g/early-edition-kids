@@ -207,7 +207,7 @@ type AiView = { settings: AiSettings; models: ModelOption[];          // models 
 
 | Method and path | Returns |
 |---|---|
-| `GET /summary` | gains `streak_detail: Streak` and `last_run_cost: RunCost \| null`; existing fields unchanged |
+| `GET /summary` | gains `streak_detail: Streak` and `last_run_cost: RunCost \| null`, and `kindle_seen_at: string \| null` (when the Kindle last asked for today's paper or sent reading, UTC ISO); existing fields unchanged |
 | `GET /reading?days=14` | `ReadingView` for the last `days` days (7–120, default 14) ending today |
 | `GET /calendar?month=YYYY-MM` | `CalendarView` (default this month) |
 | `GET /ai` | `AiView` |

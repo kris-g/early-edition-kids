@@ -92,6 +92,8 @@ export type Summary = {
   /** Dashboard v2 */
   streak_detail: Streak;
   last_run_cost: RunCost | null;
+  /** When the Kindle last synced (asked for today's paper or sent reading), or null. */
+  kindle_seen_at: string | null;
 };
 
 export type GenerateResponse = {
