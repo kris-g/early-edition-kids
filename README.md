@@ -53,16 +53,17 @@ You need:
 
 ```bash
 docker run -d --name early-edition-kids --restart unless-stopped \
-  -p 8080:8080 -p 127.0.0.1:8081:8081 \
+  -p 8080:8080 -p 8081:8081 \
   -v early-edition-kids:/data \
   -e LLM_API_KEY=sk-ant-... \
   -e GENERATE_AT=05:30 \
+  -e DASHBOARD_PASSWORD=choose-a-long-password \
   ghcr.io/kris-g/early-edition-kids:latest
 ```
 
 - **`GENERATE_AT`** makes the paper every morning at that time, London time. If the server starts later in the day and there's no paper yet, it makes one straight away.
 - **Port 8080** is for the Kindle, so it's open to your network.
-- **Port 8081** is the parent dashboard, at <http://localhost:8081/dashboard/>. The dashboard has no login of its own, so this command only opens it on the computer itself. To use it from your phone, put it behind a proxy that asks for a login, such as Authelia or Tailscale, rather than opening the port.
+- **Port 8081** is the parent dashboard, at <http://localhost:8081/dashboard/> or the same port on the computer's address from your phone. **`DASHBOARD_PASSWORD`** makes it ask for that password and keeps you signed in for 30 days (add `-e DASHBOARD_USER=...` to ask for a user name too). It is plain HTTP, so keep it on your home network, or put an HTTPS proxy in front to use it from outside. Without `DASHBOARD_PASSWORD` the dashboard has no login at all: then use `-p 127.0.0.1:8081:8081` so it only opens on the computer itself, or put it behind a proxy that asks for a login, such as Authelia or Tailscale.
 - **Data** (issues, reading history, settings) lives in the `early-edition-kids` Docker volume.
 - **OpenRouter:** use `-e OPENROUTER_API_KEY=...` instead of, or as well as, `LLM_API_KEY`.
 - **To try it with no key at all,** use `-e LLM_BASE_URL=stub` instead of `LLM_API_KEY`. The stories are placeholder text under the real headlines.
@@ -70,6 +71,8 @@ docker run -d --name early-edition-kids --restart unless-stopped \
 `docker logs early-edition-kids` should then show a line like `schedule: issue for 2026-11-16: created`.
 
 **Make it your child's paper.** The built-in settings are an example, for an 8-year-old football fan in the UK. Copy [`server/config.example.yaml`](server/config.example.yaml), change the age, topics, favourite team and players, and feeds, then run the command again with `-v "$PWD/config.yaml:/config/config.yaml:ro"` added. Everything runs on London time and the feeds are British, so it suits a UK reader best.
+
+**More than one child?** Add a `profiles:` list to the config (there is a commented-out example at the end of `config.example.yaml`). Each child gets their own paper, reading history and dashboard; anything not set in a profile comes from the rest of the file. List the child who already uses it first: they keep the existing paper and Kindle address. Each other child's Kindle uses the same address with `/p/<id>` added, such as `http://192.168.1.50:8080/p/younger`, and the dashboard gets a switcher at the top.
 
 ### 2. Install the plugin on the Kindle
 

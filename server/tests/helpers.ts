@@ -97,7 +97,8 @@ export function makeApp(
   const clock = opts.clock ?? new Clock();
   const k = createApp({
     settings: testSettings(dir, opts.settings),
-    config: opts.config ?? exampleConfig(),
+    config: opts.profiles ? undefined : (opts.config ?? exampleConfig()),
+    profiles: opts.profiles,
     writer: opts.writer ?? new StubLLM(),
     checker: opts.checker,
     feedFetcher: opts.feedFetcher ?? fixtureFeedFetcher,

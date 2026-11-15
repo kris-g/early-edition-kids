@@ -81,7 +81,7 @@ export function Story() {
         </Button>
         {!s.hidden && (
           <p className="text-center text-xs text-muted">
-            Hiding takes it off the Kindle at its next check, as long as he has not opened it.
+            Hiding takes it off the Kindle at its next check, as long as it has not been opened.
           </p>
         )}
       </div>

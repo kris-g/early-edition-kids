@@ -135,10 +135,18 @@ function Api:getIssue(date)
 end
 
 --- `wire_events` are already in wire form (events.lua Queue.toWire).
-function Api:postEvents(device_id, wire_events)
+-- `paper` is the stored { id, root } of the paper the events belong to, or
+-- nil; the server refuses (409) events meant for another child's paper.
+function Api:postEvents(device_id, wire_events, paper)
+    local profile, profile_root
+    if type(paper) == "table" and type(paper.id) == "string" then
+        profile, profile_root = paper.id, paper.root == true
+    end
     local body, err = self.json.encode({
         device_id = device_id,
         events = self.json.array(wire_events),
+        profile = profile,
+        profile_root = profile_root,
     })
     if not body then
         return { kind = "server", message = "encode failed: " .. tostring(err) }

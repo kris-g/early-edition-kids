@@ -1,9 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { JobsProvider } from './components/JobsProvider'
 import { Layout } from './components/Layout'
+import { ProfileGate } from './components/ProfileGate'
 import { SignedOutNotice } from './components/SignedOutNotice'
 import { TooltipProvider } from './components/tooltip/TooltipProvider'
-import { BASE_PATH } from './config'
 import { Find } from './pages/Find'
 import { Day, IssueRedirect } from './pages/Day'
 import { Issues } from './pages/Issues'
@@ -16,9 +16,11 @@ import { Share } from './pages/Share'
 import { Story } from './pages/Story'
 import { Today } from './pages/Today'
 import { Topics } from './pages/Topics'
+import { basenameFor } from './lib/profile'
 
-// No login route: Authelia on the cluster edge signs the parent in before the
-// page loads. An expired session is handled by the API client (reload once).
+// No login route in the app: Authelia on the cluster edge, or the server's own
+// sign-in page (DASHBOARD_PASSWORD), signs the parent in before the page loads.
+// An expired session is handled by the API client (reload once).
 export function AppRoutes() {
   return (
     <JobsProvider>
@@ -47,10 +49,16 @@ export function AppRoutes() {
   )
 }
 
+// With several children the router is mounted per child, at /dashboard/p/<id>
+// (lib/profile.ts); with one it is at /dashboard as it always was.
 export default function App() {
   return (
-    <BrowserRouter basename={BASE_PATH.replace(/\/$/, '')}>
-      <AppRoutes />
-    </BrowserRouter>
+    <ProfileGate>
+      {(mode) => (
+        <BrowserRouter key={`${mode.prefixed}:${mode.id}`} basename={basenameFor(mode)}>
+          <AppRoutes />
+        </BrowserRouter>
+      )}
+    </ProfileGate>
   )
 }

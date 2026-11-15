@@ -2,7 +2,9 @@
  * Import the Claude Opus 5.5 stories from model-comparison reports into the live database, as if
  * the pipeline had published them on those days, without spending tokens again.
  *
- *   tsx scripts/import-comparison.ts [--dry-run] reports/model-comparison-2026-11-09.json ...
+ *   tsx scripts/import-comparison.ts [--dry-run] [--profile younger] reports/model-comparison-2026-11-09.json ...
+ *
+ * With several profiles, --profile picks the child (default: the profile that owns the root data).
  *
  * Per day (oldest first): only Opus stories that passed the automatic checks AND the checker;
  * skip any whose normalised source URL or title is already in an issue within 14 days either side
@@ -15,7 +17,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { dbPath, loadConfig, settingsFromEnv, type Config, type Settings } from "../src/config.js";
+import { dbPath, settingsFromEnv, type Config, type Settings } from "../src/config.js";
+import { profileFromArgs } from "../src/profiles.js";
 import { Database } from "../src/db.js";
 import { normaliseTitle, normaliseUrl } from "../src/feeds.js";
 import { StubLLM } from "../src/llm.js";
@@ -216,23 +219,24 @@ export function describe(plans: DayPlan[], dryRun: boolean): string {
   return out.join("\n");
 }
 
-export function openContext(settings: Settings, config: Config): Context {
+export function openContext(settings: Settings, config: Config, profileId?: string): Context {
   const db = new Database(dbPath(settings));
   db.init();
-  return buildContext(settings, config, db, { writer: new StubLLM() });
+  return buildContext(settings, config, db, { writer: new StubLLM(), profileId });
 }
 
 function main(): void {
   const args = process.argv.slice(2);
   const dryRun = args.includes("--dry-run");
-  const files = args.filter((a) => !a.startsWith("--"));
+  const p = args.indexOf("--profile");
+  const files = args.filter((a, i) => !a.startsWith("--") && !(p >= 0 && i === p + 1));
   if (!files.length) {
-    process.stderr.write("usage: import-comparison.ts [--dry-run] <model-comparison-YYYY-MM-DD.json>...\n");
+    process.stderr.write("usage: import-comparison.ts [--dry-run] [--profile <id>] <model-comparison-YYYY-MM-DD.json>...\n");
     process.exit(2);
   }
   const reports = files.map((file) => ({ file, data: JSON.parse(readFileSync(file, "utf8")) }));
-  const settings = settingsFromEnv();
-  const ctx = openContext(settings, loadConfig(settings.configPath));
+  const profile = profileFromArgs(settingsFromEnv(), args);
+  const ctx = openContext(profile.settings, profile.config, profile.id);
   try {
     const plans = planImport(ctx.db, reports);
     process.stdout.write(describe(plans, dryRun) + "\n");

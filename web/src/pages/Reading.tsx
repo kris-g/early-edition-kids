@@ -38,7 +38,7 @@ export function Reading() {
                 <span className="text-xs text-muted">
                   {r.streak.current > 0 && r.streak.current_since
                     ? `Since ${weekdayDayMonth(r.streak.current_since)}`
-                    : 'Starts on the next day he reads'}
+                    : 'Starts on the next reading day'}
                 </span>
               </div>
               <div className="flex min-w-0 flex-col gap-0.5 border-l border-line pl-3.5">
@@ -58,7 +58,7 @@ export function Reading() {
             </div>
             <DayStrip days={r.days} streak={r.streak} />
             <p className="m-0 text-sm leading-[1.45]">
-              He read on{' '}
+              Reading on{' '}
               <strong>
                 {r.reading_days} of the last {r.days.length} days
               </strong>
@@ -89,7 +89,7 @@ export function Reading() {
 
           <Card label="Topics" className="flex flex-col gap-3.5">
             <div className="flex items-baseline justify-between gap-2">
-              <SectionTitle>What he reads</SectionTitle>
+              <SectionTitle>What gets read</SectionTitle>
               <Link to="/topics" className="flex min-h-11 items-center text-[13px] font-semibold text-accent">
                 Manage topics
               </Link>

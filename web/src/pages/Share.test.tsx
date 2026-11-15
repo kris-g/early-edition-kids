@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { jsonResponse, shareView } from '../test/fixtures'
+import { SINGLE, setCurrentProfile } from '../lib/profile'
 import { Share } from './Share'
 
 const fetchMock = vi.fn<typeof fetch>(async () => jsonResponse(shareView()))
@@ -65,6 +66,21 @@ describe('Share', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
+  it('keeps a name per child when there are several', async () => {
+    setCurrentProfile({ id: 'younger', prefixed: true })
+    try {
+      localStorage.setItem('early-edition.share-name', 'Older')
+      page()
+      await screen.findByRole('heading', { name: 'Streak' })
+      expect(screen.getByLabelText('Name on the cards')).toHaveValue('')
+      await userEvent.type(screen.getByLabelText('Name on the cards'), 'Y')
+      expect(localStorage.getItem('early-edition.share-name.younger')).toBe('Y')
+      expect(localStorage.getItem('early-edition.share-name')).toBe('Older')
+    } finally {
+      setCurrentProfile(SINGLE)
+    }
+  })
+
   it('switches colour', async () => {
     page()
     await screen.findByRole('heading', { name: 'Streak' })
@@ -76,7 +92,7 @@ describe('Share', () => {
   it('says why a card is not ready instead of drawing it', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(shareView({ milestone: null, total_read: 7 })))
     page('/share?card=milestone')
-    expect(await screen.findAllByText('Milestones start at 10 stories. He has read 7 stories so far.')).not.toHaveLength(0)
+    expect(await screen.findAllByText('Milestones start at 10 stories. 7 stories read so far.')).not.toHaveLength(0)
     expect(screen.queryByRole('button', { name: 'Save image' })).not.toBeInTheDocument()
   })
 })

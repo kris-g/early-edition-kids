@@ -8,18 +8,31 @@ The product name lives in `src/config.ts`: `APP_NAME` is "Early Edition Kids" an
 (`APP_SHORT_NAME`, the manifest's `short_name`) is "Early Edition", because iOS cuts labels off at about
 12 characters' width. The manifest, page title and home-screen label all read from there.
 
-## Sign-in: Authelia only
+## Sign-in: Authelia, or the server's own
 
-The app has no login, password or session of its own. In production the dashboard is only reachable
-through its HTTPS ingress (see CONTRACT.md), which Authelia protects at the cluster edge, so you sign
-in to Authelia before the page loads.
+The app has no login screen of its own. In the author's setup the dashboard is only reachable through
+its HTTPS ingress (see CONTRACT.md), which Authelia protects at the cluster edge, so you sign in to
+Authelia before the page loads. A plain Docker setup can set `DASHBOARD_PASSWORD` on the server
+instead: the server then serves its own sign-in page at `/login`, the API answers 401 when signed out,
+and More shows "Sign out" (`GET /api/dashboard/profiles` says whether it is on).
 
-When the Authelia session expires, API calls get a redirect to Authelia instead of JSON. The app fetches
+When the session expires, API calls get a redirect to Authelia (or a 401 from the server) instead of JSON. The app fetches
 with `redirect: 'manual'`, treats that redirect (or a 401) as "signed out" and reloads the page once, so the
-browser goes through Authelia's sign-in and comes back. If it already reloaded in the last 30 seconds it
+browser goes through the sign-in page and comes back. If it already reloaded in the last 30 seconds it
 stops and shows "You're signed out. Reload to sign in again." with a button, so it can never loop.
 
 Every non-GET request carries the header `X-Early-Edition: 1` (the server's CSRF guard).
+
+## Several children
+
+The app first asks `GET /api/dashboard/profiles`. With one profile nothing changes: pages under
+`/dashboard/`, the API under `/api/dashboard`, no switcher. With more, each child's pages are under
+`/dashboard/p/<id>/` and its API under `/api/dashboard/p/<id>`; the router is mounted per child
+(`src/components/ProfileGate.tsx`, `src/lib/profile.ts`), so links inside the app are unchanged.
+`/dashboard/` opens the child used last on this device (`early-edition.profile`), a switcher in the
+phone header and the desktop sidebar shows the profile id, and switching keeps the section you were on.
+The share-card name is kept per child (`early-edition.share-name.<id>`); the theme and dismissed tips are
+per device.
 
 ## Design and theme
 
@@ -55,7 +68,7 @@ theme switch).
 - **AI**: last run, who writes (models grouped by provider), who checks and how hard, a live estimate and
   "Use from tomorrow's paper" (sends only what changed), the monthly limit, cost this month and per day,
   where a day's money goes, tokens, quality, and one row per provider. API keys stay on the server.
-- **Share** (sidebar, or More on a phone): six picture cards (Streak, Today, His week, Milestone, Words learned,
+- **Share** (sidebar, or More on a phone): six picture cards (Streak, Today, The week, Milestone, Words learned,
   Ask me about) in a row you swipe through, with dots and arrows; a name for the cards (kept on this device only)
   and a colour (Paper, Green, Night); Share… (the phone's share sheet), Copy image and Save image. Cards are drawn on
   a canvas in `src/lib/shareDraw.ts` from `GET /api/dashboard/share`; their wording is in `src/lib/shareCards.ts`.
@@ -65,7 +78,7 @@ theme switch).
   rewritten and checked by the server; the page polls the job every 2 seconds and shows the new story or
   the reasons it was refused. Polling carries on while you move between pages.
 - **Topics**: base and effective weight, shown, opened and engaged counts, and None, Pin or Block.
-- **Back issues**, **Recent runs** and **More** (links, home-screen help, "Signed in through Authelia").
+- **Back issues**, **Recent runs** and **More** (links, home-screen help, and "Signed in through Authelia" or, with the server's own sign-in, "Sign out").
 
 ## Develop with the mock API
 
@@ -86,7 +99,7 @@ Open http://localhost:5173/dashboard/. There is nothing to sign in to.
 To see what an expired Authelia session looks like, open http://localhost:8090/__mock/signed-out?on=1;
 every dashboard API call then answers with a redirect. `?on=0` undoes it.
 
-Mock options (environment variables): `MOCK_NO_ISSUE=1` (no issue today, to see the empty state),
+Mock options (environment variables): `MOCK_PROFILES=older,younger` (two children, each with its own data, to see the switcher and the `/p/<id>/` addresses), `MOCK_LOGIN=1` (as if the server had `DASHBOARD_PASSWORD`, to see "Sign out" on More), `MOCK_NO_ISSUE=1` (no issue today, to see the empty state),
 `MOCK_DELAY` (ms of latency, default 250), `MOCK_JOB_MS` (default 4000), `PORT` (default 8090).
 The mock keeps everything in memory; restart it to reset. `npm run mock:watch` restarts it on changes.
 

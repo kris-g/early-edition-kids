@@ -123,6 +123,16 @@ export type Summary = {
   catch_up_today: number;
 };
 
+/** GET /api/dashboard/profiles (CONTRACT.md "Profiles"). */
+export type ProfileInfo = { id: string; title: string };
+export type ProfilesView = {
+  profiles: ProfileInfo[];
+  /** The profile also served at /api/dashboard (the one that owns the root data), or null. */
+  root: string | null;
+  /** True when the built-in sign-in is on (DASHBOARD_PASSWORD). */
+  login: boolean;
+};
+
 export type GenerateResponse = {
   date: string;
   version: number | null;

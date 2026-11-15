@@ -9,7 +9,7 @@ type Ask = { title: string; body: string; confirm: boolean; label: string }
 
 const ON_KINDLE: Ask = {
   title: 'Already on the Kindle',
-  body: 'Today’s paper has already been downloaded. A new version replaces it on the Kindle only if he has not opened any story yet.',
+  body: 'Today’s paper has already been downloaded. A new version replaces it on the Kindle only while no story in it has been opened.',
   confirm: true,
   label: 'Make it again anyway',
 }

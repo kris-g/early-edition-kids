@@ -65,7 +65,7 @@ describe('Find articles', () => {
     renderFind()
     expect(await screen.findByText('Scientists find a frog that glows')).toBeInTheDocument()
     expect(screen.getByText('Already used')).toBeInTheDocument()
-    expect(screen.getByText(/rewritten for him and safety-checked/)).toBeInTheDocument()
+    expect(screen.getByText(/rewritten for the reader’s age and safety-checked/)).toBeInTheDocument()
 
     await user.click(screen.getAllByRole('button', { name: 'Add to today' })[0])
     expect(await screen.findByText(/Rewriting and checking for today’s issue/)).toBeInTheDocument()

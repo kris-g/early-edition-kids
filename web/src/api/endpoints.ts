@@ -1,5 +1,5 @@
 // One function per route in CONTRACT.md's dashboard tables.
-import { get, post, request } from './client'
+import { API_ROOT, get, post, request } from './client'
 import type { AddWhen, AiPage, GenerateResult, Summary, TopicMode } from './routes'
 import type {
   AiSettingsPatch,
@@ -9,6 +9,7 @@ import type {
   IssueSummary,
   IssueView,
   Job,
+  ProfilesView,
   ReadingView,
   RunView,
   ShareView,
@@ -20,6 +21,9 @@ import type {
 const enc = encodeURIComponent
 
 export const api = {
+  /** Every child, whichever is shown; always at the root. */
+  profiles: (signal?: AbortSignal) => request<ProfilesView>('GET', `${API_ROOT}/profiles`, { signal, absolute: true }),
+
   summary: (signal?: AbortSignal) => get<Summary>('/summary', signal),
   issues: (limit = 30, signal?: AbortSignal) => get<IssueSummary[]>(`/issues?limit=${limit}`, signal),
   issue: (date: string, signal?: AbortSignal) => get<IssueView>(`/issues/${enc(date)}`, signal),

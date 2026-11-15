@@ -1,6 +1,7 @@
 /**
- * The parent dashboard JSON API, under /api/dashboard (CONTRACT.md "Parent dashboard (React PWA)").
- * No login in the app: it is only served on DASHBOARD_PORT, which Authelia guards at the edge.
+ * The parent dashboard JSON API for one profile, under /api/dashboard/p/<id> (and /api/dashboard for
+ * the root profile); CONTRACT.md "Parent dashboard (React PWA)". It is only served on DASHBOARD_PORT,
+ * which a proxy such as Authelia, or the built-in sign-in (login.ts), guards.
  */
 
 import express, { type NextFunction, type Request, type Response, Router } from "express";
@@ -146,7 +147,7 @@ export function dashboardApi(deps: DashboardDeps): Router {
     const t = londonDate(now);
     const issue = ctx.db.getIssue(t);
     if (issue && downloadedBy(ctx, t).length && req.body?.confirm !== true) {
-      throw new HttpError(409, "Today's issue is already on the Kindle. Regenerating replaces it only if he hasn't opened a story yet.");
+      throw new HttpError(409, "Today's issue is already on the Kindle. Regenerating replaces it only while no story in it has been opened.");
     }
     const result = await generate(ctx, t, now, issue !== undefined);
     if (result.status === "failed") {

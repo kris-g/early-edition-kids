@@ -91,7 +91,7 @@ export function Overview() {
           ) : (
             <div className="flex flex-col gap-1">
               <span className="font-display text-[34px] leading-tight font-black">No streak yet</span>
-              <span className="text-sm text-muted">A streak starts on any day he reads a story to the end.</span>
+              <span className="text-sm text-muted">A streak starts on any day a story is read to the end.</span>
             </div>
           )}
           {r14 && streak && <DayStrip days={r14.days} streak={streak} tall />}

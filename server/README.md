@@ -48,7 +48,7 @@ If you are behind an HTTP proxy, set `NODE_USE_ENV_PROXY=1` so Node's `fetch` us
 curl -X POST -H 'X-Admin-Token: dev' http://localhost:8080/admin/generate
 ```
 
-The reply is `{"date", "version", "fallback", "story_count", "status"}`; `status` is `created` or `exists`. It is idempotent per date: a second call returns `exists`. Add `?force=true` for a new version, and `&date=YYYY-MM-DD` for another date.
+The reply is `{"date", "version", "fallback", "story_count", "status"}`; `status` is `created` or `exists`. With several profiles it makes each one's paper in turn and adds `"profiles": {"<id>": {...}}`; `?profile=<id>` makes just one. It is idempotent per date: a second call returns `exists`. Add `?force=true` for a new version, and `&date=YYYY-MM-DD` for another date.
 
 If no issue could be made (the LLM is down and there are fewer than 3 unopened stories from the last 7 days to reuse), the reply is HTTP 503 with `"status": "failed"`. A forced run that fails keeps the existing version.
 
@@ -57,7 +57,7 @@ In the cluster, the CronJob makes this call at 05:30 Europe/London. The pipeline
 ## Read the output in a browser
 
 - `http://localhost:8080/api/issue/today` is the issue index the Kindle reads. Each story's `path` is its HTML page, for example `http://localhost:8080/issues/2026-11-14/v1/1.html`.
-- `http://localhost:8081/dashboard/` is the parent dashboard (`http://localhost:8081/` redirects there). Build it first (`cd ../web && npm ci && npm run build`); the server serves `../web/dist` (or `EARLY_EDITION_KIDS_WEB_DIR`). Without a build, `/dashboard/` says "web app not built". There is no login locally.
+- `http://localhost:8081/dashboard/` is the parent dashboard (`http://localhost:8081/` redirects there). Build it first (`cd ../web && npm ci && npm run build`); the server serves `../web/dist` (or `EARLY_EDITION_KIDS_WEB_DIR`). Without a build, `/dashboard/` says "web app not built". There is no login locally unless `DASHBOARD_PASSWORD` is set.
 - The files are also on disk under `$EARLY_EDITION_KIDS_DATA_DIR/issues/<date>/v<version>/`, with an `index.json` per version.
 
 To see a story as the Kindle will, open its HTML file in the KOReader desktop emulator.
@@ -66,7 +66,9 @@ To see a story as the Kindle will, open its HTML file in the KOReader desktop em
 
 All under `/api/dashboard` on the dashboard port (see CONTRACT.md for the shapes; the TypeScript types are in `src/dashboard/types.ts`, which the web app imports):
 
-- The app has no login, password or session. In the cluster the dashboard port is reachable only through the Ingress that Authelia guards (CONTRACT.md "Auth"); never expose it directly.
+- With `DASHBOARD_PASSWORD` unset the app has no login, password or session. In the cluster the dashboard port is reachable only through the Ingress that Authelia guards (CONTRACT.md "Auth"); never expose it directly.
+- With `DASHBOARD_PASSWORD` set, everything on the dashboard port but `/healthz`, `/login` and `/logout` needs the session cookie from `/login`: the API answers 401 `{error}` without it, and pages redirect to `/login?next=...` (CONTRACT.md "Built-in sign-in").
+- `GET /api/dashboard/profiles` lists the profiles. With several, every route below is also at `/api/dashboard/p/<id>/...` for each one, and `/api/dashboard/...` is the root profile's.
 - Every non-GET route needs the header `X-Early-Edition: 1` (403 without it), a cheap CSRF guard.
 - `GET /summary`, `/issues`, `/issues/:date`, `/stories/:id`, `/topics`, `/articles/search?q=`, `/jobs/:id`, `/runs`; `POST /stories/:id/hide|unhide`, `/regenerate`, `/topics/:name`, `/articles/add`.
 - Errors are `{error}` with a plain sentence a parent can read.
@@ -110,12 +112,17 @@ Environment variables (secrets never go in the YAML file):
 | `GENERATE_AT` | none | `HH:MM`, London time: the server makes the day's paper itself at that time, or at start if it's later and there's no paper yet. For setups with no CronJob, such as a plain `docker run`. |
 | `ADMIN_TOKEN` | none | Required header `X-Admin-Token` for `POST /admin/generate`. Unset means the endpoint refuses every call. |
 | `PORT` | `8080` | Kindle port |
-| `DASHBOARD_PORT` | `8081` | Dashboard port. It has no login, so keep it behind an authenticating proxy or bound to localhost. |
+| `DASHBOARD_PORT` | `8081` | Dashboard port. Without `DASHBOARD_PASSWORD` it has no login, so keep it behind an authenticating proxy or bound to localhost. |
+| `DASHBOARD_PASSWORD` | none | Turns on the dashboard's own sign-in page, for setups with no proxy such as Authelia. Unset means no login in the app. |
+| `DASHBOARD_USER` | none | With `DASHBOARD_PASSWORD`: also ask for this user name. |
+| `SESSION_SECRET` | none | With `DASHBOARD_PASSWORD`: mixed into the sign-in cookie's key. Change it to sign every device out without changing the password. |
 | `HOST` | `127.0.0.1` (`0.0.0.0` in the image) | Address both ports bind to |
 
 `config.example.yaml` is the starting config: title, child's age, story count, reading speed, topics with base weights, the four feeds with their exclude patterns (regular expressions, case-insensitive), the blocklist and favourite players. A feed URL may be `file:///path/feed.xml` for offline testing.
 
 Optional extra keys, with defaults: `reserves` (4), `max_age_hours` (48), `dedupe_days` (14), `fallback_days` (7), `min_source_words` (150), `source_char_limit` (6000), `llm_concurrency` (3), and `llm_prices` (USD per million input and output tokens per model; defaults Opus 5.5 4 / 20, Sonnet 5.5 2 / 10, Haiku 5.5 0.10 / 0.50).
+
+**Profiles.** For more than one child, add a `profiles:` list (example at the end of `config.example.yaml`; CONTRACT.md "Profiles"). Each entry has an `id` and overrides any other key; lists replace rather than add. Each profile has its own database: the first listed (recorded in `$EARLY_EDITION_KIDS_DATA_DIR/profiles.json`) keeps `early-edition-kids.db` and `issues/`, the others use `profiles/<id>/`. The Kindle routes are at `/p/<id>/` for each, and at `/` for the first. `POST /admin/generate` makes every profile's paper in turn (`?profile=<id>` for one), and the scripts take `--profile <id>`.
 
 Never put the child's name in the config. The LLM sees only his age, topic names and weights, and the favourite players.
 

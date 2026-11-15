@@ -1,12 +1,12 @@
 /**
- * Entry point: `tsx src/server.ts`. Two listeners in one process, sharing the database:
+ * Entry point: `tsx src/server.ts`. Two listeners in one process, sharing each profile's database:
  * PORT (8080) for the Kindle and DASHBOARD_PORT (8081) for the dashboard, both on HOST
  * (127.0.0.1 by default; 0.0.0.0 in the container).
  */
 
 import type { Server } from "node:http";
 import { createApp } from "./app.js";
-import { generate } from "./pipeline.js";
+import { generateAll } from "./profiles.js";
 import { makeScheduler, parseGenerateAt } from "./schedule.js";
 
 const earlyEditionKids = createApp();
@@ -21,7 +21,13 @@ let stopSchedule = () => {};
 try {
   const at = parseGenerateAt(earlyEditionKids.ctx.settings.generateAt);
   if (at !== null) {
-    stopSchedule = makeScheduler({ at, run: (date, now) => generate(earlyEditionKids.ctx, date, now) }).start();
+    // Every profile in turn; a failure in any is retried (the others then return "exists").
+    const run = async (date: string, now: Date) => {
+      const results = await generateAll(earlyEditionKids.profiles, date, now);
+      const statuses = [...results.values()].map((r) => r.status);
+      return { status: statuses.includes("failed") ? "failed" : statuses.includes("created") ? "created" : "exists" };
+    };
+    stopSchedule = makeScheduler({ at, run }).start();
     console.log(`schedule: today's issue is made daily from ${earlyEditionKids.ctx.settings.generateAt} London time`);
   }
 } catch (err) {

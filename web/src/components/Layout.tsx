@@ -4,6 +4,7 @@ import { APP_SHORT_NAME } from '../config'
 import { cx } from '../lib/cx'
 import { useSection } from '../lib/origin'
 import { CalendarIcon, DotsIcon, LogoMark, PaperIcon, ReadingIcon, SparkleIcon } from './Icons'
+import { ProfileSwitcher } from './ProfileSwitcher'
 import { ThemeButton, ThemeSwitch } from './ThemeToggle'
 
 type Tab = { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }
@@ -36,10 +37,10 @@ const SIDE_EXTRA: { to: string; label: string }[] = [
 
 function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2.5 rounded-lg">
-      <LogoMark className="size-9 text-accent" />
-      <span className="flex flex-col gap-px">
-        <span className="font-display text-[22px] leading-[1.1] font-black">{APP_SHORT_NAME}</span>
+    <Link to="/" className="flex min-w-0 items-center gap-2.5 rounded-lg">
+      <LogoMark className="size-9 shrink-0 text-accent" />
+      <span className="flex min-w-0 flex-col gap-px">
+        <span className="truncate font-display text-[22px] leading-[1.1] font-black whitespace-nowrap">{APP_SHORT_NAME}</span>
         <span className="text-[11px] font-bold tracking-[0.12em] text-muted">PARENT DESK</span>
       </span>
     </Link>
@@ -59,6 +60,7 @@ export function Layout() {
         <div className="px-2">
           <Brand />
         </div>
+        <ProfileSwitcher wide />
         <nav aria-label="Sections" className="flex flex-col gap-1">
           {SIDE.map((t) => (
             <Link
@@ -99,9 +101,12 @@ export function Layout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="header-safe flex items-center justify-between px-5 pt-5 pb-3 desk:hidden">
+        <header className="header-safe flex items-center justify-between gap-2 px-5 pt-5 pb-3 desk:hidden">
           <Brand />
-          <ThemeButton />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ProfileSwitcher />
+            <ThemeButton />
+          </div>
         </header>
 
         <main className="mx-auto w-full max-w-[640px] flex-1 px-5 pt-1 pb-32 desk:max-w-[1180px] desk:px-8 desk:pt-7 desk:pb-10">

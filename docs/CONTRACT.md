@@ -7,10 +7,27 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - Server listens on two ports, plain HTTP: 8080 for the Kindle, 8081 for the dashboard (see "Auth" under "Parent dashboard").
 - Timezone for "today" and the schedule: `Europe/London`.
 - Daily run: either a Kubernetes CronJob calls `POST /admin/generate`, or env `GENERATE_AT` (`HH:MM`, London time) makes the server run it itself, at that time or at start when later. Both are safe together: runs are serialised and a date that already has a paper returns `exists`.
-- Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`.
-- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes}`), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list).
-- Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container).
+- Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`. With several profiles, see "Profiles" for where the others live.
+- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes}`), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), and optionally `profiles` (see "Profiles").
+- Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
 - Stub LLM: when `LLM_BASE_URL` is `stub`, the server uses canned responses and needs no key or network for the LLM (feeds may still be fetched; tests use fixture feeds).
+
+## Profiles (added 15 November 2026)
+
+One server can make a paper for more than one child. Each profile is a full copy of the single-child setup: its own merged config, database, issues folder, Kindle address, dashboard, AI settings and monthly limit. Nothing is added up across children.
+
+- **Config.** An optional top-level `profiles:` list. Each entry has a required `id` (lowercase letters, digits and hyphens, unique; never a name: use something like `older` / `younger`) and may override any other top-level key. The merge is shallow: a profile's key replaces the top-level one, and a list replaces the list rather than adding to it. Each merged profile is validated like a whole config. `llm_prices` and `openrouter_models` are global; setting them in a profile is an error. No `profiles:` key means one implicit profile, `default`, exactly as before.
+- **Data.** The root location (`$DATA/early-edition-kids.db` and `$DATA/issues/`) belongs to one profile id. The first time the config has a `profiles:` list, the server records the first listed id as its owner in `$DATA/profiles.json` (`{"root": "older"}`); without a list nothing is written and `default` owns it. Every other profile keeps its data in `$DATA/profiles/<id>/` (the same two names inside). Data is found by id, never by position, so adding, removing or reordering profiles never gives one child's data to another. If the recorded owner is not in the config, the server logs a warning and leaves the root data unused (nothing is served at `/`) until a profile with that id is back. A single-child setup is never migrated or moved.
+- **Kindle port.** Every profile's Kindle routes are mounted at `/p/<id>/` (`/p/<id>/api/issue/today`, `/p/<id>/issues/...`, `/p/<id>/api/events`), and the root owner's are also at `/`, so an existing Kindle keeps working unchanged. An unknown id is a 404. A second child's Kindle uses `http://<server>:8080/p/<id>` as its server address; story `path`s stay relative to the mount (no `/p/<id>`), and the plugin joins them to the address.
+- **Dashboard port.** The dashboard API is at `/api/dashboard/p/<id>/...` for every profile, and also at `/api/dashboard/...` for the root owner. `GET /api/dashboard/profiles` returns `ProfilesView` (below). The web app keeps today's URLs with one profile; with several (or when no profile owns the root data) its pages are under `/dashboard/p/<id>/`, `/dashboard/` opens the child used last on that device (or the first), and a switcher in the header shows the profile id.
+- **Generation.** `POST /admin/generate` and `GENERATE_AT` run every profile in turn; one lock shared by all profiles means two papers are never made at once (see "Admin and parent").
+- **Scripts.** `reset-reading.ts`, `rewrite-issues.ts` and `import-comparison.ts` take `--profile <id>` (default: the root owner). `src/backup.ts` copies every profile's database.
+
+```ts
+type ProfilesView = { profiles: { id: string; title: string }[];   // config order
+                      root: string | null;                          // the profile also served at /api/dashboard, or null
+                      login: boolean };                             // the built-in sign-in is on
+```
 
 ## Topics (exact strings)
 
@@ -37,19 +54,22 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
      "word_to_know": {"word": "ceremony", "definition": "a special event held to celebrate something."}}
   ],
   "hidden": [43],
-  "reading_since": "2026-11-14"
+  "reading_since": "2026-11-14",
+  "profile": "default",
+  "profile_root": true
 }
 ```
 
 - `today` means the Europe/London date on the server. 404 with `{"detail": "..."}` if today's issue does not exist. Never returns an older issue.
 - `stories` excludes hidden stories, ordered by `position`. `hidden` lists the ids of this version's stories a parent has hidden. Positions are not renumbered when a story is hidden.
-- `id` is globally unique and stable. A regenerated issue has a higher `version` and new ids.
+- `id` is unique and stable within a profile. A regenerated issue has a higher `version` and new ids.
 - `minutes` = max(1, round(word_count / reading_wpm)).
 - `path` is server-relative; the client joins it to its `server_url` and never builds it.
 - `number` is the edition number: how many distinct issue dates exist up to and including this date (1 for the first issue ever). It does not change when a date is regenerated.
 - `created_at` is when this version was made, ISO 8601 in UTC.
 - `word_to_know` per story is `{word, definition}` or `null`, the same as the box at the end of the story page.
 - `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
+- `profile` is the id of the profile this paper is for (`default` without a profiles list); `profile_root` is true when that profile owns the root data. Story ids restart at 1 in each profile's database, so a client treats a change of paper as a fresh start. The paper differs when exactly one side has `profile_root`, or neither has and the ids differ. The root data stays the same paper when its owner's id changes, which happens once: from `default` to the first listed profile.
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
 
 ### Reading since
@@ -76,6 +96,7 @@ Request:
 ]}
 ```
 
+- Optional `profile` and `profile_root`: the paper the client believes the events belong to (from its last issue response). When they name a different paper than this mount serves (the rule under the issue fields), the response is 409 and nothing is stored, so reading never lands in another child's paper. Without them (older clients), events are accepted as before.
 - `type` is one of `issue_downloaded`, `list_shown` (payload `{date, version}`, `story_id` null), `story_opened` (payload `{}`), `story_closed` (payload as above).
 - Response 200: `{"accepted": ["uuid", ...]}` listing every `client_event_id` now stored, including ones that were already stored from an earlier upload. The client deletes exactly those from its queue.
 - Unknown `story_id` or unknown `type`: the event is not stored and not in `accepted`; the response is still 200. The client keeps those for at most 7 days, then drops them.
@@ -83,7 +104,8 @@ Request:
 
 ### Admin and parent
 
-- `POST /admin/generate[?force=true][&date=YYYY-MM-DD]` with header `X-Admin-Token`. 200 `{"date","version","fallback","story_count","status": "created"|"exists"}`. 503 with `"status": "failed"` when nothing could be published (the CronJob's `curl -f` then marks the job failed). A forced run that fails keeps the existing version.
+- `POST /admin/generate[?force=true][&date=YYYY-MM-DD][&profile=<id>]` with header `X-Admin-Token`, at the root of the Kindle port only. 200 `{"date","version","fallback","story_count","status": "created"|"exists"}`. 503 with `"status": "failed"` and a `detail` line when nothing could be published (the CronJob's `curl -f` then marks the job failed). A forced run that fails keeps the existing version.
+  - It runs every profile in turn, never two at once. With one profile, or with `?profile=<id>` (which limits it to that one; an unknown id is 404), the response is exactly the shape above. With several, the top-level fields are the root owner's result (the first profile's when none owns the root), plus `"profiles": {"<id>": result, ...}` with each result in the shape above; the status is 503 if any failed, with `detail` naming them.
 - `GET /healthz` returns 200 `ok`.
 - The dashboard and its API are on port 8081 only (see "Parent dashboard").
 
@@ -100,17 +122,26 @@ Request:
 
 The dashboard is a separate front end in `web/` (React, TypeScript, Vite, Tailwind, `vite-plugin-pwa`), built to static files and served by the Express server at `/dashboard/` (SPA fallback to `index.html`, service worker scope `/dashboard/`). It talks only to the JSON API below. There are no server-rendered dashboard pages. In development, Vite runs on its own port and proxies `/api/dashboard` to `http://localhost:8081` and the rest of `/api` to `http://localhost:8080`.
 
-### Auth: Authelia in front, none in the app
+### Auth: Authelia in front, or the built-in sign-in
 
-The app has no login, password, session or user of its own. Access control is Authelia on the edge, and the dashboard is only reachable through it:
+By default the app has no login, password, session or user of its own (see "Built-in sign-in" for the optional one). Access control is Authelia on the edge, and the dashboard is only reachable through it:
 
-- **Two ports.** The server listens on `PORT` (8080) for the Kindle routes only (`/api/issue/*`, `/issues/*`, `/api/events`, `/admin/generate`, `/healthz`), and on `DASHBOARD_PORT` (8081) for the dashboard only (`/dashboard/*`, `/api/dashboard/*`, `/healthz`; `GET /` redirects to `/dashboard/`). Neither port serves the other's routes (404).
+- **Two ports.** The server listens on `PORT` (8080) for the Kindle routes only (`/api/issue/*`, `/issues/*`, `/api/events`, each also under `/p/<id>`, plus `/admin/generate` and `/healthz`), and on `DASHBOARD_PORT` (8081) for the dashboard only (`/dashboard/*`, `/api/dashboard/*`, `/healthz`, and `/login`, `/logout` with the built-in sign-in; `GET /` redirects to `/dashboard/`). Neither port serves the other's routes (404).
 - **Exposure.** Port 8080 is the LAN LoadBalancer the Kindle uses. Port 8081 is ClusterIP only and is reached solely through the dashboard's Ingress, on Traefik's `websecure` entrypoint, with TLS from the default TLSStore and an Authelia `forwardAuth` middleware (use a two-factor policy). Plain HTTP is redirected to HTTPS.
 - **No identity headers.** The existing middleware does not forward `Remote-User`, so the app does not know or need to know who is signed in.
 - **Session expiry.** When the Authelia session expires, an API `fetch` gets a redirect to the Authelia sign-in page instead of JSON. The web app fetches with `redirect: "manual"`; an `opaqueredirect` response (or a 401) means "signed out", and it reloads the page so the browser does the Authelia sign-in, then comes back.
 - **CSRF guard.** Every non-GET `/api/dashboard/*` route still requires the header `X-Early-Edition: 1` and returns 403 without it.
 - **Local development.** Both ports bind to `127.0.0.1` unless `HOST` is set; there is no auth locally.
 - Errors are `{error: "message"}` with a suitable status.
+
+### Built-in sign-in (added 15 November 2026)
+
+For setups with no authenticating proxy, such as a plain `docker run`. Off unless `DASHBOARD_PASSWORD` is set; with it unset the app behaves exactly as above. The Kindle port is never affected.
+
+- **What needs a session.** Everything on the dashboard port except `/healthz`, `GET /login`, `POST /login` and `POST /logout`. Without a valid session, an API request (`/api/...`) or any non-GET gets 401 `{error}`; a page navigation gets 302 to `/login?next=<path>`. `next` is honoured only as a same-origin path under `/dashboard`; anything else signs in to `/dashboard/`.
+- **Sign-in page.** `GET /login` is a small server-rendered form in the dashboard's colours, light and dark (not HTTP Basic, so it works as an iOS home-screen app). It asks for the password, and for a user name too when `DASHBOARD_USER` is set. `POST /login` (form fields `user`, `password`, `next`) answers 303 to `next` with the cookie, or the form again with 401. After 5 failed tries in a minute from one connecting address it answers 429 for the rest of that minute (kept in memory). `POST /logout` clears the cookie and answers 303 to `/login`.
+- **Cookie.** `eek_session`, stateless: an expiry time and its HMAC-SHA256, keyed by scrypt from the password, the user name and `SESSION_SECRET` (when set), so changing any of them signs everyone out. 30 days, `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Secure` when the request is https (including `X-Forwarded-Proto: https` from a proxy). Secrets are compared in constant time.
+- **Web app.** A 401 means "signed out", as with Authelia: the page reloads once, lands on `/login`, and comes back after signing in. The More page shows "Sign out" (a form post to `/logout`, which also empties the offline caches) when `ProfilesView.login` is true.
 
 ### Shapes
 
@@ -138,7 +169,9 @@ type Job = { id: string; status: "pending" | "done" | "failed"; when: "today" | 
 type RunView = { started_at: string; finished_at: string | null; date: string; status: string; detail: string[] };
 ```
 
-### Routes (all under `/api/dashboard`)
+### Routes (all under `/api/dashboard`, or `/api/dashboard/p/<id>` for a profile)
+
+`GET /api/dashboard/profiles` (`ProfilesView`, see "Profiles") is only at the root. Every route below is per profile.
 
 | Method and path | Returns |
 |---|---|
@@ -233,7 +266,7 @@ Both providers can be configured at once, and the writer and the checker can eac
 
 ### Share cards (added 14 November 2026)
 
-The Share page turns his reading into a picture to send to family: six cards (Streak, Today, His week, Milestone, Words learned, Ask me about) in a swipeable row, each a 1080 × 1350 PNG in one of three colours (Paper, Green, Night). The cards are drawn in the browser on a canvas, so the server sends only numbers and headlines, and the picture goes nowhere until the parent shares, copies or saves it. The optional name on the cards is typed in the browser and kept in its `localStorage` (`early-edition.share-name`); it is never sent to the server. `/share?card=<id>` opens on a card.
+The Share page turns his reading into a picture to send to family: six cards (Streak, Today, The week, Milestone, Words learned, Ask me about) in a swipeable row, each a 1080 × 1350 PNG in one of three colours (Paper, Green, Night). The cards are drawn in the browser on a canvas, so the server sends only numbers and headlines, and the picture goes nowhere until the parent shares, copies or saves it. The optional name on the cards is typed in the browser and kept in its `localStorage` (`early-edition.share-name`, or `early-edition.share-name.<id>` per child when there are several profiles); it is never sent to the server. `/share?card=<id>` opens on a card.
 
 - **Milestones** count different stories read to the end, ever: 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500, then every 100. The card shows the latest one reached and the story that reached it.
 - **Words** are the stories' word to know, from stories read in the last 7 days, newest first, one per word, up to 4.
@@ -268,3 +301,5 @@ On start and on resume, the plugin syncs if any of:
 After a story closes, the plugin also uploads queued events on their own, with no issue fetch: one minute after the last story closed, only if Wi-Fi is already on, and not while another story is open (it waits until that one closes). Going to sleep cancels it; the wake-up sync sends them instead. This keeps the dashboard current within a minute or two of his reading.
 
 A sync uploads events, then fetches `/api/issue/today`. If the date and version match what it has, it applies `hidden` (removes those stories from the headline list and deletes their files). A higher version replaces the stored issue only if no story from it has been opened.
+
+The plugin stores `profile` and `profile_root` from issue responses (today's and back issues) and sends them with its events. When an issue arrives from a different paper (the rule under the issue fields), it first clears its issues, reading log and queued events, then applies the issue as new. An absent `profile` on either side (an older server, or nothing stored yet) changes nothing.

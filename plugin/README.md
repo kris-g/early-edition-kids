@@ -17,7 +17,9 @@ KOReader's normal reader, and reports what was read.
    address, such as `http://192.168.1.50:8080`: the IP address of the computer running
    the server, and port 8080. Use an IP address unless the Kindle can resolve a local
    hostname; plain HTTP on the home network is fine. **Save and check** fetches today's
-   paper straight away, or says what went wrong.
+   paper straight away, or says what went wrong. If the server makes papers for more
+   than one child, a second child's Kindle uses that child's profile at the end of the
+   address, such as `http://192.168.1.50:8080/p/younger`.
 
 To update, copy the new release's folder over the old one. The server address and
 reading history are kept in KOReader's settings, not in the plugin folder.
@@ -135,6 +137,13 @@ partial refreshes. Today's back-issue card uses a light grey highlight.
   again until the next day; the first network failure stops the catch-up
   until a later sync. A paper already on the Kindle is never fetched again,
   even if the server has a newer version of it.
+- **Another child's paper.** Each issue says which profile it is for. If the
+  server address is changed to another child's (`.../p/<id>`), the next sync
+  clears the old child's papers, reading log and unsent reading before storing
+  the new paper, because story numbers start again in each child's paper.
+  Unsent reading also says which paper it belongs to, so the server refuses it
+  if it would land in another child's. An older server that does not say
+  changes nothing.
 - Stories are stored in `koreader/earlyeditionkids/<date>/`, 7 days are kept. KOReader's
   reading-position files for them are removed with them.
 - If a parent adds a story to today's issue, it appears after the next check
@@ -179,6 +188,8 @@ The runner compiles every `.lua` file, then runs `spec/*_spec.lua`:
 - `syncer_spec`: download, 404, network failure, hidden/unhidden stories,
   stories a parent adds to today's issue (same version, shown in `position`
   order), version replacement only when nothing was opened, 7-day tidy,
+  starting afresh when another child's paper arrives (and not when the root
+  paper's owner is renamed from `default`), an address ending in `/p/<id>`,
   and the back-issue catch-up (missing days stored, hidden lists, 404
   remembered for the day, stop on a network failure, the 7-day window, at
   most 6 requests, newer versions of stored days left alone, the Kindle left

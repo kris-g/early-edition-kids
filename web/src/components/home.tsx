@@ -69,7 +69,7 @@ export function StreakCard({
           ) : (
             <div className="flex flex-col gap-1 py-1">
               <span className="font-display text-[28px] leading-tight font-black">No streak yet</span>
-              <span className="text-[13px] text-muted">A streak starts on any day he reads a story to the end.</span>
+              <span className="text-[13px] text-muted">A streak starts on any day a story is read to the end.</span>
             </div>
           )}
           {streak.longest > 0 && (

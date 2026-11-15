@@ -117,7 +117,7 @@ function PhoneToday() {
               <SectionTitle className="mt-1">Stories</SectionTitle>
               <IssueStories issue={issue} onStoryChange={onStoryChange} />
               <p className="text-xs text-muted">
-                Hiding takes a story off the Kindle at its next check, as long as he has not opened it.
+                Hiding takes a story off the Kindle at its next check, as long as it has not been opened.
               </p>
             </section>
           )}

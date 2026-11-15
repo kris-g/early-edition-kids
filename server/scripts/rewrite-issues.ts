@@ -1,18 +1,20 @@
 /**
  * Rewrite existing papers with the current settings, as a new version of each date.
  *
- *   tsx scripts/rewrite-issues.ts --dates 2026-11-09,2026-11-10 [--dry-run] [--budget 5]
+ *   tsx scripts/rewrite-issues.ts --dates 2026-11-09,2026-11-10 [--dry-run] [--budget 5] [--profile younger]
  *
  * For each date: the latest version's visible stories, in position order, are rewritten from their
  * own source URLs with the pipeline's produce step (extract -> rewrite -> check, one retry), using
  * the current writer and checker models and efforts, prompts and word range. The result becomes
  * version+1 with the same order and topics; the parent-added and reused flags are kept. Hidden
  * stories are dropped. A story that still fails is carried over unchanged, so a paper never loses
- * stories. Each date gets a run row and its LLM calls. The events table is never touched.
+ * stories. Each date gets a run row and its LLM calls. The events table is never touched. With several
+ * profiles, --profile picks the child (default: the profile that owns the root data).
  */
 
 import { pathToFileURL } from "node:url";
-import { dbPath, loadConfig, settingsFromEnv, type Config, type Settings } from "../src/config.js";
+import { dbPath, settingsFromEnv, type Config, type Settings } from "../src/config.js";
+import { profileFromArgs } from "../src/profiles.js";
 import { Database, type Row } from "../src/db.js";
 import { normaliseUrl, type Candidate } from "../src/feeds.js";
 import { LLMUnavailable } from "../src/llm.js";
@@ -204,10 +206,10 @@ export async function rewriteIssues(base: Context, o: RewriteOptions): Promise<D
   return results;
 }
 
-export function openContext(settings: Settings, config: Config): Context {
+export function openContext(settings: Settings, config: Config, profileId?: string): Context {
   const db = new Database(dbPath(settings));
   db.init();
-  return buildContext(settings, config, db);
+  return buildContext(settings, config, db, { profileId });
 }
 
 async function main(): Promise<void> {
@@ -218,11 +220,11 @@ async function main(): Promise<void> {
   };
   const dates = (arg("--dates") ?? "").split(",").map((d) => d.trim()).filter(Boolean);
   if (!dates.length || dates.some((d) => !isIsoDate(d))) {
-    process.stderr.write("usage: rewrite-issues.ts --dates YYYY-MM-DD[,YYYY-MM-DD...] [--dry-run] [--budget 5]\n");
+    process.stderr.write("usage: rewrite-issues.ts --dates YYYY-MM-DD[,YYYY-MM-DD...] [--dry-run] [--budget 5] [--profile <id>]\n");
     process.exit(2);
   }
-  const settings = settingsFromEnv();
-  const ctx = openContext(settings, loadConfig(settings.configPath));
+  const profile = profileFromArgs(settingsFromEnv(), args);
+  const ctx = openContext(profile.settings, profile.config, profile.id);
   try {
     const results = await rewriteIssues(ctx, {
       dates,

@@ -1,11 +1,14 @@
 # Nightly consistent copy of early-edition-kids.db to the NAS, kept 30 days.
+# With several profiles, each extra profile's database is copied too, as
+# early-edition-kids-YYYY-MM-DD.<id>.db.
 # Uses the app image's own backup script (SQLite VACUUM INTO, safe while the
 # server runs). The data volume is local-path on one node, so this pod is
 # scheduled there automatically by the volume's node affinity.
 #
 # Restore: scale the Deployment to 0, copy the chosen
 #   early-edition-kids-YYYY-MM-DD.db over /data/early-edition-kids.db
-#   (and delete any -wal/-shm files beside it), then scale back to 1.
+#   (and delete any -wal/-shm files beside it), then scale back to 1. A profile's
+#   early-edition-kids-YYYY-MM-DD.<id>.db goes to /data/profiles/<id>/early-edition-kids.db.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -47,7 +50,7 @@ spec:
                 - |
                   set -eu
                   f="/backup/early-edition-kids-$(date +%F).db"
-                  rm -f "$f"
+                  rm -f "$f" "/backup/early-edition-kids-$(date +%F)".*.db
                   node --import tsx src/backup.ts "$f"
                   find /backup -name 'early-edition-kids-*.db' -mtime +30 -delete
                   ls -l /backup | tail -n 5

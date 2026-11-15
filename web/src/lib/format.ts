@@ -92,7 +92,7 @@ export const READ_STATE_LABEL: Record<ReadState, string> = {
 }
 
 export const ENGAGED_EXPLAINER =
-  'Engaged means he opened it, reached the last page and spent at least half the expected time on it.'
+  'Engaged means the story was opened, read to the last page and given at least half the expected reading time.'
 
 /** "Opened, read to the end, 1 min 50 s of an expected 1 min 30 s" */
 export function statsSentence(stats: StoryStats): string {

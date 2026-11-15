@@ -244,3 +244,20 @@ blocklist:
   - sacked
   - sacking
   - brain-eating
+
+# More than one child? Give each a profile. Every profile has its own paper, Kindle address,
+# reading history, dashboard and AI settings. An id is lowercase letters, digits and hyphens; use
+# something neutral like these, never a name. A profile may override any setting above (child_age,
+# story_count, reading_wpm, story_words, title, topics, feeds, blocklist, favourite_players,
+# favourite_team, rival_clubs, mens_football_only, ...); a list replaces the one above rather than
+# adding to it. llm_prices and openrouter_models are shared by all.
+# The first profile listed the first time keeps the existing paper and Kindle address (recorded in
+# $EARLY_EDITION_KIDS_DATA_DIR/profiles.json), so list the child who already reads it first. Every
+# other Kindle's server address ends in /p/<id>, for example http://192.168.1.50:8080/p/younger.
+# profiles:
+#   - id: older
+#   - id: younger
+#     child_age: 6
+#     story_count: 4
+#     title: Little Edition
+#     story_words: { min: 80, max: 130 }

@@ -43,7 +43,7 @@ export function Find() {
         <div className="mb-4 flex items-start gap-3 rounded-2xl border border-line bg-chip p-4 text-sm text-ink">
           <InfoIcon className="mt-0.5 size-5 shrink-0" />
           <p className="flex-1">
-            Every article you add is rewritten for him and safety-checked first, just like the daily picks. If it does
+            Every article you add is rewritten for the reader’s age and safety-checked first, just like the daily picks. If it does
             not pass, it is not added and you will see why.
           </p>
           <button

@@ -44,8 +44,9 @@ export function Topics() {
     <div>
       <PageHeader title="Topics" subtitle="What tomorrow’s picks lean towards" />
       <p className="mb-5 text-sm text-muted">
-        Each topic starts from its base weight. Over the last 14 days, topics he reads properly move up and ones he
-        skips move down, between half and one and a half times the base. Pin or block a topic to override that.
+        Each topic starts from its base weight. Over the last 14 days, topics that are read properly move up and ones
+        that are skipped move down, between half and one and a half times the base. Pin or block a topic to override
+        that.
       </p>
       {topics.error && <ErrorNote onRetry={topics.reload}>{topics.error.message}</ErrorNote>}
       {!topics.data && topics.loading && <Loading />}

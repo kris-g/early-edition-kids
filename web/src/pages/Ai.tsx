@@ -20,6 +20,7 @@ import {
   timeOf,
 } from '../lib/format'
 import { stageTip } from '../lib/tips'
+import { useProfiles } from '../lib/profile'
 import { useApi } from '../lib/useApi'
 import { DESK_QUERY, useMedia } from '../lib/useMedia'
 
@@ -53,9 +54,16 @@ function shortName(name: string): string {
 export function Ai() {
   const ai = useApi('ai', (s) => api.ai(s))
   const data = ai.data
+  const { profiles, current } = useProfiles()
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="AI" subtitle="Who writes and checks the paper, and what it costs" />
+      {profiles.length > 1 && (
+        <p className="-mt-3 mb-0 text-sm text-muted">
+          These settings, the costs and the monthly limit are for <strong className="text-ink">{current.id}</strong>’s paper only.
+          Each child’s paper has its own.
+        </p>
+      )}
       {ai.error && <ErrorNote onRetry={ai.reload}>{ai.error.message}</ErrorNote>}
       {!data && !ai.error && <Loading />}
       {data && <AiBody data={data} onSaved={(v) => ai.mutate(() => v)} />}

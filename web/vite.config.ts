@@ -17,10 +17,13 @@ import {
 const DASHBOARD_API = process.env.EARLY_EDITION_KIDS_DASHBOARD_API ?? 'http://localhost:8081'
 const KINDLE_API = process.env.EARLY_EDITION_KIDS_API ?? 'http://localhost:8080'
 
-// Order matters: the first matching prefix wins.
+// Order matters: the first matching prefix wins. /login and /logout are the
+// server's own sign-in, there only when DASHBOARD_PASSWORD is set.
 const proxy = {
   '/api/dashboard': { target: DASHBOARD_API, changeOrigin: false },
   '/api': { target: KINDLE_API, changeOrigin: false },
+  '/login': { target: DASHBOARD_API, changeOrigin: false },
+  '/logout': { target: DASHBOARD_API, changeOrigin: false },
 }
 
 /** Fill %APP_NAME% and friends in index.html from src/config.ts, so the name lives in one place. */
@@ -49,9 +52,10 @@ export default defineConfig({
     htmlConstants(),
     VitePWA({
       registerType: 'autoUpdate',
-      // The dashboard sits behind Authelia. Browsers fetch the manifest without
-      // cookies unless told otherwise, get Authelia's login redirect instead, and
-      // invent a home-screen name and icon. Send the sign-in cookie with it.
+      // The dashboard sits behind a sign-in (Authelia, or the server's own).
+      // Browsers fetch the manifest without cookies unless told otherwise, get
+      // the sign-in redirect instead, and invent a home-screen name and icon.
+      // Send the sign-in cookie with it.
       useCredentials: true,
       injectRegister: 'auto',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
@@ -59,8 +63,9 @@ export default defineConfig({
         // App shell: everything Vite emits plus the icons.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,woff2}'],
         // Navigations are NOT answered from the precache. They go to the network
-        // first, so an expired Authelia session redirects to its sign-in page
-        // instead of showing a stale shell; offline, the cached shell is used.
+        // first, so an expired session redirects to the sign-in page (Authelia's,
+        // or the server's /login) instead of showing a stale shell; offline, the
+        // cached shell is used.
         navigateFallback: null,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
@@ -78,14 +83,16 @@ export default defineConfig({
           },
           {
             // Dashboard reads: network first, fall back to the last copy when offline.
-            // Only GETs, never job polling, and nothing outside /api/dashboard/
+            // Only GETs, never job polling (/api/dashboard/jobs/ or a child's
+            // /api/dashboard/p/<id>/jobs/), and nothing outside /api/dashboard/
             // (so the Kindle's /api/issue/* and /issues/* are untouched). The page
             // fetches with redirect: 'manual', so an Authelia redirect arrives as an
             // opaque response with status 0: statuses [200] keeps it out of the cache.
             urlPattern: ({ url, sameOrigin }) =>
               sameOrigin &&
               url.pathname.startsWith('/api/dashboard/') &&
-              !url.pathname.startsWith('/api/dashboard/jobs/'),
+              // Inline: workbox copies this function into sw.js on its own.
+              !/^\/api\/dashboard\/(?:p\/[^/]+\/)?jobs\//.test(url.pathname),
             handler: 'NetworkFirst',
             method: 'GET',
             options: {

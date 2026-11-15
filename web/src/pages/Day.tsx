@@ -221,7 +221,7 @@ export function ReadThatDay({
       <Card label="Nothing read" className="flex flex-col gap-2">
         <span className="font-display text-[26px] leading-tight font-black">Nothing read</span>
         <p className="m-0 text-sm leading-[1.45] text-muted">
-          {isToday ? 'He hasn’t read anything yet today.' : 'He didn’t read anything this day.'}
+          {isToday ? 'Nothing read yet today.' : 'Nothing was read this day.'}
           {laterReads > 0 && ` ${plural(laterReads, 'story', 'stories')} from this day’s paper ${laterReads === 1 ? 'was' : 'were'} read later.`}
         </p>
         {laterReads > 0 && onShowPaper && (

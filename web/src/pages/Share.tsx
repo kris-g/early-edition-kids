@@ -7,6 +7,7 @@ import { Button, Card, ErrorNote, Loading, PageHeader } from '../components/ui'
 import { cx } from '../lib/cx'
 import { buildCards, CARD_IDS, CARD_INFO, type CardId, type ShareCard } from '../lib/shareCards'
 import { cardPng, THEME_IDS, THEMES, type ThemeId } from '../lib/shareDraw'
+import { profileKey } from '../lib/profile'
 import { readText, writeText } from '../lib/storage'
 import { useApi } from '../lib/useApi'
 
@@ -41,9 +42,10 @@ function canCopyImage(): boolean {
 export function Share() {
   const share = useApi('share', (signal) => api.share(signal))
   const [params] = useSearchParams()
-  const [name, setName] = useState(() => readText(NAME_KEY))
+  const nameKey = profileKey(NAME_KEY) // one name per child
+  const [name, setName] = useState(() => readText(nameKey))
   const [theme, setTheme] = useState<ThemeId>(savedTheme)
-  useEffect(() => writeText(NAME_KEY, name), [name])
+  useEffect(() => writeText(nameKey, name), [nameKey, name])
   useEffect(() => writeText(THEME_KEY, theme), [theme])
 
   const cards = useMemo(() => (share.data ? buildCards(share.data, name) : []), [share.data, name])
@@ -104,7 +106,7 @@ export function Share() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title="Share" subtitle="A picture of his reading, to send to family" />
+      <PageHeader title="Share" subtitle="The reading as a picture, to send to family" />
 
       {share.error && <ErrorNote onRetry={share.reload}>{share.error.message}</ErrorNote>}
       {!share.data && share.loading && <Loading />}
@@ -211,7 +213,7 @@ export function Share() {
                 className="min-h-11 rounded-xl border border-line bg-bg px-3 text-base text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               />
               <p className="m-0 text-xs leading-[1.45] text-muted">
-                Leave it blank to keep his name off. It is kept on this device only and never sent to the server.
+                Leave it blank to keep names off the cards. It is kept on this device only and never sent to the server.
               </p>
             </div>
 
@@ -245,7 +247,7 @@ export function Share() {
             </div>
 
             <p className="m-0 border-t border-line pt-4 text-xs leading-[1.5] text-muted">
-              Cards show headlines from his own paper, never a school, a place or a photo. The picture is made in this
+              Cards show headlines from this paper only, never a school, a place or a photo. The picture is made in this
               browser and goes only where you send it.
             </p>
           </Card>

@@ -1,11 +1,12 @@
-import type { ReactNode } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from '../components/Icons'
-import { Card, PageHeader, SectionTitle } from '../components/ui'
+import { Button, Card, PageHeader, SectionTitle } from '../components/ui'
 import { APP_NAME } from '../config'
+import { useProfiles } from '../lib/profile'
 
 const LINKS: { to: string; label: string; hint: string }[] = [
-  { to: '/share', label: 'Share', hint: 'A picture of his streak, his week or a milestone, to send to family' },
+  { to: '/share', label: 'Share', hint: 'A picture of the streak, the week or a milestone, to send to family' },
   { to: '/find', label: 'Find articles', hint: 'Search the news or paste a link, for today or tomorrow' },
   { to: '/topics', label: 'Topics', hint: 'What the paper leans towards; pin or block' },
   { to: '/issues', label: 'Back issues', hint: 'Every paper from the last month' },
@@ -13,6 +14,7 @@ const LINKS: { to: string; label: string; hint: string }[] = [
 ]
 
 export function More() {
+  const { login } = useProfiles()
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="More" />
@@ -38,14 +40,46 @@ export function More() {
         <Step label="Android">open it in Chrome, tap the menu, then Add to home screen or Install app.</Step>
       </Card>
 
-      <Card className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Signed in through Authelia</span>
-        <span className="text-[13px] text-muted">
-          {APP_NAME} has no password of its own. Authelia keeps you signed in; when that runs out, the page takes you
-          back to its sign-in.
-        </span>
-      </Card>
+      {login ? (
+        <SignOut />
+      ) : (
+        <Card className="flex flex-col gap-1">
+          <span className="text-sm font-semibold">Signed in through Authelia</span>
+          <span className="text-[13px] text-muted">
+            {APP_NAME} has no password of its own. Authelia keeps you signed in; when that runs out, the page takes you
+            back to its sign-in.
+          </span>
+        </Card>
+      )}
     </div>
+  )
+}
+
+/** Caches that hold the children's reading, emptied on sign-out (vite.config.ts names them). */
+const CACHES = ['early-edition-api', 'early-edition-pages']
+
+/** The server's own sign-in (DASHBOARD_PASSWORD): a plain form post, so it works however the page is open. */
+function SignOut() {
+  const [busy, setBusy] = useState(false)
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    setBusy(true)
+    const clear = typeof caches === 'undefined' ? Promise.resolve() : Promise.all(CACHES.map((n) => caches.delete(n)))
+    void clear.catch(() => {}).finally(() => form.submit())
+  }
+  return (
+    <Card className="flex flex-col gap-3 desk:flex-row desk:items-center desk:justify-between">
+      <span className="flex flex-col gap-1">
+        <span className="text-sm font-semibold">Signed in on this device</span>
+        <span className="text-[13px] text-muted">You stay signed in for 30 days. Signing out also clears the copies kept for offline use.</span>
+      </span>
+      <form method="post" action="/logout" onSubmit={onSubmit} className="shrink-0">
+        <Button type="submit" busy={busy}>
+          Sign out
+        </Button>
+      </form>
+    </Card>
   )
 }
 

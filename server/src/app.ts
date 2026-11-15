@@ -1,21 +1,37 @@
 /**
- * Two Express apps over one database (CONTRACT.md "Auth"): the Kindle app on PORT (device API, story
- * files, admin generate) and the dashboard app on DASHBOARD_PORT (web app and its JSON API). Neither
- * serves the other's routes. The app has no login: Authelia guards the dashboard at the edge.
+ * Two Express apps (CONTRACT.md "Auth"): the Kindle app on PORT (device API, story files, admin
+ * generate) and the dashboard app on DASHBOARD_PORT (web app and its JSON API). Neither serves the
+ * other's routes. Each profile (CONTRACT.md "Profiles") has its own context and database and is
+ * mounted at /p/<id>/ on both; the profile that owns the root data is also mounted at the root, so
+ * a single-child setup looks exactly as it always has. The dashboard has no login unless
+ * DASHBOARD_PASSWORD is set (dashboard/login.ts); otherwise a proxy such as Authelia guards it.
  */
 
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
-import express, { type NextFunction, type Request, type Response } from "express";
-import { dbPath, isStub, issuesDir, loadConfig, settingsFromEnv, type Config, type Settings } from "./config.js";
+import express, { type NextFunction, type Request, type Response, Router } from "express";
+import {
+  DEFAULT_PROFILE,
+  dbPath,
+  isStub,
+  issuesDir,
+  loadProfiles,
+  settingsFromEnv,
+  type Config,
+  type ProfilesConfig,
+  type Settings,
+} from "./config.js";
 import { migrateStoredModelIds } from "./aisettings.js";
 import { dashboardApi } from "./dashboard/api.js";
 import { Jobs } from "./dashboard/jobs.js";
+import { DashboardLogin } from "./dashboard/login.js";
+import type { ProfilesView } from "./dashboard/types.js";
 import { webApp } from "./dashboard/static.js";
 import { HttpError, safeEqual } from "./http.js";
 import { Database, utcnowIso } from "./db.js";
 import type { FeedFetcher, PageFetcher } from "./feeds.js";
 import type { LLM } from "./llm.js";
-import { buildContext, generate, resultApi, storyFile, storyPath, type Context } from "./pipeline.js";
+import { Mutex, buildContext, resultApi, storyFile, storyPath, type Context, type GenerateResult } from "./pipeline.js";
+import { generateAll, resolveProfileLayout, type Profile } from "./profiles.js";
 import { markKindleSeen } from "./kindleseen.js";
 import { beforeReset, readingSince } from "./readingreset.js";
 import { parseWordToKnow, renderStory } from "./render.js";
@@ -29,7 +45,10 @@ export { HttpError, safeEqual };
 
 export interface AppOptions {
   settings?: Settings;
+  /** One profile, "default" (tests). Without this or `profiles`, the config file is read. */
   config?: Config;
+  /** Several profiles (tests). */
+  profiles?: ProfilesConfig;
   writer?: LLM;
   checker?: LLM;
   feedFetcher?: FeedFetcher;
@@ -37,11 +56,19 @@ export interface AppOptions {
   clock?: () => Date;
 }
 
+/** A profile with its dashboard jobs. */
+export interface AppProfile extends Profile {
+  jobs: Jobs;
+}
+
 export interface EarlyEditionKidsApp {
   /** PORT (8080): Kindle routes, /admin/generate and /healthz only. */
   kindleApp: express.Express;
-  /** DASHBOARD_PORT (8081): /dashboard/*, /api/dashboard/* and /healthz only. Authelia guards it at the edge. */
+  /** DASHBOARD_PORT (8081): /dashboard/*, /api/dashboard/* and /healthz only, plus /login and /logout when DASHBOARD_PASSWORD is set. */
   dashboardApp: express.Express;
+  /** Every profile, in config order. */
+  profiles: AppProfile[];
+  /** The root profile's context (or the first profile's when no profile owns the root data). */
   ctx: Context;
   jobs: Jobs;
   close(): void;
@@ -50,17 +77,15 @@ export interface EarlyEditionKidsApp {
 declare global {
   namespace Express {
     interface Locals {
-      ctx: Context;
       clock: () => Date;
     }
   }
 }
 
-function baseApp(ctx: Context, clock: () => Date): express.Express {
+function baseApp(clock: () => Date): express.Express {
   const app = express();
   app.disable("x-powered-by");
   app.set("etag", false);
-  app.locals.ctx = ctx;
   app.locals.clock = clock;
   app.get("/healthz", (_req, res) => {
     res.type("text/plain").send("ok");
@@ -85,32 +110,59 @@ function finish(app: express.Express): express.Express {
   return app;
 }
 
-/** Build both apps over one database (migrations run here). */
+/** Build both apps, one context and database per profile (migrations run here). */
 export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
   const settings = opts.settings ?? settingsFromEnv();
-  const config = opts.config ?? loadConfig(settings.configPath);
-  const db = new Database(dbPath(settings));
-  db.init();
-  migrateStoredModelIds(settings, db);
-  mkdirSync(issuesDir(settings), { recursive: true });
-  const ctx = buildContext(settings, config, db, {
-    writer: opts.writer,
-    checker: opts.checker,
-    feedFetcher: opts.feedFetcher,
-    pageFetcher: opts.pageFetcher,
-  });
-  if (ctx.llmSetupError) console.warn(`LLM not configured: ${ctx.llmSetupError} (generation will use the catch-up fallback)`);
-  const clock = opts.clock ?? (() => new Date());
-  const jobs = new Jobs();
-  const kindleApp = finish(kindleRoutes(baseApp(ctx, clock), ctx));
-  const dashboardApp = finish(dashboardRoutes(baseApp(ctx, clock), ctx, clock, jobs));
-  console.log(
-    `Early Edition Kids ready: data=${settings.dataDir} config=${settings.configPath} llm=${isStub(settings) ? "stub" : `${settings.llmProvider || "openai"}${settings.llmProvider === "anthropic" ? "" : `@${settings.llmBaseUrl || "unset"}`}`} fts=${db.ftsEnabled}`,
+  const parsed: ProfilesConfig =
+    opts.profiles ??
+    (opts.config ? { profiles: [{ id: DEFAULT_PROFILE, config: opts.config }], explicit: false } : loadProfiles(settings.configPath));
+  const layout = resolveProfileLayout(
+    settings.dataDir,
+    parsed.profiles.map((p) => p.id),
+    parsed.explicit,
   );
-  return { kindleApp, dashboardApp, ctx, jobs, close: () => db.close() };
+  if (layout.warning) console.warn(layout.warning);
+  // One lock for every profile, so two papers are never made at once.
+  const lock = new Mutex();
+  const dbs: Database[] = [];
+  const profiles: AppProfile[] = parsed.profiles.map(({ id, config }) => {
+    const pSettings: Settings = { ...settings, dataDir: layout.dirs.get(id)! };
+    mkdirSync(pSettings.dataDir, { recursive: true });
+    const db = new Database(dbPath(pSettings));
+    db.init();
+    dbs.push(db);
+    migrateStoredModelIds(pSettings, db);
+    mkdirSync(issuesDir(pSettings), { recursive: true });
+    const ctx = buildContext(pSettings, config, db, {
+      profileId: id,
+      profileRoot: id === layout.root,
+      lock,
+      writer: opts.writer,
+      checker: opts.checker,
+      feedFetcher: opts.feedFetcher,
+      pageFetcher: opts.pageFetcher,
+    });
+    if (ctx.llmSetupError) console.warn(`LLM not configured: ${ctx.llmSetupError} (generation will use the catch-up fallback)`);
+    return { id, title: config.title, root: id === layout.root, ctx, jobs: new Jobs() };
+  });
+  const clock = opts.clock ?? (() => new Date());
+  const main = profiles.find((p) => p.root) ?? profiles[0];
+  const login = settings.dashboardPassword
+    ? new DashboardLogin({ password: settings.dashboardPassword, user: settings.dashboardUser, secret: settings.sessionSecret, clock })
+    : null;
+  const kindleApp = finish(kindleRoutes(baseApp(clock), profiles, settings));
+  const dashboardApp = finish(dashboardRoutes(baseApp(clock), profiles, clock, settings, login));
+  const llm = isStub(settings) ? "stub" : `${settings.llmProvider || "openai"}${settings.llmProvider === "anthropic" ? "" : `@${settings.llmBaseUrl || "unset"}`}`;
+  const where = parsed.explicit ? ` profiles=${profiles.map((p) => (p.root ? `${p.id} (root)` : p.id)).join(",")}` : "";
+  console.log(
+    `Early Edition Kids ready: data=${settings.dataDir} config=${settings.configPath}${where} llm=${llm} fts=${main.ctx.db.ftsEnabled}${login ? " login=on" : ""}`,
+  );
+  return { kindleApp, dashboardApp, profiles, ctx: main.ctx, jobs: main.jobs, close: () => dbs.forEach((db) => db.close()) };
 }
 
-function kindleRoutes(app: express.Express, ctx: Context): express.Express {
+/** The Kindle routes for one profile, relative to where they are mounted (/ or /p/<id>). */
+function kindleRouter(ctx: Context): Router {
+  const app = Router();
   app.get("/api/issue/today", (req, res) => {
     markKindleSeen(ctx.db, req.app.locals.clock());
     const today = londonDate(req.app.locals.clock());
@@ -145,28 +197,81 @@ function kindleRoutes(app: express.Express, ctx: Context): express.Express {
     markKindleSeen(ctx.db, req.app.locals.clock());
     res.json(ingestEvents(ctx, req.body));
   });
+  return app;
+}
+
+function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings): express.Express {
+  for (const p of profiles) app.use(`/p/${p.id}`, kindleRouter(p.ctx));
+  const root = profiles.find((p) => p.root);
+  if (root) app.use(kindleRouter(root.ctx));
 
   app.post("/admin/generate", async (req, res) => {
-    if (!ctx.settings.adminToken) throw new HttpError(403, "ADMIN_TOKEN is not set on the server");
+    if (!settings.adminToken) throw new HttpError(403, "ADMIN_TOKEN is not set on the server");
     const token = req.get("x-admin-token");
-    if (!token || !safeEqual(token, ctx.settings.adminToken)) throw new HttpError(403, "bad admin token");
+    if (!token || !safeEqual(token, settings.adminToken)) throw new HttpError(403, "bad admin token");
     const now = req.app.locals.clock();
     const date = typeof req.query.date === "string" && req.query.date ? req.query.date : null;
     if (date !== null && !isIsoDate(date)) throw new HttpError(422, "date must be YYYY-MM-DD");
-    const target = date ?? londonDate(now);
-    const result = await generate(ctx, target, now, parseBool(req.query.force));
-    if (result.status === "failed") {
-      res.status(503).json({ ...resultApi(result), detail: result.detail.at(-1) ?? "generation failed" });
-      return;
-    }
-    res.json(resultApi(result));
+    const only = typeof req.query.profile === "string" && req.query.profile ? req.query.profile : null;
+    const targets = only === null ? profiles : profiles.filter((p) => p.id === only);
+    if (!targets.length) throw new HttpError(404, `no profile ${JSON.stringify(only)}`);
+    const results = await generateAll(targets, date ?? londonDate(now), now, parseBool(req.query.force));
+    const { status, body } = generateResponse(targets, results);
+    res.status(status).json(body);
   });
 
   return app;
 }
 
-function dashboardRoutes(app: express.Express, ctx: Context, clock: () => Date, jobs: Jobs): express.Express {
-  app.use("/api/dashboard", dashboardApi({ ctx, clock, jobs }));
+/** Failed results carry their last run-log line as `detail`, as the single-profile response always has. */
+const resultBody = (r: GenerateResult) =>
+  r.status === "failed" ? { ...resultApi(r), detail: r.detail.at(-1) ?? "generation failed" } : resultApi(r);
+
+/**
+ * One profile: exactly the single-profile response. Several: the root profile's result (or the
+ * first's) at the top, every result under `profiles`, and 503 if any failed.
+ */
+export function generateResponse(targets: Profile[], results: Map<string, GenerateResult>) {
+  const main = targets.find((p) => p.root) ?? targets[0];
+  const top = results.get(main.id)!;
+  if (targets.length === 1) return { status: top.status === "failed" ? 503 : 200, body: resultBody(top) as Record<string, unknown> };
+  const failed = targets.filter((p) => results.get(p.id)!.status === "failed");
+  const body: Record<string, unknown> = {
+    ...resultApi(top),
+    profiles: Object.fromEntries(targets.map((p) => [p.id, resultBody(results.get(p.id)!)])),
+  };
+  if (failed.length) body.detail = failed.map((p) => `${p.id}: ${results.get(p.id)!.detail.at(-1) ?? "generation failed"}`).join("; ");
+  return { status: failed.length ? 503 : 200, body };
+}
+
+const notFound = (_req: Request, res: Response) => {
+  res.status(404).json({ error: "That could not be found." });
+};
+
+function dashboardRoutes(
+  app: express.Express,
+  profiles: AppProfile[],
+  clock: () => Date,
+  settings: Settings,
+  login: DashboardLogin | null,
+): express.Express {
+  if (login) {
+    app.use(login.routes());
+    app.use(login.guard());
+  }
+  const root = profiles.find((p) => p.root) ?? null;
+  app.get("/api/dashboard/profiles", (_req, res) => {
+    const body: ProfilesView = {
+      profiles: profiles.map((p) => ({ id: p.id, title: p.title })),
+      root: root?.id ?? null,
+      login: login !== null,
+    };
+    res.set("Cache-Control", "no-store").json(body);
+  });
+  for (const p of profiles) app.use(`/api/dashboard/p/${p.id}`, dashboardApi({ ctx: p.ctx, clock, jobs: p.jobs }));
+  app.use("/api/dashboard/p", notFound);
+  if (root) app.use("/api/dashboard", dashboardApi({ ctx: root.ctx, clock, jobs: root.jobs }));
+  else app.use("/api/dashboard", notFound);
   app.get("/", (_req, res) => res.redirect(302, "/dashboard/"));
   app.use("/dashboard", (req, res, next) => {
     if (req.originalUrl === "/dashboard" || req.originalUrl.startsWith("/dashboard?")) {
@@ -175,7 +280,7 @@ function dashboardRoutes(app: express.Express, ctx: Context, clock: () => Date, 
     }
     next();
   });
-  app.use("/dashboard", webApp(ctx.settings.webDir));
+  app.use("/dashboard", webApp(settings.webDir));
   return app;
 }
 
@@ -219,6 +324,10 @@ export function issuePayload(ctx: Context, date: string) {
     created_at: issue.created_at,
     // The Kindle drops reading-log entries from before this date (a reset); null when never reset.
     reading_since: readingSince(ctx.db),
+    // Which child this paper is for. Story ids restart in each profile's database, so the Kindle
+    // starts afresh when the paper comes from different data (CONTRACT.md "Profiles").
+    profile: ctx.profileId,
+    profile_root: ctx.profileRoot,
   };
 }
 
@@ -231,8 +340,22 @@ function asInt(v: unknown): number | null {
 
 const isObj = (v: unknown): v is Record<string, any> => typeof v === "object" && v !== null && !Array.isArray(v);
 
+/**
+ * Whether a Kindle that last saw `profile` (and `profile_root`) has this context's data. Unknown
+ * (no profile sent, an older plugin) counts as the same. The root data stays the same paper when its
+ * owner's id changes, which happens once: from "default" to the first listed profile.
+ */
+export function samePaper(ctx: Context, profile: unknown, root: unknown): boolean {
+  if (typeof profile !== "string") return true;
+  if (root === true || ctx.profileRoot) return root === true && ctx.profileRoot;
+  return profile === ctx.profileId;
+}
+
 /** Store events idempotently on (device_id, client_event_id); see CONTRACT.md. */
 export function ingestEvents(ctx: Context, body: unknown): { accepted: string[] } {
+  if (isObj(body) && !samePaper(ctx, body.profile, body.profile_root)) {
+    throw new HttpError(409, `these events are for profile ${JSON.stringify(body.profile)}; this address serves profile ${JSON.stringify(ctx.profileId)}`);
+  }
   const deviceId = isObj(body) ? body.device_id : undefined;
   const events = isObj(body) ? body.events : undefined;
   if (typeof deviceId !== "string" || !deviceId.trim() || deviceId.length > 128) throw new HttpError(422, "device_id is required");

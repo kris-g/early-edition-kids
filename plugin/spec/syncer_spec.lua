@@ -23,15 +23,18 @@ local function httpDate(epoch)
 end
 
 -- Builds an issue JSON body. ids: list of story ids; hidden: list of ids.
-local function issueBody(date, version, ids, hidden)
+-- extra: more top-level fields, such as { profile = "older", profile_root = true }.
+local function issueBody(date, version, ids, hidden, extra)
     local stories = {}
     for i, id in ipairs(ids) do
         stories[i] = { id = id, position = i, topic = "Football", title = "Story " .. id,
                        teaser = "Teaser " .. id, minutes = 2,
                        path = string.format("/issues/%s/v%d/%d.html", date, version, i) }
     end
-    return JSON.encode({ date = date, version = version, fallback = false, title = "Early Edition",
-                         stories = JSON.array(stories), hidden = JSON.array(hidden or {}) })
+    local data = { date = date, version = version, fallback = false, title = "Early Edition",
+                   stories = JSON.array(stories), hidden = JSON.array(hidden or {}) }
+    for k, v in pairs(extra or {}) do data[k] = v end
+    return JSON.encode(data)
 end
 
 -- A fake server plus all the pieces a sync needs.
@@ -61,8 +64,8 @@ local function setup(opts)
         return { status = 200, body = JSON.encode({ accepted = JSON.array(accepted) }),
                  headers = { date = httpDate(env.server_now) } }
     end
-    function env.serveIssue(date, version, ids, hidden)
-        local body = issueBody(date, version, ids, hidden)
+    function env.serveIssue(date, version, ids, hidden, extra)
+        local body = issueBody(date, version, ids, hidden, extra)
         env.routes["GET /api/issue/today"] = { status = 200, body = body,
                                               headers = { date = httpDate(env.server_now) } }
         for i, id in ipairs(ids) do
@@ -70,8 +73,8 @@ local function setup(opts)
                 { status = 200, body = "<html><title>Story " .. id .. "</title></html>" }
         end
     end
-    function env.serveDate(date, version, ids, hidden)
-        local body = issueBody(date, version, ids, hidden)
+    function env.serveDate(date, version, ids, hidden, extra)
+        local body = issueBody(date, version, ids, hidden, extra)
         env.routes["GET /api/issue/" .. date] = { status = 200, body = body,
                                                   headers = { date = httpDate(env.server_now) } }
         for i, id in ipairs(ids) do
@@ -503,5 +506,112 @@ describe("issues", function()
         local d, id = env.issues:parseStoryPath(ROOT .. "/2026-11-13/41.html")
         eq(d, "2026-11-13"); eq(id, "41")
         eq(env.issues:parseStoryPath("/mnt/us/books/kane.epub"), nil)
+    end)
+end)
+
+describe("profiles", function()
+    local ReadingLog = require("earlyeditionkids/readinglog")
+    local OLDER = { profile = "older", profile_root = true }
+    local YOUNGER = { profile = "younger", profile_root = false }
+
+    -- A device that has read the older child's paper: an issue, a log entry and a queued event.
+    local function readOlder(env, extra)
+        env.readlog = ReadingLog.new(H.memBackend())
+        env.serveIssue("2026-11-13", 1, { 1, 2, 3 }, nil, extra)
+        env.sync{ readlog = env.readlog }
+        env.readlog:append{ date = "2026-11-13", story_id = 1, topic = "Football", title = "Story 1", finished = true }
+        env.queue:add("story_closed", 1, { active_seconds = 60, finished = true }, env.now)
+        env.accept_all = false -- keep the queued event, as if Wi-Fi dropped before it went
+    end
+
+    it("stores which paper it has", function()
+        local env = setup()
+        env.serveIssue("2026-11-13", 1, { 1, 2 }, nil, OLDER)
+        env.sync()
+        local p = env.store:get("profile")
+        eq(p.id, "older"); eq(p.root, true)
+    end)
+
+    it("starts afresh when another child's paper arrives", function()
+        local env = setup()
+        readOlder(env, OLDER)
+        env.routes["POST /api/events"] = { status = 409, body = '{"detail":"these events are for profile older"}' }
+        -- The younger child's ids also start at 1.
+        env.serveIssue("2026-11-13", 1, { 1, 2 }, nil, YOUNGER)
+        env.store:issueState("2026-11-13").opened["1"] = true
+        local r = env.sync{ readlog = env.readlog }
+        eq(r.kind, "ok"); eq(r.outcome, "new_issue"); truthy(r.profile_changed)
+        eq(env.store:get("profile").id, "younger")
+        eq(#env.readlog:entries(), 0)
+        -- The old paper's event is gone; only the new paper's issue_downloaded is queued.
+        eq(env.queue:count(), 1); eq(env.queue:list()[1].type, "issue_downloaded")
+        eq(#env.issues:visibleStories("2026-11-13"), 2)
+        falsy(env.store:anyOpened("2026-11-13"), "nothing opened in the new paper")
+    end)
+
+    it("says which paper its events are for, so the server can refuse them", function()
+        local env = setup()
+        readOlder(env, OLDER)
+        local sent
+        env.routes["POST /api/events"] = function(req)
+            sent = JSON.decode(req.body)
+            return { status = 200, body = '{"accepted":[]}' }
+        end
+        env.sync{ readlog = env.readlog }
+        eq(sent.profile, "older"); eq(sent.profile_root, true)
+    end)
+
+    it("keeps everything when the root paper's owner is renamed from default", function()
+        local env = setup()
+        readOlder(env, { profile = "default", profile_root = true })
+        env.serveIssue("2026-11-13", 1, { 1, 2, 3 }, nil, OLDER)
+        local r = env.sync{ readlog = env.readlog }
+        falsy(r.profile_changed)
+        eq(env.store:get("profile").id, "older")
+        eq(#env.readlog:entries(), 1)
+        eq(r.outcome, "unchanged")
+    end)
+
+    it("changes nothing when the server or the store does not say", function()
+        local env = setup()
+        readOlder(env, nil) -- an older server: no profile at all
+        env.serveIssue("2026-11-13", 1, { 1, 2, 3 }, nil, YOUNGER)
+        local r = env.sync{ readlog = env.readlog }
+        falsy(r.profile_changed, "nothing stored yet")
+        eq(#env.readlog:entries(), 1)
+        eq(env.store:get("profile").id, "younger")
+        env.serveIssue("2026-11-13", 1, { 1, 2, 3 })
+        r = env.sync{ readlog = env.readlog }
+        falsy(r.profile_changed, "the server stopped saying")
+        eq(#env.readlog:entries(), 1)
+        eq(env.store:get("profile").id, "younger")
+    end)
+
+    it("notices another child's paper in back issues too", function()
+        local env = setup()
+        readOlder(env, OLDER)
+        env.routes["GET /api/issue/today"] = { status = 404, body = '{"detail":"no issue yet"}' }
+        env.now = utc(2026, 11, 14, 7)
+        env.server_now = env.now
+        env.store:set("clock_skew", 0)
+        env.serveDate("2026-11-12", 1, { 1 }, nil, YOUNGER)
+        local r = env.sync{ readlog = env.readlog }
+        truthy(r.profile_changed)
+        eq(#env.readlog:entries(), 0)
+        eq(env.store:get("profile").id, "younger")
+        eq(table.concat(env.issues:listDates(), ","), "2026-11-12")
+    end)
+
+    it("works with a server address that ends in /p/<id>", function()
+        local env = setup()
+        env.api = Api.new{ base_url = "http://192.168.1.50:8080/p/younger", transport = env.http.fn, json = JSON }
+        local body = issueBody("2026-11-13", 1, { 1, 2 }, nil, YOUNGER)
+        env.routes["GET /p/younger/api/issue/today"] = { status = 200, body = body }
+        env.routes["GET /p/younger/issues/2026-11-13/v1/1.html"] = { status = 200, body = "<html>1</html>" }
+        env.routes["GET /p/younger/issues/2026-11-13/v1/2.html"] = { status = 200, body = "<html>2</html>" }
+        local r = env.sync()
+        eq(r.kind, "ok"); eq(r.outcome, "new_issue")
+        eq(env.requested("http://192.168.1.50:8080/p/younger/issues/2026-11-13/v1/2.html"), 1)
+        eq(env.requested("http://192.168.1.50:8080/issues/"), 0)
     end)
 end)

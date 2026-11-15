@@ -7,7 +7,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { issuesDir, topicNames, type Config, type Settings } from "./config.js";
+import { DEFAULT_PROFILE, issuesDir, topicNames, type Config, type Settings } from "./config.js";
 import { utcnowIso, type Database, type Row } from "./db.js";
 import {
   extractArticle,
@@ -86,6 +86,11 @@ class Semaphore {
 }
 
 export interface Context {
+  /** The profile this context serves (CONTRACT.md "Profiles"); "default" without a profiles list. */
+  profileId: string;
+  /** True when this profile has the root data (the paper a single-child setup has always had). */
+  profileRoot: boolean;
+  /** settings.dataDir is this profile's own data directory. */
   settings: Settings;
   config: Config;
   db: Database;
@@ -109,9 +114,11 @@ export function buildContext(
   settings: Settings,
   config: Config,
   db: Database,
-  extra: Partial<Pick<Context, "writer" | "checker" | "feedFetcher" | "pageFetcher" | "anthropicClient" | "openrouterFetch">> = {},
+  extra: Partial<Pick<Context, "profileId" | "profileRoot" | "lock" | "writer" | "checker" | "feedFetcher" | "pageFetcher" | "anthropicClient" | "openrouterFetch">> = {},
 ): Context {
   const ctx: Context = {
+    profileId: extra.profileId ?? DEFAULT_PROFILE,
+    profileRoot: extra.profileRoot ?? true,
     settings,
     config,
     db,
@@ -120,7 +127,7 @@ export function buildContext(
     llmSetupError: null,
     feedFetcher: extra.feedFetcher ?? httpFetchFeed,
     pageFetcher: extra.pageFetcher ?? httpFetchText,
-    lock: new Mutex(),
+    lock: extra.lock ?? new Mutex(),
     llmFixed: Boolean(extra.writer),
     anthropicClient: extra.anthropicClient,
     openrouterFetch: extra.openrouterFetch,
@@ -674,7 +681,7 @@ export async function produce(
       // Unsafe means the subject itself is wrong for him: drop without a rewrite.
       const why = verdict.reasons.join("; ") || "no reason given";
       detail.push(`[${cand.id}] checker: not safe (${why}); dropped`);
-      return { draft: null, problems: [`the checker marked it not safe for him: ${why}`] };
+      return { draft: null, problems: [`the checker marked it not safe for a child: ${why}`] };
     }
     if (!verdict.supported) {
       problems = [`the checker found claims not supported by the source: ${verdict.reasons.join("; ")}`];

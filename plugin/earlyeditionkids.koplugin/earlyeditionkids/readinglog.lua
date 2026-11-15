@@ -39,6 +39,11 @@ function ReadingLog:save()
     self.backend.save(self.data)
 end
 
+--- Forgets every entry (the server now serves a different child's paper).
+function ReadingLog:clear()
+    self.data.entries = {}
+end
+
 function ReadingLog:append(entry)
     table.insert(self.data.entries, {
         date = entry.date,

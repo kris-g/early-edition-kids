@@ -124,12 +124,36 @@ export function at(date: string, hhmm: string): string {
 export type Stored = StoryDetail & { template: number }
 export type IssueRec = Omit<IssueView, 'stories' | 'read_count'> & { storyIds: number[] }
 
-export const db = {
-  nextId: 1001,
-  stories: new Map<number, Stored>(),
-  issues: new Map<string, IssueRec>(), // latest version per date
-  modes: new Map<string, 'pin' | 'block'>(),
-  runs: [] as RunView[],
+function emptyDb() {
+  return {
+    nextId: 1001,
+    stories: new Map<number, Stored>(),
+    issues: new Map<string, IssueRec>(), // latest version per date
+    modes: new Map<string, 'pin' | 'block'>(),
+    runs: [] as RunView[],
+  }
+}
+
+/** The current profile's store. A live binding: useProfile() swaps it for another child's. */
+export let db = emptyDb()
+const dbs = new Map<string, ReturnType<typeof emptyDb>>()
+
+/** Seed a store for each profile (MOCK_PROFILES); the first is current afterwards. */
+export function seedProfiles(ids: string[], opts: { noIssueToday: boolean }) {
+  ids.forEach((id, i) => {
+    db = emptyDb()
+    dbs.set(id, db)
+    seedData({ ...opts, shift: i * 3 }) // each child reads on different days
+  })
+  db = dbs.get(ids[0])!
+}
+
+/** Make a profile's store current. Returns false for an unknown id. */
+export function useProfile(id: string): boolean {
+  const next = dbs.get(id)
+  if (!next) return false
+  db = next
+  return true
 }
 
 function escapeHtml(s: string): string {
@@ -280,7 +304,8 @@ function pattern(dayOffset: number): StatsKind[] {
 /** Days of history the mock keeps (enough for "12 weeks" and earlier calendar months). */
 export const HISTORY_DAYS = 120
 
-export function seedData(opts: { noIssueToday: boolean }) {
+export function seedData(opts: { noIssueToday: boolean; shift?: number }) {
+  const shift = opts.shift ?? 0
   const today = londonToday()
   for (let back = HISTORY_DAYS - 1; back >= 0; back--) {
     const date = addDays(today, -back)
@@ -288,7 +313,7 @@ export function seedData(opts: { noIssueToday: boolean }) {
     if (back === 61) continue // a day with no paper at all
     const fallback = back === 5
     const kinds: StatsKind[] =
-      back === 0 ? ['engaged', 'finished', 'opened', 'none', 'none', 'none'] : pattern(back)
+      back === 0 ? ['engaged', 'finished', 'opened', 'none', 'none', 'none'] : pattern(back + shift)
     const ids: number[] = []
     for (let p = 1; p <= 6; p++) {
       const s = makeStory(date, 1, p, back * 5 + p, kinds[p - 1], {

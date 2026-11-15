@@ -170,6 +170,20 @@ function Issues:removeIssue(date)
     self._index_cache[date] = nil
 end
 
+--- Deletes every issue folder (and their sidecars) and every stale download
+-- folder: the server now serves a different paper (CONTRACT "Profiles").
+function Issues:removeAll()
+    if not self.fs.isDir(self.root) then return end
+    for _, name in ipairs(self.fs.list(self.root)) do
+        if Clock.isDate(name) then
+            self:removeIssue(name)
+        elseif name:match("^%.tmp%-") then
+            self.fs.removeTree(self.root .. "/" .. name)
+        end
+    end
+    self._index_cache = {}
+end
+
 --- Deletes one story file (a hidden story). Returns true if deleted.
 function Issues:removeStoryFile(date, id, protect_path)
     local path = self:storyFile(date, id)

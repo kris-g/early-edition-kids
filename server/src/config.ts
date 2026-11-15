@@ -44,6 +44,12 @@ export interface Settings {
   dashboardPort: number;
   /** GENERATE_AT: "HH:MM" London time for the built-in daily run; empty means none (a CronJob calls /admin/generate). */
   generateAt: string;
+  /** DASHBOARD_PASSWORD: turns on the built-in dashboard sign-in; empty means none (CONTRACT.md "Built-in sign-in"). */
+  dashboardPassword: string;
+  /** DASHBOARD_USER: the user name asked for at sign-in; empty means only the password is asked for. */
+  dashboardUser: string;
+  /** SESSION_SECRET: mixed into the session cookie key, so cookies can be revoked without changing the password. */
+  sessionSecret: string;
 }
 
 export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings {
@@ -64,6 +70,9 @@ export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings 
     port: Number(env.PORT || 8080),
     dashboardPort: Number(env.DASHBOARD_PORT || 8081),
     generateAt: (env.GENERATE_AT || "").trim(),
+    dashboardPassword: env.DASHBOARD_PASSWORD || "",
+    dashboardUser: (env.DASHBOARD_USER || "").trim(),
+    sessionSecret: env.SESSION_SECRET || "",
   };
 }
 
@@ -302,11 +311,76 @@ export function parseConfig(data: unknown): Config {
   };
 }
 
-export function loadConfig(file: string): Config {
+function readConfigFile(file: string): unknown {
   if (!existsSync(file)) {
     throw new ConfigError(`config file not found: ${file} (set EARLY_EDITION_KIDS_CONFIG; see config.example.yaml)`);
   }
-  return parseConfig(YAML.parse(readFileSync(file, "utf8")));
+  return YAML.parse(readFileSync(file, "utf8"));
+}
+
+/** The top-level config only (a `profiles:` list is ignored). Profile-aware callers use loadProfiles. */
+export function loadConfig(file: string): Config {
+  return parseConfig(readConfigFile(file));
+}
+
+// ---- profiles (CONTRACT.md "Profiles") ----
+
+/** The id of the one implicit profile when the config has no `profiles:` list. */
+export const DEFAULT_PROFILE = "default";
+export const PROFILE_ID = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
+/** Keys that stay global: a profile may not override them. */
+const GLOBAL_KEYS = ["llm_prices", "openrouter_models"];
+
+export interface ProfileConfig {
+  id: string;
+  config: Config;
+}
+
+export interface ProfilesConfig {
+  profiles: ProfileConfig[];
+  /** True when the file has a `profiles:` list (false: one implicit `default` profile). */
+  explicit: boolean;
+}
+
+/**
+ * Each profile is the top level with its own keys laid over it (a shallow merge: a list replaces
+ * the top-level list rather than adding to it), validated like a whole config.
+ */
+export function parseProfiles(data: unknown): ProfilesConfig {
+  const top = data ?? {};
+  if (typeof top !== "object" || Array.isArray(top)) throw new ConfigError("config: (root): expected a mapping");
+  const { profiles, ...base } = top as Record<string, unknown>;
+  if (profiles === undefined || profiles === null) {
+    return { profiles: [{ id: DEFAULT_PROFILE, config: parseConfig(base) }], explicit: false };
+  }
+  if (!Array.isArray(profiles) || profiles.length === 0) throw new ConfigError("config: profiles must be a list with at least one entry");
+  const seen = new Set<string>();
+  const out: ProfileConfig[] = [];
+  profiles.forEach((entry, i) => {
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+      throw new ConfigError(`config: profiles.${i}: expected a mapping with an id`);
+    }
+    const { id, ...own } = entry as Record<string, unknown>;
+    if (typeof id !== "string" || !PROFILE_ID.test(id)) {
+      throw new ConfigError(`config: profiles.${i}.id must be lowercase letters, digits and hyphens (for example older), not ${JSON.stringify(id)}`);
+    }
+    if (seen.has(id)) throw new ConfigError(`config: profile id '${id}' is used twice`);
+    seen.add(id);
+    for (const k of GLOBAL_KEYS) {
+      if (k in own) throw new ConfigError(`config: profile '${id}': ${k} applies to every profile; set it at the top level`);
+    }
+    try {
+      out.push({ id, config: parseConfig({ ...base, ...own }) });
+    } catch (err) {
+      if (err instanceof ConfigError) throw new ConfigError(`profile '${id}': ${err.message}`);
+      throw err;
+    }
+  });
+  return { profiles: out, explicit: true };
+}
+
+export function loadProfiles(file: string): ProfilesConfig {
+  return parseProfiles(readConfigFile(file));
 }
 
 export const topicNames = (c: Config) => c.topics.map((t) => t.name);

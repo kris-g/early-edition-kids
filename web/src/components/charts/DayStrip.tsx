@@ -19,7 +19,7 @@ export function DayStrip({ days, streak, tall }: { days: ReadingDay[]; streak: S
       : missed.length <= 3
         ? `missed ${missed.map((d) => weekdayShortDay(d.date)).join(', ')}`
         : `${plural(missed.length, 'day')} without reading`
-  const label = `He read on ${readDays} of the last ${n} days; ${missedText}.`
+  const label = `Reading on ${readDays} of the last ${n} days; ${missedText}.`
   const id = useId()
   const tip = useTip()
   const roving = useRoving(n)

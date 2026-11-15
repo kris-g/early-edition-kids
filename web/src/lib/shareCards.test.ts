@@ -62,7 +62,7 @@ describe('share card text', () => {
     )
     expect(byId(cards, 'streak')).toMatchObject({ ready: false, empty: expect.stringContaining('second day') })
     expect(byId(cards, 'today').ready).toBe(false)
-    expect(byId(cards, 'milestone')).toMatchObject({ ready: false, empty: 'Milestones start at 10 stories. He has read 7 stories so far.' })
+    expect(byId(cards, 'milestone')).toMatchObject({ ready: false, empty: 'Milestones start at 10 stories. 7 stories read so far.' })
     expect(byId(cards, 'words').ready).toBe(false)
     expect(byId(cards, 'ask').ready).toBe(false)
     expect(byId(cards, 'week').ready).toBe(true)

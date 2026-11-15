@@ -13,12 +13,19 @@ Order, as the contract says: upload queued events, then fetch
   from it has been opened, otherwise keep what he has started;
 - then tidy (7 days of issues, with their KOReader sidecars).
 
+Profiles (CONTRACT "Profiles"): story ids restart in each child's paper, so
+when an issue arrives from a different paper than the stored one (the server
+address was changed to another child's), everything from the old paper is
+cleared first: issues, reading log and queued events. A response or a store
+without `profile` (an older server, or a first sync) changes nothing.
+
 The issue date always comes from the server response, never from the device
 clock. The server's Date header is used to learn the clock skew.
 
 No KOReader dependency: everything comes in through `ctx`:
 
     ctx.api, ctx.store, ctx.queue, ctx.issues, ctx.json
+    ctx.readlog                optional; cleared when the paper changes
     ctx.device_id
     ctx.now()                  device epoch seconds
     ctx.log(level, ...)        optional
@@ -29,7 +36,7 @@ Returns a result table:
     { kind = "ok"|"not_found"|"network"|"server",
       outcome = "new_issue"|"replaced"|"unchanged"|"kept_started"|"older"|nil,
       date, version, list_changed, added, events_sent, events_accepted, events_dropped,
-      message }
+      profile_changed, message }
 ]]
 
 local Clock = require("earlyeditionkids/clock")
@@ -50,6 +57,51 @@ local function learnSkew(ctx, r)
     end
 end
 
+---------------------------------------------------------------------------
+-- Which paper (profile) the device holds
+---------------------------------------------------------------------------
+
+--- { id, root } from an issue response, or nil when the server does not say.
+local function paperOf(data)
+    if type(data) ~= "table" or type(data.profile) ~= "string" or data.profile == "" then return nil end
+    return { id = data.profile, root = data.profile_root == true }
+end
+Syncer.paperOf = paperOf
+
+--- The root data stays the same paper when its owner's id changes (once:
+-- from "default" to the first listed profile); otherwise the id decides.
+function Syncer.samePaper(a, b)
+    if a.root or b.root then return a.root == b.root end
+    return a.id == b.id
+end
+
+--- Forgets everything from the old paper: issues, reading log, queued events.
+function Syncer.startAfresh(ctx)
+    ctx.issues:removeAll()
+    ctx.store:set("issues", {})
+    ctx.store:set("current_date", nil)
+    ctx.store:set("queue", {})
+    ctx.store:set("catchup_missing", {})
+    ctx.store:set("reading_since", nil)
+    if ctx.readlog then
+        ctx.readlog:clear()
+        ctx.readlog:save()
+    end
+end
+
+--- Records the paper an issue response came from, starting afresh when it differs.
+local function checkPaper(ctx, data, result)
+    local seen = paperOf(data)
+    if not seen then return end
+    local stored = ctx.store:get("profile")
+    if type(stored) == "table" and type(stored.id) == "string" and not Syncer.samePaper(stored, seen) then
+        log(ctx, "info", "the server now serves profile", seen.id, "instead of", stored.id, "; starting afresh")
+        Syncer.startAfresh(ctx)
+        result.profile_changed = true
+    end
+    ctx.store:set("profile", { id = seen.id, root = seen.root })
+end
+
 local function uploadEvents(ctx, result)
     local sent_ids = {}
     local max_batches = 20
@@ -61,7 +113,7 @@ local function uploadEvents(ctx, result)
             wire[i] = Queue.toWire(ev, ctx.json)
             sent_ids[ev.client_event_id] = true
         end
-        local r = ctx.api:postEvents(ctx.device_id, wire)
+        local r = ctx.api:postEvents(ctx.device_id, wire, ctx.store:get("profile"))
         learnSkew(ctx, r)
         result.events_sent = result.events_sent + #batch
         if r.kind == "network" then
@@ -258,6 +310,7 @@ local function catchUp(ctx, result)
             elseif r.kind ~= "ok" then
                 log(ctx, "warn", "back issue", date, "skipped:", r.message)
             else
+                checkPaper(ctx, r.data, result)
                 local kind, msg = downloadIssue(ctx, r.data, r.body)
                 if kind == "ok" then
                     table.insert(result.backfilled, date)
@@ -299,6 +352,7 @@ function Syncer.run(ctx)
 
     local r = ctx.api:getIssueToday()
     learnSkew(ctx, r)
+    if r.kind == "ok" then checkPaper(ctx, r.data, result) end
     -- A reading reset on the server: the controller drops older reading-log entries.
     local since = r.kind == "ok" and type(r.data) == "table" and r.data.reading_since
     if type(since) == "string" and since:match("^%d%d%d%d%-%d%d%-%d%d$") then

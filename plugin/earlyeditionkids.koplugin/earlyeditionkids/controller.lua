@@ -163,7 +163,8 @@ function Controller:editServerUrl()
         input = self:serverUrl() ~= "" and self:serverUrl() or "http://",
         input_hint = ServerUrl.HINT,
         description = "The address of the computer running the Early Edition server, with port 8080, for example "
-            .. ServerUrl.HINT .. ". The Kindle must be on the same network.",
+            .. ServerUrl.HINT .. ". The Kindle must be on the same network. A second child's Kindle adds /p/ and "
+            .. "that child's profile, for example " .. ServerUrl.HINT .. "/p/younger.",
         buttons = { {
             { text = "Cancel", id = "close", callback = function() UIManager:close(dialog) end },
             {
@@ -356,7 +357,7 @@ end
 function Controller:syncContext()
     return {
         api = self.api, store = self.store, queue = self.queue, issues = self.issues,
-        json = JSON, device_id = self.device_id,
+        readlog = self.readlog, json = JSON, device_id = self.device_id,
         now = self.clock,
         protected_path = self:openStoryPath(),
         log = function(level, ...) (logger[level] or logger.info)("Early Edition Kids:", ...) end,
@@ -401,9 +402,9 @@ end
 
 function Controller:afterSync(result, opts)
     local ReaderUI = require("apps/reader/readerui")
-    if result.kind ~= "ok" and result.backfilled and #result.backfilled > 0 and self.screen
-       and (self.screen_kind == "backissues" or self.screen_kind == "frontpage") then
-        self:refreshScreen() -- back issues caught up after a 404 for today
+    if result.kind ~= "ok" and self.screen and (result.profile_changed or (result.backfilled and #result.backfilled > 0
+       and (self.screen_kind == "backissues" or self.screen_kind == "frontpage"))) then
+        self:refreshScreen() -- back issues caught up after a 404 for today, or another child's paper
     end
     if result.kind == "ok" then
         local fresh = result.outcome == "new_issue" or result.outcome == "replaced"

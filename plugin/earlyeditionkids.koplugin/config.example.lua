@@ -5,7 +5,8 @@
 -- so updating the plugin never overwrites it, and git ignores it.
 return {
     -- Where the Early Edition Kids server is on the home network. Plain HTTP is fine on
-    -- the LAN. No trailing slash needed.
+    -- the LAN. No trailing slash needed. A second child's Kindle adds /p/ and that
+    -- child's profile id, for example "http://192.168.1.50:8080/p/younger".
     server_url = "http://192.168.1.50:8080",
 
     -- Do not look for today's issue before this hour (Europe/London time).

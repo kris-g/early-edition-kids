@@ -9,11 +9,11 @@ export const CARD_IDS: CardId[] = ['streak', 'today', 'week', 'milestone', 'word
 
 export const CARD_INFO: Record<CardId, { title: string; desc: string }> = {
   streak: { title: 'Streak', desc: 'Days in a row, with the last two weeks' },
-  today: { title: 'Today', desc: 'The stories he finished today' },
-  week: { title: 'His week', desc: 'Stories, minutes and days over the last 7 days' },
-  milestone: { title: 'Milestone', desc: 'His latest big number: 10, 25, 50, 100 stories and on' },
-  words: { title: 'Words learned', desc: 'The word to know from stories he read this week' },
-  ask: { title: 'Ask me about', desc: 'Things for family to ask him about' },
+  today: { title: 'Today', desc: 'The stories finished today' },
+  week: { title: 'The week', desc: 'Stories, minutes and days over the last 7 days' },
+  milestone: { title: 'Milestone', desc: 'The latest big number: 10, 25, 50, 100 stories and on' },
+  words: { title: 'Words learned', desc: 'The word to know from stories read this week' },
+  ask: { title: 'Ask me about', desc: 'Things for family to ask about' },
 }
 
 type Base = {
@@ -161,8 +161,8 @@ export function buildCards(view: ShareView, rawName: string): ShareCard[] {
     ready: s.current >= 2,
     empty:
       s.current === 1
-        ? 'One day so far. The streak card is ready on his second day in a row.'
-        : 'No streak right now. It starts again on the next day he reads.',
+        ? 'One day so far. The streak card is ready after a second day in a row.'
+        : 'No streak right now. It starts again on the next reading day.',
     count: s.current,
     sentence: name
       ? `${name} has read the news every day since ${since}.`
@@ -181,7 +181,7 @@ export function buildCards(view: ShareView, rawName: string): ShareCard[] {
   const todayCard: TodayCard = {
     ...base('today'),
     ready: n > 0,
-    empty: 'Nothing finished yet today. This card fills in once he reads a story to the end.',
+    empty: 'Nothing finished yet today. This card fills in once a story is read to the end.',
     headline: name ? `${name} read ${plural(n, 'story', 'stories')} today` : `${plural(n, 'story', 'stories')} read today`,
     chips: [
       plural(Math.max(1, Math.round(t.minutes)), 'minute') + ' reading',
@@ -221,7 +221,7 @@ export function buildCards(view: ShareView, rawName: string): ShareCard[] {
   const milestone: MilestoneCard = {
     ...base('milestone'),
     ready: m !== null,
-    empty: `Milestones start at 10 stories. He has read ${plural(view.total_read, 'story', 'stories')} so far.`,
+    empty: `Milestones start at 10 stories. ${plural(view.total_read, 'story', 'stories')} read so far.`,
     stories: m?.stories ?? 0,
     headline: m ? milestoneHeadline(m.stories) : '',
     sentence: m ? (name ? `${name} read story number ${m.stories} ${when}:` : `Story number ${m.stories} was read ${when}:`) : '',
@@ -253,7 +253,7 @@ export function buildCards(view: ShareView, rawName: string): ShareCard[] {
     headline: name ? `Ask ${name} about…` : 'Ask me about…',
     stories: a.stories,
     footer: a.date
-      ? `${a.stories.length === 1 ? 'He read this' : 'He read these'} ${a.date === today ? 'today' : `on ${weekday(a.date)}`}.`
+      ? `${name ? `${name} read ${a.stories.length === 1 ? 'this' : 'these'}` : 'Read'} ${a.date === today ? 'today' : `on ${weekday(a.date)}`}.`
       : '',
     alt: `Ask about: ${a.stories.map((x) => x.title).join('; ')}.`,
   }

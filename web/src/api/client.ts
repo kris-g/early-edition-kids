@@ -1,15 +1,24 @@
 // A tiny fetch wrapper for the dashboard's JSON API (CONTRACT.md, "Parent dashboard").
-//  - no login of its own: Authelia on the edge is the only lock
+//  - the sign-in is Authelia on the edge, or the server's own (DASHBOARD_PASSWORD)
 //  - `redirect: 'manual'`, so an expired Authelia session shows up as an
-//    opaque redirect (or a 401) rather than the sign-in page's HTML; the page
-//    then reloads once to go through Authelia (see lib/signedOut.ts)
-//  - same-origin cookies (Authelia's)
+//    opaque redirect (or a 401, from the server's own sign-in) rather than the
+//    sign-in page's HTML; the page then reloads once, which lands on the
+//    sign-in page and comes back (see lib/signedOut.ts)
+//  - same-origin cookies
+//  - paths are relative to the current child's API root (lib/profile.ts)
 //  - `X-Early-Edition: 1` on every non-GET request (the server's CSRF guard)
 //  - `{error}` bodies become ApiError messages
 
 import { handleSignedOut } from '../lib/signedOut'
 
 export const API_ROOT = '/api/dashboard'
+
+/** The current child's API root: API_ROOT, or API_ROOT/p/<id> with several children. */
+let apiRoot = API_ROOT
+
+export function setApiRoot(root: string): void {
+  apiRoot = root
+}
 
 export const SIGNED_OUT_MESSAGE = 'You’re signed out. Reload to sign in again.'
 
@@ -25,6 +34,8 @@ export class ApiError extends Error {
 export type RequestOptions = {
   body?: unknown
   signal?: AbortSignal
+  /** `path` is a full path, not under the current child's API root. */
+  absolute?: boolean
 }
 
 /** Server messages may start lower-case; the UI uses sentence case. */
@@ -62,7 +73,7 @@ export async function request<T>(method: string, path: string, opts: RequestOpti
 
   let res: Response
   try {
-    res = await fetch(API_ROOT + path, {
+    res = await fetch((opts.absolute ? '' : apiRoot) + path, {
       method: upper,
       credentials: 'same-origin',
       redirect: 'manual',

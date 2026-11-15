@@ -48,6 +48,6 @@ describe('Reading range', () => {
     )
     expect(await screen.findByRole('group', { name: /Bar chart of stories read each day over 14 days/ })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: /Line chart of minutes spent reading/ })).toBeInTheDocument()
-    expect(screen.getByRole('group', { name: /He read on \d+ of the last 14 days/ })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /Reading on \d+ of the last 14 days/ })).toBeInTheDocument()
   })
 })

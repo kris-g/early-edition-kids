@@ -1,9 +1,11 @@
 // Mock of the dashboard JSON API (CONTRACT.md, "Parent dashboard (React PWA)").
-// For developing and testing the web app without the real server. There is no
-// login: in production Authelia on the cluster edge is the only lock.
+// For developing and testing the web app without the real server.
 //
 //   npm run mock                   # http://localhost:8090
 //   MOCK_NO_ISSUE=1 npm run mock   # no issue today (empty state)
+//   MOCK_PROFILES=older,younger npm run dev:mock
+//                                  # two children: /dashboard/p/<id>/, a switcher in the header
+//   MOCK_LOGIN=1 npm run dev:mock  # as if DASHBOARD_PASSWORD were set: "Sign out" on More
 //
 // To see what happens when the Authelia session expires, open
 // http://localhost:8090/__mock/signed-out?on=1 (and ?on=0 to undo): every
@@ -23,7 +25,7 @@ import {
   issueStories,
   londonToday,
   makeStory,
-  seedData,
+  seedProfiles,
   streakAndWeek,
   templateFor,
   toCard,
@@ -31,6 +33,7 @@ import {
   toIssueView,
   topicViews,
   type Template,
+  useProfile,
 } from './data.ts'
 import { aiView, lastRunCost, updateAi } from './ai.ts'
 import { calendarView, readingView, shareView, streak } from './stats.ts'
@@ -39,14 +42,46 @@ const PORT = Number(process.env.PORT ?? 8090)
 const DELAY = Number(process.env.MOCK_DELAY ?? 250)
 const JOB_MS = Number(process.env.MOCK_JOB_MS ?? 4000)
 
-seedData({ noIssueToday: process.env.MOCK_NO_ISSUE === '1' })
+// Children: one "default" (the single-child app) unless MOCK_PROFILES lists several.
+const PROFILES = (process.env.MOCK_PROFILES ?? '').split(',').map((s) => s.trim()).filter(Boolean)
+const MULTI = PROFILES.length > 0
+const IDS = MULTI ? PROFILES : ['default']
+const TITLES = ['Early Edition', 'Little Edition', 'Junior Edition']
+const LOGIN = process.env.MOCK_LOGIN === '1'
+seedProfiles(IDS, { noIssueToday: process.env.MOCK_NO_ISSUE === '1' })
 
 let signedOut = false
-const jobs = new Map<string, { job: Job; readyAt: number; url: string; title: string | null; summary: string | null }>()
+type JobEntry = { job: Job; readyAt: number; url: string; title: string | null; summary: string | null; profile: string }
+const jobs = new Map<string, JobEntry>()
 
 const app = express()
 app.disable('x-powered-by')
 app.use(express.json())
+
+// /api/dashboard/p/<id>/... is that child's API; /api/dashboard/... is the first child's.
+declare module 'express-serve-static-core' {
+  interface Request {
+    profile?: string
+  }
+}
+app.use((req, _res, next) => {
+  const m = req.url.match(/^\/api\/dashboard\/p\/([^/?]+)(.*)$/)
+  if (m) {
+    req.profile = decodeURIComponent(m[1])
+    req.url = '/api/dashboard' + (m[2] || '/')
+  } else if (req.url.startsWith('/api/dashboard')) {
+    req.profile = IDS[0]
+  }
+  next()
+})
+
+// The sign-in stand-in: POST /logout signs out and lands on a plain page.
+app.post('/logout', (_req, res) => {
+  res.redirect(303, '/login')
+})
+app.get('/login', (_req, res) => {
+  res.type('html').send('<!doctype html><title>Sign in</title><p>The mock has no real sign-in. <a href="/dashboard/">Back to the dashboard</a></p>')
+})
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -71,6 +106,17 @@ app.use('/api/dashboard', (req: Request, res: Response, next: NextFunction) => {
   if (req.method !== 'GET' && req.method !== 'HEAD' && req.get('x-early-edition') !== '1') {
     return fail(res, 403, 'Missing X-Early-Edition header.')
   }
+  next()
+})
+
+app.get('/api/dashboard/profiles', (_req, res) => {
+  res.json({ profiles: IDS.map((id, i) => ({ id, title: TITLES[i] ?? 'Early Edition' })), root: IDS[0], login: LOGIN })
+})
+
+// After the latency above, so the handlers below (all synchronous until they
+// answer, bar regenerate) see this request's child.
+app.use('/api/dashboard', (req: Request, res: Response, next: NextFunction) => {
+  if (!useProfile(req.profile ?? IDS[0])) return fail(res, 404, 'That could not be found.')
   next()
 })
 
@@ -186,10 +232,11 @@ app.post('/api/dashboard/regenerate', async (req, res) => {
     return fail(
       res,
       409,
-      'Today’s issue is already on the Kindle. A new version replaces it there only if he has not opened any story yet.',
+      'Today’s issue is already on the Kindle. Regenerating replaces it only while no story in it has been opened.',
     )
   }
   await sleep(2500)
+  useProfile(req.profile ?? IDS[0]) // another child may have been asked for meanwhile
   const version = rec ? rec.version + 1 : 1
   const ids = []
   for (let p = 1; p <= 6; p++) ids.push(makeStory(today, version, p, version * 3 + p, 'none').id)
@@ -249,7 +296,7 @@ app.post('/api/dashboard/articles/add', (req, res) => {
   if (when !== 'today' && when !== 'tomorrow') return fail(res, 400, 'when must be "today" or "tomorrow".')
   const hit = ARCHIVE.find((a) => a.url === url)
   const job: Job = { id: randomUUID(), status: 'pending', when, story: null, reasons: [] }
-  jobs.set(job.id, { job, readyAt: Date.now() + JOB_MS, url, title: hit?.title ?? null, summary: hit?.summary ?? null })
+  jobs.set(job.id, { job, readyAt: Date.now() + JOB_MS, url, title: hit?.title ?? null, summary: hit?.summary ?? null, profile: req.profile ?? IDS[0] })
   res.status(202).json(job)
 })
 
@@ -263,7 +310,7 @@ function guessTopic(text: string): string {
   return 'Science'
 }
 
-function finishJob(entry: { job: Job; url: string; title: string | null; summary: string | null }) {
+function finishJob(entry: JobEntry) {
   const { job } = entry
   const reasons = failureReasons(entry.url)
   if (reasons) {
@@ -303,7 +350,7 @@ function finishJob(entry: { job: Job; url: string; title: string | null; summary
 
 app.get('/api/dashboard/jobs/:id', (req, res) => {
   const entry = jobs.get(req.params.id)
-  if (!entry) return fail(res, 404, 'Unknown job.')
+  if (!entry || entry.profile !== (req.profile ?? IDS[0])) return fail(res, 404, 'Unknown job.')
   if (entry.job.status === 'pending' && Date.now() >= entry.readyAt) finishJob(entry)
   res.json(entry.job)
 })
