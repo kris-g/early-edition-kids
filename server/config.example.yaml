@@ -1,5 +1,6 @@
 # Early Edition Kids server configuration (CONTRACT.md "Runtime"). Secrets go in env vars, never here.
 # Copy to config.yaml for local runs, or point EARLY_EDITION_KIDS_CONFIG at this file.
+# docs/settings.md explains every setting. The server reads this file at start, so restart it after a change.
 # Never put the child's name in this file: nothing here should identify them (DESIGN 6).
 
 title: Early Edition

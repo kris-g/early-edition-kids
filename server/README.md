@@ -118,7 +118,7 @@ Environment variables (secrets never go in the YAML file):
 | `SESSION_SECRET` | none | With `DASHBOARD_PASSWORD`: mixed into the sign-in cookie's key. Change it to sign every device out without changing the password. |
 | `HOST` | `127.0.0.1` (`0.0.0.0` in the image) | Address both ports bind to |
 
-`config.example.yaml` is the starting config: title, child's age, story count, reading speed, topics with base weights, the four feeds with their exclude patterns (regular expressions, case-insensitive), the blocklist and favourite players. A feed URL may be `file:///path/feed.xml` for offline testing.
+`config.example.yaml` is the starting config: title, child's age, story count, reading speed, topics with base weights, the four feeds with their exclude patterns (regular expressions, case-insensitive), the blocklist and favourite players. A feed URL may be `file:///path/feed.xml` for offline testing. [docs/settings.md](../docs/settings.md) describes every key for people setting it up.
 
 Optional extra keys, with defaults: `reserves` (4), `max_age_hours` (48), `dedupe_days` (14), `fallback_days` (7), `min_source_words` (150), `source_char_limit` (6000), `llm_concurrency` (3), and `llm_prices` (USD per million input and output tokens per model; defaults Opus 5.5 4 / 20, Sonnet 5.5 2 / 10, Haiku 5.5 0.10 / 0.50).
 

@@ -6,6 +6,7 @@ Start with the tours if you want to see what it does, and the spec if you want t
 |---|---|
 | [The Kindle screens](kindle.md) | What the child sees: front page, today's paper, a story, back issues. |
 | [The parent dashboard](dashboard.md) | Annotated screenshots of each dashboard page. |
+| [Settings](settings.md) | Every setting in `config.yaml`, what is set on the dashboard instead, and papers for more than one child. |
 | [Architecture](architecture.md) | The system overview, the daily pipeline and the morning sync. |
 | [Model comparison](model-comparison.md) | Four writer models tested over four days, and which one is recommended. |
 | [DESIGN.md](DESIGN.md) | The spec the build started from. |

@@ -70,9 +70,9 @@ docker run -d --name early-edition-kids --restart unless-stopped \
 
 `docker logs early-edition-kids` should then show a line like `schedule: issue for 2026-11-16: created`.
 
-**Make it your child's paper.** The built-in settings are an example, for an 8-year-old football fan in the UK. Copy [`server/config.example.yaml`](server/config.example.yaml), change the age, topics, favourite team and players, and feeds, then run the command again with `-v "$PWD/config.yaml:/config/config.yaml:ro"` added. Everything runs on London time and the feeds are British, so it suits a UK reader best.
+**Make it your child's paper.** The built-in settings are an example, for an 8-year-old football fan in the UK. Copy [`server/config.example.yaml`](server/config.example.yaml), change the age, topics, favourite team and players, and feeds, then run the command again with `-v "$PWD/config.yaml:/config/config.yaml:ro"` added. Everything runs on London time and the feeds are British, so it suits a UK reader best. [Settings](docs/settings.md) explains each setting in the file.
 
-**More than one child?** Add a `profiles:` list to the config (there is a commented-out example at the end of `config.example.yaml`). Each child gets their own paper, reading history and dashboard; anything not set in a profile comes from the rest of the file. List the child who already uses it first: they keep the existing paper and Kindle address. Each other child's Kindle uses the same address with `/p/<id>` added, such as `http://192.168.1.50:8080/p/younger`, and the dashboard gets a switcher at the top.
+**More than one child?** Add a `profiles:` list to the config (there is a commented-out example at the end of `config.example.yaml`). Each child gets their own paper, reading history and dashboard; anything not set in a profile comes from the rest of the file. List the child who already uses it first: they keep the existing paper and Kindle address. Each other child's Kindle uses the same address with `/p/<id>` added, such as `http://192.168.1.50:8080/p/younger`, and the dashboard gets a switcher at the top. [Settings](docs/settings.md#more-than-one-child) has the details, including what each child's paper costs.
 
 ### 2. Install the plugin on the Kindle
 
