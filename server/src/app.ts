@@ -16,6 +16,7 @@ import { Database, utcnowIso } from "./db.js";
 import type { FeedFetcher, PageFetcher } from "./feeds.js";
 import type { LLM } from "./llm.js";
 import { buildContext, generate, resultApi, storyFile, storyPath, type Context } from "./pipeline.js";
+import { beforeReset, readingSince } from "./readingreset.js";
 import { parseWordToKnow, renderStory } from "./render.js";
 import { isIsoDate, londonDate } from "./timeutil.js";
 import { minutesFor } from "./weights.js";
@@ -213,6 +214,8 @@ export function issuePayload(ctx: Context, date: string) {
     hidden,
     number,
     created_at: issue.created_at,
+    // The Kindle drops reading-log entries from before this date (a reset); null when never reset.
+    reading_since: readingSince(ctx.db),
   };
 }
 
@@ -246,6 +249,8 @@ export function ingestEvents(ctx: Context, body: unknown): { accepted: string[] 
       "INSERT OR IGNORE INTO events (device_id, client_event_id, story_id, type, ts, received_at, payload_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
     );
     const submitted: string[] = [];
+    // Reading from before a reset is accepted, so the Kindle stops resending it, but not stored.
+    const skipped: string[] = [];
     for (const e of events) {
       if (!isObj(e)) continue;
       const ceid = e.client_event_id;
@@ -256,6 +261,10 @@ export function ingestEvents(ctx: Context, body: unknown): { accepted: string[] 
       if (STORY_EVENT_TYPES.has(type) && storyId === null) continue;
       const payload = e.payload ?? {};
       if (!isObj(payload)) continue;
+      if (beforeReset(ctx.db, asInt(e.ts))) {
+        skipped.push(ceid);
+        continue;
+      }
       insert.run(deviceId, ceid, storyId, type, asInt(e.ts), receivedAt, JSON.stringify(payload));
       submitted.push(ceid);
     }
@@ -270,6 +279,6 @@ export function ingestEvents(ctx: Context, body: unknown): { accepted: string[] 
         stored.add(r.client_event_id);
       }
     }
-    return { accepted: unique.filter((c) => stored.has(c)) };
+    return { accepted: [...new Set([...unique.filter((c) => stored.has(c)), ...skipped])] };
   });
 }

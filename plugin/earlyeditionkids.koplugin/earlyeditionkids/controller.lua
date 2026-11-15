@@ -336,7 +336,13 @@ function Controller:runSync(opts)
         result = { kind = "server", message = tostring(result) }
     end
     local st = Rules.record(self.store:syncState(), result.kind, self.clock())
-    if self.readlog:prune(self:today()) > 0 then self.readlog:save() end
+    local trimmed = self.readlog:prune(self:today()) + self.readlog:dropBefore(self.store:get("reading_since"))
+    if trimmed > 0 then
+        self.readlog:save()
+        logger.info("Early Edition Kids: reading log trimmed by", trimmed, "entries; reading counts from",
+                    self.store:get("reading_since") or "-")
+        if self.screen_kind == "myweek" then self:refreshScreen() end
+    end
     self.store:save()
     -- If he keeps reading past the back-off, try again then rather than
     -- waiting for the next wake (UIManager tasks pause while asleep, and

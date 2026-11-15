@@ -290,6 +290,11 @@ function Syncer.run(ctx)
 
     local r = ctx.api:getIssueToday()
     learnSkew(ctx, r)
+    -- A reading reset on the server: the controller drops older reading-log entries.
+    local since = r.kind == "ok" and type(r.data) == "table" and r.data.reading_since
+    if type(since) == "string" and since:match("^%d%d%d%d%-%d%d%-%d%d$") then
+        ctx.store:set("reading_since", since)
+    end
     if r.kind ~= "ok" then
         result.kind, result.message = r.kind, r.message
         if r.kind == "not_found" then

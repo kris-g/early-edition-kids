@@ -13,15 +13,17 @@ local PLUGIN_DIR = package.path:match("([^;]*earlyeditionkids%.koplugin)/%?%.lua
 local ROOT = "/data/earlyeditionkids"
 local BOOK = "/mnt/us/documents/Harry Kane.epub"
 
-local function issueBody(date, version, ids)
+local function issueBody(date, version, ids, extra)
     local stories = {}
     for i, id in ipairs(ids) do
         stories[i] = { id = id, position = i, topic = i == 1 and "Football" or "Space",
                        title = "Story " .. id, teaser = "Teaser " .. id, minutes = 2,
                        path = string.format("/issues/%s/v%d/%d.html", date, version, i) }
     end
-    return JSON.encode({ date = date, version = version, fallback = false, title = "Early Edition",
-                         stories = JSON.array(stories), hidden = JSON.array({}) })
+    local body = { date = date, version = version, fallback = false, title = "Early Edition",
+                   stories = JSON.array(stories), hidden = JSON.array({}) }
+    for k, v in pairs(extra or {}) do body[k] = v end
+    return JSON.encode(body)
 end
 
 -- Collect error/warning log lines from every scenario.
@@ -79,6 +81,9 @@ local function fresh(opts)
     S.mono = mono
     local backends = {}
     -- The server address as set from the menu; opts.server_url = false leaves it unset.
+    if opts.reading_log then
+        backends["earlyeditionkids_log.lua"] = H.memBackend({ entries = opts.reading_log })
+    end
     if opts.server_url ~= false then
         backends["earlyeditionkids.lua"] = H.memBackend({ settings = { server_url = opts.server_url or "http://eek.test:8080" } })
     end
@@ -526,6 +531,28 @@ describe("server address (stubbed KOReader)", function()
         truthy(#S.http.requests > 0)
         truthy(S.http.requests[#S.http.requests].url:find("^http://192%.168%.1%.50:8080/"))
         eq(S.Controller.store:get("current_date"), "2026-11-13")
+    end)
+end)
+
+describe("reading reset (stubbed KOReader)", function()
+    it("a reading_since date from the server drops older reading-log entries", function()
+        local S = fresh{ reading_log = {
+            { date = "2026-11-12", day = "2026-11-12", story_id = 7, finished = true, title = "Test read" },
+            { date = "2026-11-12", day = "2026-11-13", story_id = 8, finished = true, title = "Back issue read on Friday" },
+            { date = "2026-11-13", day = "2026-11-13", story_id = 9, finished = true, title = "Friday" },
+        } }
+        S.serve("2026-11-13", 1, { 41 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(#S.Controller.readlog:entries(), 3, "no reset yet: nothing dropped")
+        S.http.routes["GET /api/issue/today"].body = issueBody("2026-11-13", 1, { 41 }, { reading_since = "2026-11-13" })
+        S.Controller:checkNow()
+        S.run()
+        eq(S.Controller.store:get("reading_since"), "2026-11-13")
+        local left = {}
+        for _, e in ipairs(S.Controller.readlog:entries()) do left[#left + 1] = e.story_id end
+        eq(table.concat(left, ","), "8,9", "kept by the day it was read")
+        eq(#S.backends["earlyeditionkids_log.lua"].data.entries, 2, "saved")
     end)
 end)
 

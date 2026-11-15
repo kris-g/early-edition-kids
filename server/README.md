@@ -173,6 +173,7 @@ The image includes `scripts/`. Run them inside the pod with `kubectl exec`, from
 
 - `scripts/rewrite-issues.ts --dates 2026-11-09,2026-11-10 [--dry-run] [--budget 5]` rewrites existing papers with the current settings (models, efforts, prompts, `story_words`) as a new version of each date. Hidden stories are dropped, a story that still fails after its retry is carried over unchanged, and each date gets a run and its LLM calls. It refuses a date while a generation for it is running, stops at the monthly limit or the budget (default $5), and never touches reading events. `--dry-run` makes no LLM calls.
 - `scripts/import-comparison.ts [--dry-run] <report.json>...` imports clean Opus stories from model comparison reports as past issues.
+- `scripts/reset-reading.ts --since YYYY-MM-DD [--dry-run]` resets reading history: deletes reading events from before that London date, and the Kindle drops its own older reading-log entries at its next sync (CONTRACT.md "Reading since"). Use it after testing on the real Kindle.
 - `scripts/compare-models.ts` is the model comparison harness (see `Dockerfile.compare` and `deploy/k8s/compare-job.yaml`).
 
 ```sh

@@ -72,6 +72,23 @@ function ReadingLog:prune(today, keep_days)
     return removed
 end
 
+--- Drops entries read before `since` (ISO date), after a reading reset on the
+-- server (CONTRACT "Reading since"). Returns the number removed.
+function ReadingLog:dropBefore(since)
+    if type(since) ~= "string" then return 0 end
+    local kept, removed = {}, 0
+    for _, e in ipairs(self.data.entries) do
+        local d = ReadingLog.dayOf(e)
+        if type(d) == "string" and d < since then
+            removed = removed + 1
+        else
+            table.insert(kept, e)
+        end
+    end
+    self.data.entries = kept
+    return removed
+end
+
 --- Distinct stories finished on or after `since` (ISO date). For the stats screen.
 function ReadingLog:finishedSince(since)
     local seen, n = {}, 0

@@ -36,7 +36,8 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
      "path": "/issues/2026-11-13/v1/1.html",
      "word_to_know": {"word": "ceremony", "definition": "a special event held to celebrate something."}}
   ],
-  "hidden": [43]
+  "hidden": [43],
+  "reading_since": "2026-11-14"
 }
 ```
 
@@ -48,7 +49,17 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - `number` is the edition number: how many distinct issue dates exist up to and including this date (1 for the first issue ever). It does not change when a date is regenerated.
 - `created_at` is when this version was made, ISO 8601 in UTC.
 - `word_to_know` per story is `{word, definition}` or `null`, the same as the box at the end of the story page.
+- `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
+
+### Reading since
+
+Reading is recorded in two places: events on the server (the dashboard and topic weighting) and the Kindle's own reading log (My week, its streak and words). They are kept in step only by this rule:
+
+- `tsx scripts/reset-reading.ts --since YYYY-MM-DD` deletes the server's events read before that London date and stores the date as `reading_since`.
+- Every issue response carries `reading_since`. At each sync the plugin stores it and drops reading-log entries read before it (by the day read, or the issue date for entries older than that field).
+- `POST /api/events` accepts events read before `reading_since` (they are listed in `accepted`, so the Kindle stops resending them) but does not store them.
+- Hiding a story is not a reset: reading that already happened still counts on both sides.
 
 ### `GET /issues/{date}/v{version}/{position}.html`
 

@@ -161,3 +161,19 @@ describe("server address", function()
         end
     end)
 end)
+
+describe("reading log reset", function()
+    it("drops entries read before a date, judging older entries by their issue date", function()
+        local log = ReadingLog.new(H.memBackend({ entries = {
+            { date = "2026-11-12", day = "2026-11-13", story_id = 1, finished = true },
+            { date = "2026-11-13", day = "2026-11-14", story_id = 2, finished = true },
+            { date = "2026-11-13", story_id = 3, finished = true },            -- older entry: no day
+            { date = "2026-11-14", day = "2026-11-14", story_id = 4, finished = true },
+        } }))
+        eq(log:dropBefore("2026-11-14"), 2)
+        local ids = {}
+        for _, e in ipairs(log:entries()) do ids[#ids + 1] = e.story_id end
+        eq(table.concat(ids, ","), "2,4")
+        eq(log:dropBefore(nil), 0)
+    end)
+end)
