@@ -8,7 +8,8 @@ set -eu
 VERSION="${1:-dev}"
 VERSION="${VERSION#v}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-OUT="$HERE/../dist"
+mkdir -p "$HERE/../dist"
+OUT="$(cd "$HERE/../dist" && pwd)"
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/eek-plugin.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -22,7 +23,6 @@ for f in "$P/earlyeditionkids/const.lua" "$P/_meta.lua"; do
     grep -qi "version = \"$VERSION\"" "$f" || { echo "could not stamp the version into $f" >&2; exit 1; }
 done
 
-mkdir -p "$OUT"
 ZIP="$OUT/earlyeditionkids.koplugin-$VERSION.zip"
 rm -f "$ZIP"
 (cd "$TMP" && zip -qrX "$ZIP" earlyeditionkids.koplugin)
