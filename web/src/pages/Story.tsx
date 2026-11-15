@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
 import type { StoryCard } from '../api/types'
 import { ChevronLeft, ChevronRight, ExternalIcon, EyeIcon, EyeOffIcon } from '../components/Icons'
+import { BackLink } from '../components/BackLink'
 import { KindlePage } from '../components/KindlePage'
 import { StatusPill } from '../components/StoryCardItem'
 import { Badge, Button, Card, ErrorNote, LinkButton, Loading, SectionTitle, TopicChip } from '../components/ui'
@@ -13,6 +14,7 @@ import { useHideToggle } from '../lib/useHideToggle'
 
 export function Story() {
   const { id: idParam } = useParams()
+  const location = useLocation()
   const id = Number(idParam)
   const valid = Number.isInteger(id) && id > 0
   const story = useApi(valid ? `story:${id}` : null, (signal) => api.story(id, signal))
@@ -26,17 +28,12 @@ export function Story() {
   if (!s) return <Loading />
 
   const isToday = s.date === londonToday()
-  const backTo = isToday ? '/' : dayPath(s.date, 'paper')
+  // Opened directly (no "from"): back to its paper.
+  const fallback = isToday ? { to: '/', label: 'Today' } : { to: dayPath(s.date, 'paper'), label: longDate(s.date) }
 
   return (
-    <div>
-      <Link
-        to={backTo}
-        className="-ml-1 inline-flex min-h-11 items-center gap-1 rounded-lg px-1 text-sm text-muted hover:text-ink"
-      >
-        <ChevronLeft className="size-4" />
-        {isToday ? 'Today' : longDate(s.date)}
-      </Link>
+    <div className="flex flex-col">
+      <BackLink fallback={fallback} />
 
       <div className="mt-1 mb-4 flex flex-wrap items-center gap-2">
         <TopicChip topic={s.topic} />
@@ -91,7 +88,7 @@ export function Story() {
 
       <nav aria-label="Stories in this issue" className="mt-6 grid grid-cols-2 gap-3">
         {s.prev_id ? (
-          <LinkButton to={`/story/${s.prev_id}`}>
+          <LinkButton to={`/story/${s.prev_id}`} state={location.state} replace>
             <ChevronLeft className="size-4" />
             Previous
           </LinkButton>
@@ -99,7 +96,7 @@ export function Story() {
           <span />
         )}
         {s.next_id ? (
-          <LinkButton to={`/story/${s.next_id}`}>
+          <LinkButton to={`/story/${s.next_id}`} state={location.state} replace>
             Next
             <ChevronRight className="size-4" />
           </LinkButton>

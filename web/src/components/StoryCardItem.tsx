@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { StoryCard, StoryStats } from '../api/types'
 import { cx } from '../lib/cx'
+import { useOrigin } from '../lib/origin'
 import { storyStatus, type StoryStatusKind } from '../lib/format'
 import { EyeIcon, EyeOffIcon } from './Icons'
 import { Badge, Spinner, TopicChip } from './ui'
@@ -31,6 +32,7 @@ export function StoryCardItem({
   onToggleHidden?: (story: StoryCard) => void
   busy?: boolean
 }) {
+  const origin = useOrigin()
   return (
     <article
       className={cx(
@@ -38,7 +40,7 @@ export function StoryCardItem({
         story.hidden ? 'border-dashed border-line opacity-80' : 'border-line',
       )}
     >
-      <Link to={`/story/${story.id}`} className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg">
+      <Link to={`/story/${story.id}`} state={origin} className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg">
         <TopicChip topic={story.topic} />
         <span className={cx('text-[15px] leading-[1.3] font-semibold', story.hidden && 'line-through decoration-muted')}>
           {story.title}

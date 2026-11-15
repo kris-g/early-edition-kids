@@ -1,15 +1,16 @@
 import type { ComponentType, SVGProps } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { APP_SHORT_NAME } from '../config'
 import { cx } from '../lib/cx'
+import { useSection } from '../lib/origin'
 import { CalendarIcon, DotsIcon, LogoMark, PaperIcon, ReadingIcon, SparkleIcon } from './Icons'
 import { ThemeButton, ThemeSwitch } from './ThemeToggle'
 
-type Tab = { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>>; end?: boolean }
+type Tab = { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }
 
 /** Phone: bottom tabs. "More" holds Share, Find articles, Topics, Back issues and Recent runs. */
 const TABS: Tab[] = [
-  { to: '/', label: 'Today', icon: PaperIcon, end: true },
+  { to: '/', label: 'Today', icon: PaperIcon },
   { to: '/reading', label: 'Reading', icon: ReadingIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarIcon },
   { to: '/ai', label: 'AI', icon: SparkleIcon },
@@ -17,8 +18,8 @@ const TABS: Tab[] = [
 ]
 
 /** Desktop and tablet (900px and wider): sidebar. */
-const SIDE: { to: string; label: string; end?: boolean }[] = [
-  { to: '/', label: 'Overview', end: true },
+const SIDE: { to: string; label: string }[] = [
+  { to: '/', label: 'Overview' },
   { to: '/reading', label: 'Reading' },
   { to: '/calendar', label: 'Calendar' },
   { to: '/find', label: 'Find articles' },
@@ -46,11 +47,12 @@ function Brand() {
 }
 
 /** Pages reached from "More" on a phone keep that tab lit. */
-const UNDER_MORE = ['/share', '/find', '/topics', '/issues', '/runs']
+const UNDER_MORE = ['/share', '/find', '/topics', '/issues', '/runs', '/more']
 
 export function Layout() {
-  const { pathname } = useLocation()
-  const underMore = UNDER_MORE.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+  // A day or a story lights the section it was opened from (lib/origin.ts).
+  const section = useSection()
+  const tabOn = (to: string) => (to === '/more' ? UNDER_MORE.includes(section) : section === to)
   return (
     <div className="flex min-h-dvh desk:flex-row">
       <aside className="sticky top-0 hidden h-dvh w-[240px] shrink-0 flex-col gap-6 overflow-y-auto border-r border-line bg-card px-4 py-6 desk:flex">
@@ -59,35 +61,36 @@ export function Layout() {
         </div>
         <nav aria-label="Sections" className="flex flex-col gap-1">
           {SIDE.map((t) => (
-            <NavLink
+            <Link
               key={t.to}
               to={t.to}
-              end={t.end}
-              className={({ isActive }) =>
+              aria-current={section === t.to ? 'page' : undefined}
+              className={
                 cx(
                   'flex min-h-11 items-center rounded-[10px] px-3 text-[15px]',
-                  isActive ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-ink hover:bg-chip',
+                  section === t.to ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-ink hover:bg-chip',
                 )
               }
             >
               {t.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
         <nav aria-label="More" className="flex flex-col gap-0.5 border-t border-line pt-4">
           {SIDE_EXTRA.map((t) => (
-            <NavLink
+            <Link
               key={t.to}
               to={t.to}
-              className={({ isActive }) =>
+              aria-current={section === t.to ? 'page' : undefined}
+              className={
                 cx(
                   'flex min-h-11 items-center rounded-[10px] px-3 text-sm',
-                  isActive ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-muted hover:bg-chip hover:text-ink',
+                  section === t.to ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-muted hover:bg-chip hover:text-ink',
                 )
               }
             >
               {t.label}
-            </NavLink>
+            </Link>
           ))}
         </nav>
         <div className="mt-auto">
@@ -113,20 +116,17 @@ export function Layout() {
         <ul className="mx-auto grid max-w-md grid-cols-5">
           {TABS.map((t) => (
             <li key={t.to}>
-              <NavLink
+              <Link
                 to={t.to}
-                end={t.end}
-                className={({ isActive }) => {
-                  const on = isActive || (t.to === '/more' && underMore)
-                  return cx(
-                    'flex min-h-11 flex-col items-center gap-1 border-t-[3px] pt-[9px] pb-1 text-[11px]',
-                    on ? 'border-accent font-bold text-accent' : 'border-transparent font-medium text-muted',
-                  )
-                }}
+                aria-current={tabOn(t.to) ? 'page' : undefined}
+                className={cx(
+                  'flex min-h-11 flex-col items-center gap-1 border-t-[3px] pt-[9px] pb-1 text-[11px]',
+                  tabOn(t.to) ? 'border-accent font-bold text-accent' : 'border-transparent font-medium text-muted',
+                )}
               >
                 <t.icon className="size-[22px]" />
                 {t.label}
-              </NavLink>
+              </Link>
             </li>
           ))}
         </ul>

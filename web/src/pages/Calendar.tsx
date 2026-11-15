@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
 import type { CalendarView, StoryCard } from '../api/types'
@@ -8,6 +8,7 @@ import { BigNumber, Card, ErrorNote, Loading, PageHeader, SectionTitle } from '.
 import { dayPath, type DayMode } from '../lib/day'
 import { addMonths, londonToday, monthTitle, weekdayDayMonth } from '../lib/format'
 import { withStory } from '../lib/issue'
+import { useOrigin } from '../lib/origin'
 import { useApi } from '../lib/useApi'
 import { ModeSwitch, PaperOfDay, ReadThatDay } from './Day'
 
@@ -36,7 +37,10 @@ export function Calendar() {
         : null
 
   const go = (m: string) => setParams({ month: m }, { replace: true })
-  const select = (date: string) => setParams({ month, day: date }, { replace: true })
+  const dayView = params.get('view') === 'paper' ? 'paper' : 'read'
+  const select = (date: string) => setParams({ month, day: date, ...(dayView === 'paper' ? { view: 'paper' } : {}) }, { replace: true })
+  const setView = (m: DayMode) =>
+    setParams({ month, ...(picked ? { day: picked } : {}), ...(m === 'paper' ? { view: 'paper' } : {}) }, { replace: true })
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,7 +86,7 @@ export function Calendar() {
               <Total value={view.all_read_days} label={view.all_read_days === 1 ? 'all-read day' : 'all-read days'} />
             </div>
           </div>
-          {picked && <DayPanel key={picked} date={picked} today={today} />}
+          {picked && <DayPanel key={picked} date={picked} today={today} mode={dayView} onMode={setView} />}
         </div>
       )}
     </div>
@@ -98,8 +102,18 @@ function Total({ value, label }: { value: number; label: string }) {
   )
 }
 
-function DayPanel({ date, today }: { date: string; today: string }) {
-  const [mode, setMode] = useState<DayMode>('read')
+function DayPanel({
+  date,
+  today,
+  mode,
+  onMode: setMode,
+}: {
+  date: string
+  today: string
+  mode: DayMode
+  onMode: (m: DayMode) => void
+}) {
+  const origin = useOrigin()
   const day = useApi(`day:${date}`, (s) => api.day(date, s))
   const { mutate } = day
   const onStoryChange = useCallback(
@@ -111,7 +125,7 @@ function DayPanel({ date, today }: { date: string; today: string }) {
     <section aria-label="Selected day" className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
         <SectionTitle>{weekdayDayMonth(date)}</SectionTitle>
-        <Link to={dayPath(date, mode)} className="text-[13px] font-bold whitespace-nowrap text-accent hover:underline">
+        <Link to={dayPath(date, mode)} state={origin} className="text-[13px] font-bold whitespace-nowrap text-accent hover:underline">
           Open day
         </Link>
       </div>

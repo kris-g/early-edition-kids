@@ -4,11 +4,13 @@ import { ChevronRight } from '../components/Icons'
 import { Badge, ErrorNote, Loading, PageHeader } from '../components/ui'
 import { londonToday, longDate } from '../lib/format'
 import { dayPath } from '../lib/day'
+import { useOrigin } from '../lib/origin'
 import { useApi } from '../lib/useApi'
 
 export function Issues() {
   const issues = useApi('issues', (signal) => api.issues(30, signal))
   const today = londonToday()
+  const origin = useOrigin()
 
   return (
     <div>
@@ -24,6 +26,7 @@ export function Issues() {
             <li key={`${i.date}-${i.version}`}>
               <Link
                 to={dayPath(i.date, 'paper')}
+                state={origin}
                 className="flex min-h-16 items-center gap-3 px-4 py-3 transition hover:bg-chip"
               >
                 <div className="min-w-0 flex-1">

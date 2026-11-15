@@ -17,6 +17,7 @@ import { BigNumber, Button, ErrorNote, Eyebrow, LinkButton, Loading, SectionTitl
 import { cx } from '../lib/cx'
 import { londonToday, money, moneyShort, monthName, oneDecimal, plural, prettyModel } from '../lib/format'
 import { visibleCount, withStory } from '../lib/issue'
+import { useOrigin } from '../lib/origin'
 import { useApi } from '../lib/useApi'
 import { useHideToggle } from '../lib/useHideToggle'
 
@@ -25,6 +26,7 @@ const CARD = 'box-border flex flex-col rounded-2xl border border-line bg-card p-
 /** The desktop and tablet home page (900px and wider), after Desktop.dc.html. */
 export function Overview() {
   const today = londonToday()
+  const origin = useOrigin()
   const month = today.slice(0, 7)
   const [range, setRange] = useState<RangeDays>(14)
   const summary = useApi('summary', (s) => api.summary(s))
@@ -208,7 +210,7 @@ export function Overview() {
               .sort((a, b) => a.position - b.position)
               .map((s) => (
                 <div key={s.id} className="flex items-center gap-2 border-t border-line py-2.5">
-                  <Link to={`/story/${s.id}`} className="flex min-w-0 flex-1 flex-col gap-[5px] rounded">
+                  <Link to={`/story/${s.id}`} state={origin} className="flex min-w-0 flex-1 flex-col gap-[5px] rounded">
                     <span className={cx('text-sm leading-[1.3] font-semibold', s.hidden && 'line-through decoration-muted')}>
                       {s.title}
                     </span>
