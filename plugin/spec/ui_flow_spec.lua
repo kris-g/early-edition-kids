@@ -564,6 +564,23 @@ describe("plugin flow (stubbed KOReader)", function()
     end)
 end)
 
+describe("masthead font (stubbed KOReader)", function()
+    it("names Playfair from KOReader's fonts folder, which every KOReader version opens", function()
+        fresh()
+        local W = require("earlyeditionkids/ui/widgets")
+        local font = "/mnt/us/koreader/plugins/earlyeditionkids.koplugin/fonts/PlayfairDisplay-Black.ttf"
+        -- KOReader opens "./fonts/" .. name; from /mnt/us/koreader/fonts that climbs to / and back down.
+        eq(W.fontPathFrom("/mnt/us/koreader/fonts", font),
+           "../../../../mnt/us/koreader/plugins/earlyeditionkids.koplugin/fonts/PlayfairDisplay-Black.ttf")
+        -- Without a usable fonts folder, the absolute path (newer KOReader takes it).
+        eq(W.fontPathFrom(nil, font), font)
+        eq(W.fontPathFrom("./fonts", font), font)
+        W.configure{ plugin_path = "/mnt/us/koreader/plugins/earlyeditionkids.koplugin", font_dir = "/mnt/us/koreader/fonts" }
+        eq(W.DISPLAY_ABS, font)
+        eq(W.DISPLAY, "../../../../mnt/us/koreader/plugins/earlyeditionkids.koplugin/fonts/PlayfairDisplay-Black.ttf")
+    end)
+end)
+
 describe("server address (stubbed KOReader)", function()
     it("with no address: no automatic sync, and Check for news says where to set it", function()
         local S = fresh{ server_url = false }
