@@ -52,6 +52,7 @@ function EarlyEditionKids:init()
         self.story = Controller:identifyStory(doc.file)
         if self.story then
             self:hookEndOfBook()
+            self:hookStartOfStory()
             self.tracker = Tracker.new{ clock = Env.monotonic }
             Controller:onStoryOpened(self.story)
         else
@@ -110,6 +111,43 @@ function EarlyEditionKids:hookEndOfBook()
         local ok, err = pcall(plugin.storyEnded, plugin)
         if not ok then logger.err("Early Edition Kids: end of story failed:", err) end
         return true
+    end
+end
+
+--[[--
+Turning back from a story's first page leaves the story (to the screen it
+was opened from), where KOReader would only redraw the page. Without it the
+only way out before the end is KOReader's own menu.
+
+The same instance-field shadowing as hookEndOfBook, on this story's
+ReaderRolling: GotoViewRel(-1) is what a left tap, a swipe right and the
+page-back keys send. Every other turn goes to KOReader's own handler.
+]]
+local function atStart(rolling)
+    if rolling.view and rolling.view.view_mode == "page" then
+        return (rolling.current_page or 1) <= 1
+    end
+    return (rolling.current_pos or 0) <= 0
+end
+
+function EarlyEditionKids:hookStartOfStory()
+    local rolling = self.ui.rolling
+    if not rolling or type(rolling.onGotoViewRel) ~= "function" then
+        logger.warn("Early Edition Kids: ReaderRolling not found; turning back from page one will not leave the story")
+        return
+    end
+    local plugin, original = self, rolling.onGotoViewRel
+    rolling.onGotoViewRel = function(this, diff)
+        if type(diff) == "number" and diff < 0 and atStart(this) and not plugin.leaving then
+            plugin.leaving = true
+            local ok, err = pcall(Controller.leaveStory, Controller, plugin.story, plugin.ui)
+            if not ok then
+                plugin.leaving = nil
+                logger.err("Early Edition Kids: leaving the story failed:", err)
+            end
+            return true
+        end
+        return original(this, diff)
     end
 end
 

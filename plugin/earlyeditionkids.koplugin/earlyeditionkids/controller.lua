@@ -486,6 +486,10 @@ function Controller:frontModel()
         stored_dates = self.issues:listDates(),
         wordFor = function(s) return self:wordFor(date, s) end,
         sourceFor = function(s) return s.source_name or self:pageInfo(date, s).source end,
+        photoFor = function(s)
+            local p = self.issues:photoFile(date, s.id)
+            return isFile(p) and p or nil
+        end,
         skew = self.store:get("clock_skew"),
     }
 end
@@ -981,6 +985,17 @@ function Controller:leaveStoryTo(ui, where)
         self.store:save()
         self:showSaved(where)
     end)
+end
+
+--- Turning back from a story's first page: close it and show the screen he
+-- opened it from (the headlines of its paper when he came another way).
+function Controller:leaveStory(story, ui)
+    if self.panel then
+        UIManager:close(self.panel)
+        self.panel = nil
+    end
+    local where = self.store:session().return_screen or { kind = "headlines", date = story and story.date }
+    self:leaveStoryTo(ui, where)
 end
 
 function Controller:stampDate()

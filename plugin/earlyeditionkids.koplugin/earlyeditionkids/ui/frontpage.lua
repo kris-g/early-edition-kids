@@ -2,8 +2,8 @@
 A1 · Front page: the entry point of Early Edition.
 
 Date line and "No. N", the sunrise masthead, the "Today's paper" card (read
-count, stories and minutes, topic icons, FIRST UP, a big Start reading
-button), four tiles (Back issues, My week, Word of the day, Check for news)
+count, stories and minutes, topic icons, FIRST UP with its photo when it
+has one, a big Start reading button), four tiles (Back issues, My week, Word of the day, Check for news)
 and the sources line.
 
 Differs from the mockup on purpose: a "Close" button sits at the bottom
@@ -64,7 +64,24 @@ function FrontPage:card()
     table.insert(items, W.tappable(W.VCol(header, W.px(16)), self.on_headlines))
 
     local first = {}
-    if m.first_up then
+    if m.first_up and m.first_up_photo then
+        local s = m.first_up
+        -- The whole photo (16:9) beside the label and headline; the photo stands in for the teaser.
+        local pw, gap = W.px(330), W.px(28)
+        local ph = math.floor(pw * W.PHOTO_H / W.PHOTO_W + 0.5)
+        local tw = iw - pw - gap
+        local label = W.Label("First up · " .. (s.topic or ""), 22, nil, tw)
+        -- The headline keeps to the photo's height: a smaller size for a long one.
+        local room = ph - label:getSize().h - W.px(10)
+        local headline
+        for _, n in ipairs({ 40, 36, 32, 28 }) do
+            headline = W.TextBox{ text = s.title or "", face = W.face(W.SERIF_BOLD, n), width = tw, bg = W.CARD }
+            if headline:getSize().h <= room then break end
+        end
+        local row = W.HRow({ W.Photo(m.first_up_photo, pw, ph), W.VCol({ label, headline }, W.px(10)) }, gap, "top")
+        -- Like the iPad's lead photo, the photo and headline open the story.
+        first = { W.tappable(row, function() if self.on_start then self.on_start(s) end end) }
+    elseif m.first_up then
         local s = m.first_up
         first = {
             W.Label("First up · " .. (s.topic or ""), 22, nil, iw),
@@ -162,6 +179,8 @@ end
 function FrontPage:build()
     local m = self.model or {}
     local cw = self.content_w
+    -- A photo in the card: a little less air around it, so the page still fits.
+    local tight = m.first_up_photo ~= nil
     local masthead = W.VCol({
         W.Image(W.iconPath("sunrise"), W.px(152), W.px(64)),
         W.VSpace(W.px(8)),
@@ -177,9 +196,9 @@ function FrontPage:build()
         W.Fixed(masthead, cw, nil, "center"),
         { space = 16 },
         W.DoubleRule(cw),
-        { space = 30 },
+        { space = tight and 18 or 30 },
         self:card(),
-        { space = 26 },
+        { space = tight and 18 or 26 },
         self:tiles(),
         { flex = true },
         { space = 16 },

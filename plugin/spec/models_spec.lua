@@ -118,6 +118,17 @@ describe("front page model", function()
         eq(m.card_title, "Today's paper")
         falsy(m.all_read)
     end)
+    it("first up carries its photo when it has one", function()
+        local base = { date = "2026-11-13", today = "2026-11-13", idx = {}, stories = stories(3),
+                       state = { read = { ["41"] = true } }, stored_dates = { "2026-11-13" } }
+        base.photoFor = function(st) return st.id == 42 and "/x/42.jpg" or nil end
+        eq(Models.frontPage(base).first_up_photo, "/x/42.jpg")
+        base.photoFor = function() return nil end
+        eq(Models.frontPage(base).first_up_photo, nil)
+        base.state = { read = { ["41"] = true, ["42"] = true, ["43"] = true } }
+        base.photoFor = function() return "/x/any.jpg" end
+        eq(Models.frontPage(base).first_up_photo, nil, "all read: no first up, no photo")
+    end)
     it("an older newest issue is the latest paper; no issue at all is handled", function()
         local m = Models.frontPage{ date = "2026-11-12", today = "2026-11-13", idx = {}, stories = stories(1),
                                     state = { read = { ["41"] = true } }, stored_dates = { "2026-11-12" } }

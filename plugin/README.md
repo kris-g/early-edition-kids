@@ -153,6 +153,10 @@ partial refreshes. Today's back-issue card uses a light grey highlight.
   (within 30 minutes of waking, or at once with "Check for news").
 - Reading opens a normal KOReader page. Turning forward from the last page
   shows the "Story finished!" panel instead of KOReader's end-of-book pop-up.
+  Turning back from the first page leaves the story, back to the screen it was
+  opened from.
+- The front page shows the first unread story's photo beside its headline when
+  the Kindle has it.
   Leaving a story any other way goes back to the screen it was opened from.
 - Closing the front page restores his own book as KOReader's "last
   file", removes the stories from History, and reopens his book if he was

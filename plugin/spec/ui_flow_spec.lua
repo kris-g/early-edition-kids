@@ -168,6 +168,21 @@ describe("plugin flow (stubbed KOReader)", function()
         eq(table.concat(types, ","), "issue_downloaded,list_shown")
     end)
 
+    it("the front page shows first up's photo when it is on the Kindle", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(S.UIManager:top().model.first_up_photo, nil, "no photo downloaded")
+        local photo = ROOT .. "/2026-11-13/41.jpg"
+        S.Controller.issues.fs.writeFile(photo, "\255\216\255")
+        S.UIManager:top():onClose()
+        S.Controller:showFrontPage()
+        S.run()
+        eq(topName(S), "eek_frontpage")
+        eq(S.UIManager:top().model.first_up_photo, photo)
+    end)
+
     it("a book open: notification instead of taking over", function()
         local S = fresh()
         S.serve("2026-11-13", 1, { 41 })
@@ -179,6 +194,50 @@ describe("plugin flow (stubbed KOReader)", function()
             if w.text and w.text:find("is here", 1, true) then notified = true end
         end
         truthy(notified, "notification shown")
+    end)
+
+    it("turning back from a story's first page goes back to where he opened it", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42, 43 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        -- From the headlines: back on page 2 is a normal page turn, back on page 1 leaves.
+        S.page_counts = { [ROOT .. "/2026-11-13/42.html"] = 3 }
+        S.Controller:showHeadlines("2026-11-13")
+        S.run()
+        local list = S.UIManager:top()
+        list.on_story(list.model.stories[2].story)
+        S.run()
+        local rui = S.ReaderUI.instance
+        eq(rui.document.file, ROOT .. "/2026-11-13/42.html")
+        S.mono.t = 20; rui:turnPage()
+        rui:turnBack()
+        S.run()
+        eq(S.ReaderUI.instance, rui, "still reading")
+        eq(rui.current_page, 1)
+        S.mono.t = 40; rui:turnBack()
+        S.run()
+        falsy(S.ReaderUI.instance, "story closed")
+        eq(topName(S), "eek_headlines")
+        -- Its reading is recorded (the event may already have gone up), and it is not read.
+        local entry
+        for _, e in ipairs(S.Controller.readlog:entries()) do
+            if e.story_id == 42 then entry = e end
+        end
+        truthy(entry, "reading recorded")
+        eq(entry.finished, false)
+        falsy(S.Controller.store:issueState("2026-11-13").read["42"], "not marked read")
+
+        -- From the front page: back there.
+        S.Controller:showFrontPage()
+        S.run()
+        local front = S.UIManager:top()
+        front.on_start(front.model.first_up)
+        S.run()
+        S.ReaderUI.instance:turnBack()
+        S.run()
+        falsy(S.ReaderUI.instance)
+        eq(topName(S), "eek_frontpage")
     end)
 
     it("Start reading: panel replaces the stock pop-up, next story, Home goes back to the front page, leave", function()

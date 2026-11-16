@@ -129,6 +129,8 @@ function Models.frontPage(opts)
     m.read_text = string.format("%d of %d read", m.read, m.total)
     m.summary = Models.storiesLine(m.total, m.minutes)
     m.first_up = Models.firstUnread(stories, read)
+    -- Its photo on the Kindle (<id>.jpg beside the story), or nil.
+    m.first_up_photo = m.first_up and opts.photoFor and opts.photoFor(m.first_up) or nil
     m.all_read = m.total > 0 and m.first_up == nil
     m.word = Models.wordOfTheDay(stories, read, opts.wordFor or function() return nil end)
     m.updated = Models.updatedText(opts.idx, opts.state, opts.skew)

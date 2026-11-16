@@ -240,6 +240,15 @@ function W.Image(file, w, h)
     return ImageWidget:new{ file = file, width = w, height = h or w, alpha = true }
 end
 
+--- A story photo (the server's 1000 x 563 Kindle copy) filling w x h pixels:
+-- scaled to cover the box and cropped around its centre, never stretched.
+W.PHOTO_W, W.PHOTO_H = 1000, 563
+function W.Photo(file, w, h)
+    local scale = math.max(w / W.PHOTO_W, h / W.PHOTO_H)
+    return ImageWidget:new{ file = file, width = w, height = h, scale_factor = scale,
+                            center_x_ratio = 0.5, center_y_ratio = 0.5 }
+end
+
 --- An icon `size` mockup pixels square.
 function W.Icon(name, size, color)
     local s = W.px(size)

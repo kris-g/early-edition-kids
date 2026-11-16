@@ -311,17 +311,30 @@ function S.install(opts)
             menu = menuStub(),
         }
         ui.status = setmetatable({}, ReaderStatus)
-        ui.children = { ui.status }
+        -- ReaderRolling in page mode: a turn back from page 1 changes nothing.
+        ui.rolling = { view = { view_mode = "page" }, current_page = 1 }
+        function ui.rolling.onGotoViewRel(this, diff)
+            if diff < 0 and this.current_page > 1 then
+                this.current_page = this.current_page - 1
+                ui.current_page = this.current_page
+                ui:handleEvent(Event.new("PageUpdate", this.current_page))
+            end
+            S.view_rel = (S.view_rel or 0) + 1
+            return true
+        end
+        ui.children = { ui.status, ui.rolling }
         function ui:getCurrentPage() return self.current_page end
         function ui:handleEvent(ev) return dispatch(self, ev) end
         function ui:turnPage()
             if self.current_page < pages then
                 self.current_page = self.current_page + 1
+                self.rolling.current_page = self.current_page
                 self:handleEvent(Event.new("PageUpdate", self.current_page))
             else
                 self:handleEvent(Event.new("EndOfBook"))
             end
         end
+        function ui:turnBack() return self:handleEvent(Event.new("GotoViewRel", -1)) end
         function ui:onClose()
             self:handleEvent(Event.new("CloseDocument"))
             for i = #UIManager.stack, 1, -1 do if UIManager.stack[i] == self then table.remove(UIManager.stack, i) end end
