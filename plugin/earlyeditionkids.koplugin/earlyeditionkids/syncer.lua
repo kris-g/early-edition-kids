@@ -13,6 +13,11 @@ Order, as the contract says: upload queued events, then fetch
   from it has been opened, otherwise keep what he has started;
 - then tidy (7 days of issues, with their KOReader sidecars).
 
+Story photos (CONTRACT "Story photos"): a story with a `kindle_image` gets
+that photo first, saved as <id>.jpg beside the page, and then the page that
+shows it (`?photo=1`). If the photo is missing or not a JPEG, the plain
+page is stored instead, so a page never names a file that is not there.
+
 Profiles (CONTRACT "Profiles"): story ids restart in each child's paper, so
 when an issue arrives from a different paper than the stored one (the server
 address was changed to another child's), everything from the old paper is
@@ -132,6 +137,42 @@ local function uploadEvents(ctx, result)
     return "ok"
 end
 
+local function isJpeg(body)
+    return type(body) == "string" and #body > 3 and body:sub(1, 3) == "\255\216\255"
+end
+
+--- The page that shows the photo: the story's own path with ?photo=1.
+function Syncer.photoPagePath(path)
+    return path .. (path:find("?", 1, true) and "&" or "?") .. "photo=1"
+end
+
+--- Downloads one story into `dir` as <id>.html, with its photo as <id>.jpg
+-- when it has one. Returns "ok", or "network"|"server" and a message.
+local function downloadStory(ctx, dir, s)
+    local fs = ctx.issues.fs
+    local key = Store.idKey(s.id)
+    local page = s.path
+    local photo = type(s.kindle_image) == "table" and s.kindle_image.path
+    if type(photo) == "string" and photo ~= "" then
+        local r = ctx.api:download(photo, "image/jpeg")
+        if r.kind == "network" then
+            return "network", "photo for story " .. tostring(s.id) .. ": " .. tostring(r.message)
+        elseif r.kind == "ok" and isJpeg(r.body) and fs.writeFile(dir .. "/" .. key .. ".jpg", r.body) then
+            page = Syncer.photoPagePath(s.path)
+        else
+            -- No photo is normal: the story is stored without one.
+            log(ctx, "info", "no photo for story", s.id, r.message or (r.kind ~= "ok" and r.kind) or "not a JPEG")
+        end
+    end
+    local r = ctx.api:download(page)
+    if r.kind ~= "ok" then
+        return (r.kind == "network") and "network" or "server", "story " .. tostring(s.id) .. ": " .. tostring(r.message)
+    end
+    local wok, werr = fs.writeFile(dir .. "/" .. key .. ".html", r.body)
+    if not wok then return "server", "write failed: " .. tostring(werr) end
+    return "ok"
+end
+
 -- Downloads all stories of `data` into a temporary folder, then swaps it in.
 local function downloadIssue(ctx, data, raw)
     local fs, issues = ctx.issues.fs, ctx.issues
@@ -140,15 +181,10 @@ local function downloadIssue(ctx, data, raw)
     local ok, err = fs.mkdirp(tmp)
     if not ok then return "server", "mkdir failed: " .. tostring(err) end
     for _, s in ipairs(data.stories) do
-        local r = ctx.api:download(s.path)
-        if r.kind ~= "ok" then
+        local kind, msg = downloadStory(ctx, tmp, s)
+        if kind ~= "ok" then
             fs.removeTree(tmp)
-            return (r.kind == "network") and "network" or "server", "story " .. tostring(s.id) .. ": " .. tostring(r.message)
-        end
-        local wok, werr = fs.writeFile(tmp .. "/" .. Store.idKey(s.id) .. ".html", r.body)
-        if not wok then
-            fs.removeTree(tmp)
-            return "server", "write failed: " .. tostring(werr)
+            return kind, msg
         end
     end
     local wok, werr = fs.writeFile(tmp .. "/index.json", raw)
@@ -210,11 +246,8 @@ local function reconcile(ctx, data, raw, result)
         end
         local path = issues:storyFile(data.date, s.id)
         if not fs.isFile(path) then
-            local r = ctx.api:download(s.path)
-            if r.kind ~= "ok" then
-                return (r.kind == "network") and "network" or "server", r.message
-            end
-            fs.writeFile(path, r.body)
+            local kind, msg = downloadStory(ctx, issues:dir(data.date), s)
+            if kind ~= "ok" then return kind, msg end
             result.list_changed = true
         end
     end

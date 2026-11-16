@@ -7,6 +7,7 @@ saves a screenshot of it into <KOReader data dir>/screenshots/, and quits:
 
   1-front-page.png      the front page
   2-todays-paper.png    the headline list of the newest issue
+  3-story-page.png      the first page of that story (its photo, if it has one)
   3-story-finished.png  a story at its last page with the finished panel
   4-back-issues.png     back issues
   5-my-week.png         my week
@@ -80,6 +81,7 @@ function Tour.start(Controller)
             if pick then Controller:openStory(date, pick, { kind = "headlines", date = date }) end
         end,
         function() end, -- let the reader open
+        function() shot("3-story-page.png") end,
         function()
             local rui = require("apps/reader/readerui").instance
             if rui and rui.rolling then

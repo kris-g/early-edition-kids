@@ -30,15 +30,15 @@ A newspaper of the child's own: real news from real sources, rewritten and check
 ## Capabilities and Constraints
 
 - The child's reader and the parent dashboard are on different addresses; the reader must offer no route to the dashboard.
-- Stories can carry the source article's main image on the iPad. Not every story will have one, so every layout must hold without it.
-- The Kindle has no images and no colour; the two readers show the same paper.
+- Stories can carry the source article's main image: in colour on the iPad, in grey on the Kindle's story pages. Not every story will have one, so every layout must hold without it.
+- The Kindle has no colour and shows photos only on story pages; the two readers show the same paper.
 - Stories are short rewrites for one household, with the source named. Nothing is redistributed.
 - Europe/London dates, British English.
 
 ## Brand Commitments
 
 - The child sees the title "Early Edition" (configurable per profile), with the sunrise mark, the dated masthead with an issue number, the line "The news, written for you", the topic icons, and the round Read stamp.
-- The Kindle paper is the reference: the iPad paper is the same paper, with photos and colour added.
+- The Kindle paper is the reference: the iPad paper is the same paper, with colour and more photos.
 - Tone: curious and upbeat, never babyish, never frightening.
 
 ## Evidence on Hand
@@ -46,7 +46,7 @@ A newspaper of the child's own: real news from real sources, rewritten and check
 - Kindle screens: `docs/images/kindle/`. Original mockups: `docs/images/mockups/`.
 - Marks and icons: `plugin/earlyeditionkids.koplugin/icons/` (sunrise, stamp, topic icons). Masthead face: `plugin/earlyeditionkids.koplugin/fonts/PlayfairDisplay-Black.ttf`.
 - Parent dashboard tokens: `web/src/index.css`.
-- No article images are stored yet; mockups use stand-ins.
+- Story photos are stored with each story (CONTRACT.md "Story photos"); sample photos for screenshots are from Wikimedia Commons (`docs/tools/sample-paper.mts`).
 
 ## Product Principles
 

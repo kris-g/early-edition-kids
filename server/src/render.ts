@@ -1,4 +1,8 @@
-/** Story HTML (DESIGN 4.8): standalone, no external assets, no scripts, no links, no images. */
+/**
+ * Story HTML (DESIGN 4.8): standalone, no external assets, no scripts, no links. The Kindle can ask
+ * for a version with the story's photo (CONTRACT.md "Story photos"); its `src` names a file the
+ * Kindle keeps beside the page, so the page still loads nothing from the network.
+ */
 
 import nunjucks from "nunjucks";
 import { loadsJson, type Row } from "./db.js";
@@ -41,8 +45,14 @@ export function parseWordToKnow(value: unknown): WordToKnow | null {
   return v && typeof v === "object" && "word" in v ? (v as WordToKnow) : null;
 }
 
+/** A photo to put under the headline: `src` is relative to the page (a file beside it). */
+export interface PagePhoto {
+  src: string;
+  alt: string | null;
+}
+
 /** `story` is a stories row (or an object with the same keys). */
-export function renderStory(story: Row, readingWpm: number): string {
+export function renderStory(story: Row, readingWpm: number, photo: PagePhoto | null = null): string {
   const html = env.render("story.njk", {
     topic: story.topic,
     title: story.title,
@@ -51,6 +61,7 @@ export function renderStory(story: Row, readingWpm: number): string {
     word_to_know: parseWordToKnow(story.word_to_know),
     think_about_it: story.think_about_it || "",
     source_name: story.source_name,
+    photo,
   });
   // Match the original output: no trailing newline after </html>.
   return html.replace(/\n$/, "");

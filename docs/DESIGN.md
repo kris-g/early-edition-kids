@@ -12,7 +12,7 @@ Success looks like: the issue is ready on the server before 07:00 with no adult 
 
 ## 2. Context and constraints
 
-- **Reader device:** Kindle Paperwhite 7th generation (PW3), jailbroken, running KOReader. Screen 1072 x 1448 px at 300 ppi, greyscale e-ink, touch only, slow refresh. No images in v1.
+- **Reader device:** Kindle Paperwhite 7th generation (PW3), jailbroken, running KOReader. Screen 1072 x 1448 px at 300 ppi, greyscale e-ink, touch only, slow refresh. No images in v1; story photos came later (CONTRACT.md "Story photos").
 - **Server:** a k3s cluster on the home LAN. The Kindle reaches it over Wi-Fi by plain HTTP on the LAN (confirm with the owner, see section 12).
 - **Writer model:** Claude Opus 5.5 through the Anthropic API by default, for both writing and checking (`LLM_PROVIDER=anthropic`). Any OpenAI-compatible chat completions endpoint (OpenRouter, a local model) is the alternative (`LLM_PROVIDER=openai` with a base URL). Provider, API key and model names are configuration.
 - **Reader:** UK child, British English, UK-centric news.
@@ -175,7 +175,7 @@ Regenerating an issue bumps `issues.version` and inserts new story rows. Old row
 
 ### 4.8 Story HTML
 
-Self-contained, no external assets, minimal inline CSS that KOReader's HTML engine handles: topic and read-time line, `h1` title, paragraphs, a bordered "Word to know" box, a bordered "Think about it" box, a small source line. No images, no scripts, no links.
+Self-contained, no external assets, minimal inline CSS that KOReader's HTML engine handles: topic and read-time line, `h1` title, paragraphs, a bordered "Word to know" box, a bordered "Think about it" box, a small source line. No scripts, no links, and no images except the story photo the Kindle asks for with `?photo=1`, which is a file beside the page (CONTRACT.md "Story photos").
 
 Set `<title>` to "Topic · Headline". The mockups show that text at the top of page 2 and a "Page 1 of 2" bar at the bottom; both come from KOReader's own status bars, not from the HTML (section 11). How KOReader renders this HTML has not been checked; look at it in the emulator early.
 

@@ -367,6 +367,101 @@ describe("parent-added stories (same version)", function()
     end)
 end)
 
+-- Story photos (CONTRACT "Story photos"): gives the stories in `ids` of the
+-- served issue a kindle_image, and serves the photo and the page that shows it.
+local JPEG = "\255\216\255\224" .. string.rep("p", 40)
+local function servePhotos(env, ids, photo)
+    local route = env.routes["GET /api/issue/today"]
+    local data = JSON.decode(route.body)
+    local want = {}
+    for _, id in ipairs(ids) do want[id] = true end
+    for _, st in ipairs(data.stories) do
+        if want[st.id] then
+            local p = st.path:gsub("%.html$", ".kindle.jpg")
+            st.kindle_image = { path = p }
+            env.routes["GET " .. p] = photo or { status = 200, body = JPEG }
+            env.routes["GET " .. st.path .. "?photo=1"] =
+                { status = 200, body = '<html><img src="' .. st.id .. '.jpg"></html>' }
+        end
+    end
+    data.stories = JSON.array(data.stories)
+    data.hidden = JSON.array(data.hidden or {})
+    route.body = JSON.encode(data)
+end
+
+describe("story photos", function()
+    it("stores the photo beside the page that shows it; a story without one gets the plain page", function()
+        local env = setup()
+        env.serveIssue("2026-11-13", 1, { 41, 42 })
+        servePhotos(env, { 41 })
+        local r = env.sync()
+        eq(r.kind, "ok")
+        eq(env.fs.files[ROOT .. "/2026-11-13/41.jpg"], JPEG)
+        eq(env.fs.files[ROOT .. "/2026-11-13/41.html"], '<html><img src="41.jpg"></html>')
+        eq(env.requested("/issues/2026-11-13/v1/1.kindle.jpg"), 1)
+        falsy(env.fs.isFile(ROOT .. "/2026-11-13/42.jpg"))
+        eq(env.fs.files[ROOT .. "/2026-11-13/42.html"], "<html><title>Story 42</title></html>")
+        eq(env.requested("/issues/2026-11-13/v1/2.html?photo=1"), 0)
+        -- The photo is asked for as an image.
+        for _, req in ipairs(env.http.requests) do
+            if req.url:find("kindle.jpg", 1, true) then eq(req.headers.accept, "image/jpeg") end
+        end
+    end)
+
+    it("a photo the server cannot make, or one that is not a JPEG, means the plain page", function()
+        for _, photo in ipairs({ { status = 404, body = "{}" }, { status = 200, body = "<html>oops</html>" },
+                                 { status = 500, body = "" } }) do
+            local env = setup()
+            env.serveIssue("2026-11-13", 1, { 41 })
+            servePhotos(env, { 41 }, photo)
+            local r = env.sync()
+            eq(r.kind, "ok"); eq(r.outcome, "new_issue")
+            falsy(env.fs.isFile(ROOT .. "/2026-11-13/41.jpg"))
+            eq(env.fs.files[ROOT .. "/2026-11-13/41.html"], "<html><title>Story 41</title></html>")
+        end
+    end)
+
+    it("a photo cut off by the network fails the download, to try again later", function()
+        local env = setup()
+        env.serveIssue("2026-11-13", 1, { 41, 42 })
+        servePhotos(env, { 42 }, "down")
+        local r = env.sync()
+        eq(r.kind, "network")
+        falsy(env.fs.isDir(ROOT .. "/2026-11-13"))
+        servePhotos(env, { 42 })
+        r = env.sync()
+        eq(r.kind, "ok")
+        truthy(env.fs.isFile(ROOT .. "/2026-11-13/42.jpg"))
+    end)
+
+    it("a story a parent adds or unhides gets its photo; hiding one deletes it", function()
+        local env = setup()
+        env.serveIssue("2026-11-13", 1, { 41 })
+        env.sync()
+        env.serveIssue("2026-11-13", 1, { 41, 42 })
+        servePhotos(env, { 41, 42 })
+        local r = env.sync()
+        eq(r.added, 1)
+        truthy(env.fs.isFile(ROOT .. "/2026-11-13/42.jpg"))
+        eq(env.fs.files[ROOT .. "/2026-11-13/42.html"], '<html><img src="42.jpg"></html>')
+        -- A story he already has is not fetched again for its photo.
+        falsy(env.fs.isFile(ROOT .. "/2026-11-13/41.jpg"))
+        env.serveIssue("2026-11-13", 1, { 41 }, { 42 })
+        env.sync()
+        falsy(env.fs.isFile(ROOT .. "/2026-11-13/42.jpg"))
+        falsy(env.fs.isFile(ROOT .. "/2026-11-13/42.html"))
+        env.serveIssue("2026-11-13", 1, { 41, 42 })
+        servePhotos(env, { 42 })
+        env.sync()
+        truthy(env.fs.isFile(ROOT .. "/2026-11-13/42.jpg"))
+    end)
+
+    it("adds ?photo=1 to a path, or &photo=1 to one with a query", function()
+        eq(Syncer.photoPagePath("/issues/2026-11-13/v1/1.html"), "/issues/2026-11-13/v1/1.html?photo=1")
+        eq(Syncer.photoPagePath("/issues/x.html?a=b"), "/issues/x.html?a=b&photo=1")
+    end)
+end)
+
 describe("back-issue catch-up", function()
     local DAY = 86400
 

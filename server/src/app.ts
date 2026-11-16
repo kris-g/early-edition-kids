@@ -43,6 +43,7 @@ import {
   type GenerateResult,
 } from "./pipeline.js";
 import { CONTENT_TYPES, type ImageFetcher } from "./images.js";
+import { ensureKindlePhoto, kindleImageField } from "./kindlephoto.js";
 import { readerRouter, readerSettings } from "./reader.js";
 import { generateAll, resolveProfileLayout, type Profile } from "./profiles.js";
 import { markKindleSeen } from "./kindleseen.js";
@@ -209,9 +210,32 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
       position,
     ]);
     if (!row) throw new HttpError(404, "not found");
+    // ?photo=1: the Kindle has the story's photo (its kindle_image, saved as <story id>.jpg beside
+    // this page) and wants the page that shows it. A story without a photo gets the plain page.
+    if (req.query.photo === "1" && kindleImageField(row)) {
+      const photo = { src: `${Number(row.id)}.jpg`, alt: row.image_alt ?? null };
+      res.set("Content-Type", "text/html; charset=utf-8").send(renderStory(row, ctx.config.readingWpm, photo));
+      return;
+    }
     const file = storyFile(ctx.settings, date, version, position);
     const html = existsSync(file) ? readFileSync(file, "utf8") : renderStory(row, ctx.config.readingWpm);
     res.set("Content-Type", "text/html; charset=utf-8").send(html);
+  });
+
+  // The Kindle's copy of a story photo (CONTRACT.md "Story photos"), made on first request.
+  app.get(/^\/issues\/(\d{4}-\d{2}-\d{2})\/v(\d+)\/(\d+)\.kindle\.jpg$/, async (req, res) => {
+    const params = req.params as unknown as Record<string, string>;
+    const [date, version, position] = [params[0], Number(params[1]), Number(params[2])];
+    const row = ctx.db.queryOne("SELECT * FROM stories WHERE issue_date = ? AND issue_version = ? AND position = ?", [
+      date,
+      version,
+      position,
+    ]);
+    const bytes = row ? await ensureKindlePhoto(ctx.settings, row) : null;
+    if (!bytes) throw new HttpError(404, "not found");
+    res
+      .set({ "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=604800", "X-Content-Type-Options": "nosniff" })
+      .send(bytes);
   });
 
   // Story photos (CONTRACT.md "Story photos"), beside the story HTML. Served for hidden stories too.
@@ -360,6 +384,8 @@ export function issuePayload(ctx: Context, date: string) {
       word_to_know: parseWordToKnow(r.word_to_know),
       // The source article's photo for the iPad reader, {path, alt} relative to the mount, or null.
       image: storyImageField(r),
+      // The Kindle's copy of that photo, {path}, or null (CONTRACT.md "Story photos").
+      kindle_image: kindleImageField(r),
     });
   }
   // Edition number: distinct issue dates up to and including this one (one row per date), so it

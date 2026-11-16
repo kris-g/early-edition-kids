@@ -13,11 +13,20 @@ h1 { font-size: 1.6em; line-height: 1.2; font-weight: bold; margin: 0 0 0.6em 0;
 .box p { margin: 0; }
 .box .label { font-size: 0.8em; font-weight: bold; letter-spacing: 0.12em; margin: 0 0 0.3em 0; }
 .source { font-family: sans-serif; font-size: 0.7em; margin: 1.5em 0 0 0; }
+{%- if photo %}
+/* The Kindle's photo (CONTRACT "Story photos"): the full text width, kept with its credit. */
+.photo { margin: 0 0 0.8em 0; page-break-inside: avoid; page-break-after: avoid; }
+.photo img { display: block; width: 100%; height: auto; }
+.photo .credit { font-family: sans-serif; font-size: 0.6em; margin: 0.3em 0 0 0; }
+{%- endif %}
 </style>
 </head>
 <body>
 <p class="kicker">{{ topic | upper }} · {{ minutes }} MINUTE READ</p>
 <h1>{{ title }}</h1>
+{%- if photo %}
+<div class="photo"><img src="{{ photo.src }}" alt="{{ photo.alt or '' }}"><p class="credit">Photo: {{ source_name }}</p></div>
+{%- endif %}
 {{ body_html }}
 {%- if word_to_know %}
 <div class="box">

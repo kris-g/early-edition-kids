@@ -7,6 +7,8 @@ Layout under `root` (= <KOReader data dir>/earlyeditionkids):
     <date>/<story id>.html one file per story (named by id, not position, so a
                            regenerated issue never reuses a path and never
                            inherits a stale KOReader sidecar)
+    <date>/<story id>.jpg  its photo, when it has one (CONTRACT "Story photos");
+                           the page names it, so they sit side by side
     .tmp-<date>-v<n>/      download in progress; swapped in when complete
 
 Per-story local state (opened, read, hidden) lives in the store, not here.
@@ -46,6 +48,10 @@ end
 
 function Issues:storyFile(date, id)
     return self:dir(date) .. "/" .. Store.idKey(id) .. ".html"
+end
+
+function Issues:photoFile(date, id)
+    return self:dir(date) .. "/" .. Store.idKey(id) .. ".jpg"
 end
 
 function Issues:tmpDir(date, version)
@@ -188,6 +194,8 @@ end
 function Issues:removeStoryFile(date, id, protect_path)
     local path = self:storyFile(date, id)
     if path == protect_path then return false end
+    local photo = self:photoFile(date, id)
+    if self.fs.isFile(photo) then self.fs.removeFile(photo) end
     if self.fs.isFile(path) then
         self.on_delete_file(path)
         self.fs.removeFile(path)
