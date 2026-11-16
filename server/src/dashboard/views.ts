@@ -133,6 +133,7 @@ export function runView(r: Row): RunView {
 export function topicView(t: TopicStat): TopicView {
   return {
     name: t.name,
+    description: t.description,
     base_weight: t.baseWeight,
     effective_weight: t.weight,
     mode: t.mode === "pin" || t.mode === "block" ? t.mode : null,

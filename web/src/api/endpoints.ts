@@ -2,6 +2,7 @@
 import { API_ROOT, get, post, request } from './client'
 import type { AddWhen, AiPage, GenerateResult, Summary, TopicMode } from './routes'
 import type {
+  AboutView,
   AiSettingsPatch,
   ArticleHit,
   CalendarView,
@@ -23,6 +24,8 @@ const enc = encodeURIComponent
 export const api = {
   /** Every child, whichever is shown; always at the root. */
   profiles: (signal?: AbortSignal) => request<ProfilesView>('GET', `${API_ROOT}/profiles`, { signal, absolute: true }),
+  /** The server itself (version, where it runs, uptime); always at the root, the same for every child. */
+  about: (signal?: AbortSignal) => request<AboutView>('GET', `${API_ROOT}/about`, { signal, absolute: true }),
 
   summary: (signal?: AbortSignal) => get<Summary>('/summary', signal),
   issues: (limit = 30, signal?: AbortSignal) => get<IssueSummary[]>(`/issues?limit=${limit}`, signal),

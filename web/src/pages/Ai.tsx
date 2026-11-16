@@ -608,6 +608,7 @@ function Providers({ data }: { data: AiPage }) {
           {
             id: 'anthropic',
             name: providerName(data.settings.provider),
+            description: '',
             configured: data.settings.provider !== 'stub',
             last_used: data.provider_last_used,
           },
@@ -621,6 +622,7 @@ function Providers({ data }: { data: AiPage }) {
         >
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="text-[15px] font-bold">{p.name}</span>
+            {p.description && <span className="text-[13px] text-muted">{p.description}</span>}
             <span className="text-xs text-muted">
               {p.configured
                 ? `Connected${p.last_used ? ` · last used ${timeOf(p.last_used)}` : ''}`

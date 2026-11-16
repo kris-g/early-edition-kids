@@ -14,6 +14,11 @@ export const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 export const DEFAULT_ANTHROPIC_MODEL = "claude-opus-5-5";
 
 export const PROVIDER_NAMES: Record<ProviderId, string> = { anthropic: "Anthropic", openrouter: "OpenRouter" };
+/** One line for a parent on what each provider is, shown under its name on the dashboard. */
+export const PROVIDER_DESCRIPTIONS: Record<ProviderId, string> = {
+  anthropic: "Claude models, with your Anthropic key",
+  openrouter: "Many models with one key",
+};
 
 /** Models offered for Anthropic, with a plain note for a parent. Ids are bare here; offered namespaced. */
 export const ANTHROPIC_MODELS: { id: string; name: string; note: string }[] = [

@@ -214,8 +214,8 @@ describe("settings with two providers", () => {
     expect(r.body.error).toContain("OpenRouter isn't set up");
     const ai = (await t.agent.get("/api/dashboard/ai")).body;
     expect(ai.providers).toEqual([
-      { id: "anthropic", name: "Anthropic", configured: true, last_used: null },
-      { id: "openrouter", name: "OpenRouter", configured: false, last_used: null },
+      { id: "anthropic", name: "Anthropic", description: "Claude models, with your Anthropic key", configured: true, last_used: null },
+      { id: "openrouter", name: "OpenRouter", description: "Many models with one key", configured: false, last_used: null },
     ]);
     expect(ai.models.every((m: any) => m.provider === "anthropic")).toBe(true);
     t.cleanup();

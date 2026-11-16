@@ -8,7 +8,7 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - Timezone for "today" and the schedule: `Europe/London`.
 - Daily run: either a Kubernetes CronJob calls `POST /admin/generate`, or env `GENERATE_AT` (`HH:MM`, London time) makes the server run it itself, at that time or at start when later. Both are safe together: runs are serialised and a date that already has a paper returns `exists`.
 - Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`. With several profiles, see "Profiles" for where the others live.
-- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes}`), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), and optionally `profiles` (see "Profiles").
+- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes, description}`; `notes` go to the AI that picks the stories, the optional `description` is one short line for a parent on the dashboard and is never sent to the AI), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), and optionally `profiles` (see "Profiles").
 - Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `EARLY_EDITION_KIDS_READER_DIR` (where the built iPad reader is), `KINDLE_BASE_URL` (see "iPad reader"), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
 - Stub LLM: when `LLM_BASE_URL` is `stub`, the server uses canned responses and needs no key or network for the LLM (feeds may still be fetched; tests use fixture feeds).
 
@@ -177,7 +177,8 @@ type IssueView = { date: string; version: number; fallback: boolean; created_at:
                    downloaded_by: { device: string; version: number; received_at: string }[];
                    read_count: number; stories: StoryCard[] };   // includes hidden ones, flagged
 type IssueSummary = { date: string; version: number; fallback: boolean; story_count: number; read_count: number };
-type TopicView = { name: string; base_weight: number; effective_weight: number; mode: "pin" | "block" | null;
+type TopicView = { name: string; description: string | null;      // the config's `description`, never its `notes`
+                   base_weight: number; effective_weight: number; mode: "pin" | "block" | null;
                    shown: number; opened: number; engaged: number; open_rate: number; engagement_rate: number };
 type ArticleHit = { url: string; source_name: string; title: string; summary: string;
                     published_at: string | null; already_used: boolean };
@@ -188,7 +189,7 @@ type RunView = { started_at: string; finished_at: string | null; date: string; s
 
 ### Routes (all under `/api/dashboard`, or `/api/dashboard/p/<id>` for a profile)
 
-`GET /api/dashboard/profiles` (`ProfilesView`, see "Profiles") is only at the root. Every route below is per profile.
+`GET /api/dashboard/profiles` (`ProfilesView`, see "Profiles") and `GET /api/dashboard/about` (`AboutView`, see "About this server") are only at the root. Every route below is per profile.
 
 | Method and path | Returns |
 |---|---|
@@ -199,8 +200,8 @@ type RunView = { started_at: string; finished_at: string | null; date: string; s
 | `GET /stories/:id/image` | the story's photo (as the iPad shows it), or 404 |
 | `POST /stories/:id/hide`, `POST /stories/:id/unhide` | `StoryCard` |
 | `POST /regenerate` `{confirm: true}` | the `/admin/generate?force=true` result; 409 `{error}` without `confirm` when a device has already downloaded today's issue |
-| `GET /topics` | `TopicView[]` |
-| `POST /topics/:name` `{mode: "pin" \| "block" \| null}` | `TopicView` |
+| `GET /topics` | `TopicView[]`, in config order |
+| `POST /topics/:name` `{mode: "pin" \| "block" \| null}` | `TopicView`. `block` keeps the topic out of the paper, `pin` asks for a story from it whenever there is a suitable one, `null` clears either. The Topics page shows `block` as a switch turned off ("5 of 6 on" counts the topics that are not blocked) and `pin` as a separate toggle; a topic has one mode, so turning it off unpins it. |
 | `GET /articles/search?q=` | `ArticleHit[]` (max 30). Empty `q` returns the newest 30. |
 | `POST /articles/add` `{url, when: "today" \| "tomorrow"}` | 202 `Job` (rewriting takes tens of seconds) |
 | `GET /jobs/:id` | `Job`; the web app polls every 2 seconds until it is not `pending` |
@@ -279,8 +280,22 @@ Both providers can be configured at once, and the writer and the checker can eac
 - **Keys.** `LLM_API_KEY` stays the Anthropic key. `OPENROUTER_API_KEY` (its own Secret, `early-edition-kids-openrouter-key`, read as optional) enables OpenRouter at `https://openrouter.ai/api/v1`. A provider without a key shows `configured: false` and its models can't be chosen.
 - **Model ids are namespaced:** `anthropic:claude-opus-5-5`, `openrouter:anthropic/claude-opus-5.5`. Stored settings and `PUT /ai` use these. A bare id (old setting or env) means `anthropic:` when `LLM_PROVIDER` is `anthropic`.
 - **OpenRouter models** come from config `openrouter_models: [{id, name, note, input_per_mtok, output_per_mtok}]`. Defaults: `anthropic/claude-opus-5.5` (Claude Opus 5.5 via OpenRouter, 4 / 20), `anthropic/claude-sonnet-5.5` (2 / 10), `moonshotai/kimi-k3.1-pro` (Kimi K3.1 Pro, 2 / 10), `x-ai/grok-4.7` (Grok 4.7, 2 / 6), `z-ai/glm-5.3` (GLM 5.3, 0.08 / 3.60), `deepseek/deepseek-v4-pro-0813` (DeepSeek V4 Pro, 0.11 / 4.44). Only models OpenRouter lists with structured-output support belong here (so not `z-ai/glm-5.3-prime`). Requests use the OpenAI-compatible chat API with `response_format` JSON schema (strict), `reasoning: {effort}` and `usage: {include: true}`; the recorded cost is OpenRouter's reported `usage.cost` when present, else the price table.
-- **Shapes:** `ModelOption` gains `provider: "anthropic" | "openrouter"` and its `id` is namespaced. `AiView.models` lists the models of every configured provider. `AiView` gains `providers: { id: "anthropic" | "openrouter"; name: string; configured: boolean; last_used: string | null }[]`. `AiSettings.provider` now reports the writer model's provider. `RunCost.models` holds namespaced ids.
+- **Shapes:** `ModelOption` gains `provider: "anthropic" | "openrouter"` and its `id` is namespaced. `AiView.models` lists the models of every configured provider. `AiView` gains `providers: { id: "anthropic" | "openrouter"; name: string; description: string; configured: boolean; last_used: string | null }[]`; `name` is "Anthropic" or "OpenRouter", and `description` (added 16 November 2026) is one line for a parent: "Claude models, with your Anthropic key" and "Many models with one key". `AiSettings.provider` now reports the writer model's provider. `RunCost.models` holds namespaced ids.
 - **No automatic failover** between providers yet: a call that fails on its provider fails as before (the run uses reserves or the catch-up issue).
+
+### About this server (added 16 November 2026)
+
+`GET /api/dashboard/about` describes the server process itself, so it is only at the root (never under `/p/<id>`) and is the same whichever child is shown. Like every dashboard route it is on the dashboard port only and, with the built-in sign-in, needs a session. It is sent with `Cache-Control: no-store`.
+
+```ts
+type AboutView = { version: string;                            // from server/package.json, e.g. "0.2.0"
+                   arch: string;                               // Node's process.arch: "arm64", "x64", ...
+                   platform: string;                           // Node's process.platform: "linux", "darwin", ...
+                   container: "kubernetes" | "docker" | null;  // KUBERNETES_SERVICE_HOST is set; else /.dockerenv exists; else null
+                   uptime_seconds: number };                   // whole seconds since the process started
+```
+
+The Devices page shows it as "About this server": Version, Runs on (the container and `arch`, such as "Docker, arm64"; the operating system instead when `container` is null, such as "macOS, arm64") and Running for.
 
 ### Share cards (added 14 November 2026)
 

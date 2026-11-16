@@ -85,6 +85,8 @@ export type TopicMode = "pin" | "block" | null;
 
 export type TopicView = {
   name: string;
+  /** One short line for a parent (config `description`), or null. Not the topic's `notes`, which are for the AI. */
+  description: string | null;
   base_weight: number;
   effective_weight: number;
   mode: TopicMode;
@@ -137,6 +139,20 @@ export type ProfilesView = {
   kindle_base_url: string;
   /** True when KINDLE_BASE_URL is unset and the address was worked out from this request's host name. */
   kindle_base_url_derived: boolean;
+};
+
+/** GET /api/dashboard/about (CONTRACT.md "About this server"): the server itself, the same for every profile. */
+export type AboutView = {
+  /** The server's version, from its package.json. */
+  version: string;
+  /** Node's process.arch, e.g. "arm64" or "x64". */
+  arch: string;
+  /** Node's process.platform, e.g. "linux" or "darwin". */
+  platform: string;
+  /** What it runs in, when that can be told: Kubernetes, a plain Docker container, or neither (null). */
+  container: "kubernetes" | "docker" | null;
+  /** Whole seconds since the server process started. */
+  uptime_seconds: number;
 };
 
 export type GenerateResponse = {
@@ -253,7 +269,14 @@ export type AiView = {
   settings: AiSettings;
   /** Models of every configured provider; empty for openai/stub. */
   models: ModelOption[];
-  providers: { id: ProviderId; name: string; configured: boolean; last_used: string | null }[];
+  providers: {
+    id: ProviderId;
+    name: string;
+    /** One line for a parent on what the provider is. */
+    description: string;
+    configured: boolean;
+    last_used: string | null;
+  }[];
   last_run: RunCost | null;
   month: {
     month: string;

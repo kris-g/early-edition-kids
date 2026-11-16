@@ -81,8 +81,8 @@ export function aiPage(): AiPage {
       { id: 'anthropic:claude-haiku-5-5', provider: 'anthropic', name: 'Claude Haiku 5.5', note: 'Cheapest.', input_per_mtok: 0.1, output_per_mtok: 0.5, est_day_writer_usd: 0.01, est_day_checker_usd: 0.003 },
     ],
     providers: [
-      { id: 'anthropic', name: 'Anthropic API', configured: true, last_used: '2026-11-13T05:31:00Z' },
-      { id: 'openrouter', name: 'OpenRouter', configured: false, last_used: null },
+      { id: 'anthropic', name: 'Anthropic', description: 'Claude models, with your Anthropic key', configured: true, last_used: '2026-11-13T05:31:00Z' },
+      { id: 'openrouter', name: 'OpenRouter', description: 'Many models with one key', configured: false, last_used: null },
     ],
     last_run: {
       run_id: 1, date: '2026-11-13', started_at: '2026-11-13T05:31:00Z', seconds: 61, status: 'ok', calls: 15,

@@ -21,10 +21,11 @@ import {
   type Settings,
 } from "./config.js";
 import { migrateStoredModelIds } from "./aisettings.js";
+import { aboutView } from "./dashboard/about.js";
 import { dashboardApi } from "./dashboard/api.js";
 import { Jobs } from "./dashboard/jobs.js";
 import { DashboardLogin } from "./dashboard/login.js";
-import type { ProfilesView } from "./dashboard/types.js";
+import type { AboutView, ProfilesView } from "./dashboard/types.js";
 import { webApp } from "./dashboard/static.js";
 import { HttpError, safeEqual } from "./http.js";
 import { Database, utcnowIso } from "./db.js";
@@ -329,6 +330,11 @@ function dashboardRoutes(
       login: login !== null,
       ...kindleBase(req, settings),
     };
+    res.set("Cache-Control", "no-store").json(body);
+  });
+  // The server itself, not a child's paper, so only here and never under /p/<id>.
+  app.get("/api/dashboard/about", (_req, res) => {
+    const body: AboutView = aboutView();
     res.set("Cache-Control", "no-store").json(body);
   });
   for (const p of profiles) app.use(`/api/dashboard/p/${p.id}`, dashboardApi({ ctx: p.ctx, clock, jobs: p.jobs }));

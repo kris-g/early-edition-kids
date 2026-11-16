@@ -201,3 +201,32 @@ export function Segment({ pressed, className, ...props }: ComponentProps<'button
     />
   )
 }
+
+/** An on/off switch with no text of its own; `label` names it for screen readers. */
+export function Switch({
+  checked,
+  label,
+  className,
+  ...props
+}: Omit<ComponentProps<'button'>, 'children' | 'role'> & { checked: boolean; label: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      {...props}
+      className={cx(
+        'flex min-h-11 shrink-0 items-center rounded-[13px] transition disabled:cursor-not-allowed disabled:opacity-60',
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cx('flex h-[26px] w-11 rounded-[13px] p-[3px] transition-colors', checked ? 'justify-end bg-accent' : 'justify-start bg-muted')}
+      >
+        <span className="size-5 rounded-full bg-card" />
+      </span>
+    </button>
+  )
+}

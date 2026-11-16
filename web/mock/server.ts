@@ -14,7 +14,7 @@
 // Env: PORT (8090), MOCK_DELAY ms (250), MOCK_JOB_MS (4000).
 import { randomUUID } from 'node:crypto'
 import express, { type NextFunction, type Request, type Response } from 'express'
-import type { Job } from '../src/api/types.ts'
+import type { AboutView, Job } from '../src/api/types.ts'
 import {
   ARCHIVE,
   TEMPLATES,
@@ -117,6 +117,19 @@ app.get('/api/dashboard/profiles', (_req, res) => {
     kindle_base_url: 'http://192.168.1.50:8080',
     kindle_base_url_derived: false,
   })
+})
+
+// The server itself, the same for every child. Made up, but shaped like a Raspberry Pi in Docker.
+const STARTED = Date.now() - (3 * 86400 + 4 * 3600 + 12 * 60) * 1000
+app.get('/api/dashboard/about', (_req, res) => {
+  const body: AboutView = {
+    version: '0.2.0',
+    arch: 'arm64',
+    platform: 'linux',
+    container: 'docker',
+    uptime_seconds: Math.floor((Date.now() - STARTED) / 1000),
+  }
+  res.json(body)
 })
 
 // After the latency above, so the handlers below (all synchronous until they
