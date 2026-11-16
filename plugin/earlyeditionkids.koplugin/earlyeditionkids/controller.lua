@@ -107,7 +107,7 @@ end
 function Controller:setup(plugin_path)
     if self.ready then return true end
     local ok, err = pcall(function()
-        -- Absolute, so Font:getFace treats the bundled font as a path (font.lua).
+        -- Absolute, so the bundled font can be named from KOReader's fonts folder (widgets.lua).
         self.plugin_path = ffiutil.realpath(plugin_path) or plugin_path
         self.config = loadConfig(plugin_path)
         local root = DataStorage:getFullDataDir() .. "/" .. Const.DATA_SUBDIR
@@ -551,11 +551,14 @@ function Controller:configureWidgets()
     local W = require("earlyeditionkids/ui/widgets")
     local cache = DataStorage:getDataDir() .. "/cache/earlyeditionkids-icons"
     util.makePath(cache)
+    local ok, FontList = pcall(require, "fontlist")
+    local font_dir = ok and FontList.fontdir and ffiutil.realpath(FontList.fontdir) or nil
     W.configure{
         plugin_path = self.plugin_path,
         cache_dir = cache,
         readFile = self.fs.readFile,
         writeFile = self.fs.writeFile,
+        font_dir = font_dir,
     }
     self.widgets_ready = true
 end

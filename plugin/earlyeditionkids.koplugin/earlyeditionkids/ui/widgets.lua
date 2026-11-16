@@ -24,7 +24,7 @@ HorizontalGroup (align top/center/bottom), VerticalGroup, OverlapGroup
 (max_width), TextBoxWidget (width, alignment, bgcolor: it paints its own
 background), ImageWidget (file = SVG -> RenderImage:renderSVGImageFile with
 NanoSVG; alpha = true keeps it transparent), InputContainer with ges_events
-and GestureRange (range may be a function), Font:getFace (accepts an
+and GestureRange (range may be a function), Font:getFace (newer versions accept an
 absolute font path, font.lua), Blitbuffer.Color8.
 ]]
 
@@ -70,20 +70,36 @@ W.SERIF = "NotoSerif-Regular.ttf"
 W.SERIF_BOLD = "NotoSerif-Bold.ttf"
 W.SANS = "NotoSans-Regular.ttf"
 W.SANS_BOLD = "NotoSans-Bold.ttf"
-W.DISPLAY = nil -- absolute path to Playfair Display Black, set by W.configure
+W.DISPLAY = nil -- Playfair Display Black, as a path from KOReader's fonts folder (W.configure)
+W.DISPLAY_ABS = nil -- the same font by its absolute path
 
 W.icon_dir = nil
 W.cache_dir = nil
 W.writeFile = nil
 
+--[[--
+A font file's name as Font:getFace wants it. KOReader before v2026.07.2
+always opens FontList.fontdir .. "/" .. name, so an absolute path fails there
+(the Kindle's masthead fell back to Noto Serif). From the fonts folder's real
+path, climb to the root and come back down: "../../../../mnt/us/...". Newer
+KOReader joins a name like this to the fonts folder too, so it works on both.
+]]
+function W.fontPathFrom(font_dir, file)
+    if type(font_dir) ~= "string" or font_dir:sub(1, 1) ~= "/" or file:sub(1, 1) ~= "/" then return file end
+    local up = 0
+    for _ in font_dir:gmatch("[^/]+") do up = up + 1 end
+    return string.rep("../", up) .. file:sub(2)
+end
+
 --- Called once by the controller: plugin folder (absolute), a cache folder
--- for recoloured icons, and a file writer.
+-- for recoloured icons, a file writer, and KOReader's fonts folder (absolute).
 function W.configure(opts)
     W.icon_dir = opts.plugin_path .. "/icons"
     W.cache_dir = opts.cache_dir
     W.writeFile = opts.writeFile
     W.readFile = opts.readFile
-    W.DISPLAY = opts.plugin_path .. "/fonts/PlayfairDisplay-Black.ttf"
+    W.DISPLAY_ABS = opts.plugin_path .. "/fonts/PlayfairDisplay-Black.ttf"
+    W.DISPLAY = W.fontPathFrom(opts.font_dir, W.DISPLAY_ABS)
 end
 
 -- Mockup pixels -> device pixels (exact on the 1072 px wide PW3).
@@ -102,7 +118,10 @@ function W.face(file, n)
     if face_cache[k] then return face_cache[k] end
     local size = math.max(6, math.floor(n * MOCKUP_TO_SCALE + 0.5))
     local face = Font:getFace(file, size)
-    if not face and file == W.DISPLAY then face = Font:getFace(W.SERIF_BOLD, size) end
+    if not face and file == W.DISPLAY then
+        if W.DISPLAY_ABS ~= W.DISPLAY then face = Font:getFace(W.DISPLAY_ABS, size) end
+        if not face then face = Font:getFace(W.SERIF_BOLD, size) end
+    end
     if not face then
         face = Font:getFace(file:find("Bold") and "smallinfofontbold" or "smallinfofont", size)
     end
