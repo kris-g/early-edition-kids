@@ -35,6 +35,7 @@ More in the docs: [the Kindle screens](docs/kindle.md), [reading on an iPad](doc
 | `reader/` | The child's iPad reader: a home-screen web app served on the Kindle port at `/read/`. |
 | `plugin/` | `earlyeditionkids.koplugin`, the KOReader plugin for the Kindle. |
 | `deploy/` | Example Kubernetes manifests (`deploy/k8s/`) and a local multi-arch build script. |
+| `site/` | The promo site: plain HTML, published to GitHub Pages by `.github/workflows/site.yml`. |
 | `.github/workflows/image.yml` | Builds the multi-arch image and publishes it to `ghcr.io/kris-g/early-edition-kids`. |
 | `.gitlab-ci.yml` | The same build for the author's private GitLab mirror. |
 | `docs/` | Tours with screenshots, architecture diagrams and the model comparison. Start at [`docs/README.md`](docs/README.md). |

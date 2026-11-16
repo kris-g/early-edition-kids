@@ -19,3 +19,4 @@ reader/coverage
 **/*.log
 reports
 docs
+site

@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="sharp" data-ground="sage" data-buttons="tonal" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Early Edition Kids: a daily newspaper for one child, made at home</title>
+<meta name="description" content="A small server on your own computer picks six real news stories each morning, rewrites them for your child's reading age and sends them to a Kindle or an iPad.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Early Edition Kids: a daily newspaper for one child">
+<meta property="og:description" content="Six real news stories each morning, rewritten for your child's reading age, on a Kindle or an iPad. Free, open source and run from home.">
+<meta property="og:image" content="share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#fafaf7">
+<!-- <link rel="canonical" href="https://kris-g.github.io/early-edition-kids/"> -->
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<!-- Urbanist and DM Mono, the dealt pairing, served from this folder: the page calls no third party -->
+<link rel="preload" href="fonts/urbanist-400-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<link rel="stylesheet" href="assets/icons/icon.css">
+<style>
+:root {
+  --p-bg: #fafaf7; --p-surface: #f1efe8; --p-ink: #121212; --p-muted: #5f5e5a;
+  --p-accent: #0b6b53; --p-accent-ink: #fafaf7; --p-action: #0b6b53; --p-action-ink: #fafaf7;
+  --p-inv-bg: #121212; --p-inv-surface: #1f1f1f; --p-inv-ink: #fafaf7; --p-inv-muted: #989896;
+  --p-inv-accent: #fafaf7; --p-inv-accent-ink: #121212; --p-inv-action: #fafaf7; --p-inv-action-ink: #121212;
+  --font-display: "Urbanist", system-ui, sans-serif;
+  --font-text: "Urbanist", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.03em;
+  --display-tracking-xl: -0.04em;
+}
+</style>
+<link rel="stylesheet" href="assets/ui/base.css">
+<link rel="stylesheet" href="assets/diagrams/diagram.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="assets/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/iris-opens/moment.js">
+<link rel="modulepreload" href="assets/moments/letters-assemble/moment.js">
+<!-- page CSS: only what sits inside a visual, and one --p-h per card group -->
+<style>
+  /* the logo: the app's own sun mark */
+  .nav__logo .sun, .footer .sun { width: 34px; height: 20px; flex: none; }
+
+  /* the hero's film: the poster keeps the iPad clear of the words; once it plays, the words step aside and the
+     whole 16:9 picture shows */
+  .hero__media > picture > img { object-position: 30% 50%; }
+  @media (min-width: 1024px) and (max-width: 1279px) { .hero__media > picture > img { object-position: 46% 50%; } }
+  @media (min-width: 640px) and (max-width: 1023px) { .hero__media > picture > img { object-position: 78% 50%; } }
+  @media (max-width: 639px) { .hero__media > picture > img { object-position: 50% 0%; } }
+  .hero--film .hero__media { --p-inv-bg: var(--p-bg); --p-inv-surface: var(--p-surface); --p-inv-ink: var(--p-ink); --p-inv-muted: var(--p-muted); --p-inv-action: var(--p-action); --p-inv-action-ink: var(--p-action-ink); }
+  .hero__media > video { object-fit: contain; background: #000; }
+  .hero__media:has(> video) > .hero__over { visibility: hidden; }
+
+  /* the reading devices, holding the app's own screens */
+  .device { box-sizing: border-box; width: var(--dw, 360px); padding: 10px; border-radius: 26px; background: #17171a; box-shadow: 0 24px 48px -28px rgb(18 18 18 / .45); }
+  .device > img { display: block; width: 100%; height: auto; border-radius: 17px; }
+  .device--kindle { padding: 16px 16px 46px; border-radius: 16px; background: #26262a; }
+  .device--kindle > img { border-radius: 3px; }
+  .shot { box-sizing: border-box; width: var(--dw, 320px); border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent); box-shadow: 0 18px 36px -24px rgb(18 18 18 / .4); }
+  .shot > img { display: block; width: 100%; height: auto; }
+
+  #paper .device { --dw: min(62%, 390px); }
+  #paper .shot { --dw: 300px; }
+  @media (min-width: 1024px) { #paper .frame, #topics .frame { --ratio: 94%; } }
+  @media (max-width: 1023px) { #paper .shot { display: none; } }
+  /* a tablet: each split fits its one screen, the three step panels share their two */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    #paper .frame, #topics .frame { --ratio: 56%; }
+    #questions .rows { display: none; }
+    #setup .panel { --p-h: calc((200svh - 800px) / 3); }
+  }
+  /* a phone: one screen each, the list left to the wider screens */
+  @media (max-width: 639px) {
+    #paper .rows, #topics .rows, #making .steps-row { display: none; }
+    #paper .frame, #topics .frame { --ratio: 84%; }
+    #paper .device { --dw: 94%; }
+  }
+  #motto .mo-la__sub { color: var(--ink); }
+  #motto .masthead { display: block; margin-top: var(--s-6); width: 100%; }
+  @media (min-width: 1024px) { #motto .masthead { width: calc((100% - 264px) / 2 + 120px); } #motto .mo-la__type { font-size: min(9.4vw, 160px); } }
+  /* a small laptop sets the step cards two-up, then one: two screens there */
+  @media (min-width: 1024px) and (max-width: 1279px) { #setup { --h: 2; } }
+  #motto .masthead > img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--r-md); }
+  @media (max-width: 639px) { #kindle .at-right { display: none; } #kindle .device--kindle { --dw: 62%; } }
+
+  /* the dashboard: one real screenshot that takes what the screen leaves under the heading, its top left kept */
+  #dashboard .dash { --dw: 100%; margin-top: var(--s-7); }
+  #dashboard .dash img { height: 100%; object-fit: cover; object-position: left top; }
+  @media (max-width: 1023px) { #dashboard .dash { flex: none; } #dashboard .dash img { height: auto; } }
+  /* a phone shows the dashboard as it is on a phone, in the same frame as the Topics page */
+  @media (max-width: 639px) { #dashboard .dash { --dw: min(100%, 300px); margin-inline: auto; padding: 8px; border: 0; border-radius: 30px; background: #17171a; } #dashboard .dash img { border-radius: 23px; } }
+  .device--phone { padding: 8px; border-radius: 30px; }
+  #topics .device { --dw: min(66%, 390px); }
+  @media (max-width: 639px) { #topics .device { --dw: 62%; --ax-sm: 19%; } }
+  .device--phone > img { border-radius: 23px; }
+
+  #making .frame { --ratio: 25%; padding: 0; }
+  /* the diagram is held still: nothing on this page starts because it scrolled into view, the two moments aside */
+  #making .dg, #making .dg * { transition: none !important; animation: none !important; }
+  @media (max-width: 1023px) { #making .frame { --ratio: 46%; } }
+  @media (max-width: 639px) { #making .frame { --ratio: 88%; } }
+  /* a tablet stacks the three step cards: two screens there */
+  @media (min-width: 640px) and (max-width: 1023px) { #setup { --h: 2; } }
+
+  #devices .panel { --p-h: 452px; }
+  #devices .device--kindle { --dw: 37%; }
+  #devices .device--ipad { --dw: min(58%, 380px); }
+  #setup .panel { --p-h: 380px; }
+  #setup .shot { --dw: 520px; }
+  @media (max-width: 639px) { #devices .panel { --p-h: 260px; } #setup .panel { --p-h: 280px; } #questions .faq > .faq__item { padding-block: var(--s-6); } .hero--film .hero__over h1 { font-size: 35px; } #setup .shot { --dw: 440px; } }
+</style>
+</head>
+<body>
+<!-- type: software (site-kind software): a daily newspaper app for children, run on the family's own server
+     deal: hero film, nav nav-centre, close close-type, footer footer-statement, rhythm surface-pairs (dashboard and making),
+           buttons tonal, mark the app's own sun logo (dealt: dots), ground sage, radius sharp
+     palette: the app's own colours (start.mjs brand): newsprint paper #fafaf7, ink #121212, the dashboard's green #0b6b53
+     type: Urbanist + DM Mono (the first pairing dealt)
+     effect: the hero's film (the promo cut, played in its frame on a click)
+     moments: iris-opens (#dashboard, where the page moves from the child's paper to the parent's desk on a new ground),
+              letters-assemble (#motto, the masthead's own line built letter by letter); dealt again after marquee-row and
+              counter-rolls, whose clipped strips fail the checker's cut-text at every width -->
+
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <a class="nav__logo" href="#top"><svg class="sun" viewBox="0 0 44 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 23a10 10 0 0 1 20 0z" fill="#ffd21f"/><path d="M2 23h40M22 2v5M8.5 8.5l3.5 3.5M35.500 8.500l-3.500 3.500"/></svg>Early Edition Kids</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item">
+        <a class="nav__link" href="#paper">Paper <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-3">
+              <p class="t-label">For your child</p>
+              <a href="#kindle">On a Kindle<span>E-ink, through KOReader</span></a>
+              <a href="#ipad">On an iPad<span>A home-screen app</span></a>
+              <a href="#topics">Topics<span>Tuned to one child</span></a>
+            </div>
+            <div class="menu-col span-3">
+              <p class="t-label">For you</p>
+              <a href="#making">How it is made<span>Feeds, a writer, a checker</span></a>
+            </div>
+            <a class="menu-card span-3 start-10" href="#devices">
+              <div class="panel"><img class="frame__img" src="img/kindle-menu.webp" alt="The paper's front page on a Kindle screen" loading="lazy" data-source="client" data-subject="Kindle front page"></div>
+              <span class="t-card">Kindle and iPad</span>
+              <span class="t-small muted">One paper, two ways to read it</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="nav__item"><a class="nav__link" href="#dashboard">Dashboard</a></div>
+      <div class="nav__item"><a class="nav__link" href="#devices">Devices</a></div>
+      <div class="nav__item"><a class="nav__link" href="#questions">Questions</a></div>
+      <div class="nav__item"><a class="nav__link" href="#setup">Setup</a></div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="https://github.com/kris-g/early-edition-kids">Get it on GitHub</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO (film): the promo cut's own frame as the poster; the film plays in the frame on a click -->
+  <section class="hero hero--film" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text hero__in">
+      <div class="hero__media hero__fill">
+        <picture>
+          <source media="(max-width: 639px)" srcset="media/poster-phone.jpg">
+          <img src="media/poster.jpg" alt="An iPad showing the Early Edition front page: a masthead, a stadium photograph and six headlines" fetchpriority="high" data-source="client" data-subject="the paper's front page on an iPad">
+        </picture>
+        <div class="hero__over">
+          <div>
+            <h1 id="hero-h">A daily newspaper for your child</h1>
+            <p class="hero__lead">Every morning a small server at home picks six real news stories, rewrites each for your child&rsquo;s reading age and has them waiting on a Kindle or an iPad.</p>
+            <div class="btn-row"><a class="btn btn--primary" href="https://github.com/kris-g/early-edition-kids">Get it on GitHub</a><a class="btn btn--secondary" href="#paper">See the paper</a></div>
+          </div>
+          <button class="ly-play" type="button" data-film="media/early-edition-on-ipad.mp4">
+            <span class="ly-play__disc"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4.5 2.6v12.8c0 .8.9 1.3 1.6.9l10.3-6.4c.6-.4.6-1.3 0-1.7L6.1 1.7c-.7-.4-1.6.1-1.6.9Z" fill="currentColor"/></svg></span>
+            <span class="ly-play__label">Play the film<small>The paper on an iPad, 0:32</small></span>
+          </button>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- PAPER (split-text-left): what the child reads; the front page on the iPad, the stamp over its edge -->
+  <section class="section" id="paper" aria-labelledby="paper-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <div class="span-5 stack-5">
+          <h2 id="paper-h">Six stories, then the paper ends</h2>
+          <p class="t-lead">Each story takes a minute or two and ends with a Word to know, a Think about it question and its source. The paper has no feed, no adverts and no links out.</p>
+          <ul class="rows">
+            <li><span class="rows__name">About 12 minutes for the whole paper</span></li>
+            <li><span class="rows__name">A stamp for every story finished</span></li>
+            <li><span class="rows__name">The last seven papers kept as back issues</span></li>
+          </ul>
+          <p><a class="link" href="#devices">See it on both devices</a></p>
+        </div>
+        <div class="frame frame--split span-6 start-7">
+          <div class="stage stage--fade-b">
+            <div class="at-rise device" style="--w: min(62%, 390px); --ay: 44px; --ay-sm: 16px"><img src="img/ipad-front.webp" srcset="img/ipad-front-520.webp 520w, img/ipad-front.webp 984w" sizes="(max-width: 639px) 300px, 390px" width="984" height="1416" alt="The front page: the lead story with its photograph, five more headlines, Back issues and My week" data-source="client" data-subject="the reader's front page"></div>
+            <div class="at-over shot" style="--dw: 280px; --bx: calc(50% - 180px); --by: 40px"><img src="img/stamp.webp" width="1100" height="300" alt="Story finished: a yellow Read stamp and one of six stories marked" loading="lazy" data-source="client" data-subject="the story-finished stamp"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD: a real screenshot of the dashboard's story page, a number check open -->
+  <section class="section ground-surface" id="dashboard" aria-labelledby="dashboard-h" data-moment="iris-opens" data-moment-opts='{"from": "base"}'>
+    <div class="wrap">
+      <div class="grid grid--top">
+        <h2 class="span-5" id="dashboard-h">Today&rsquo;s paper on the parent dashboard</h2>
+        <div class="span-6 start-7 stack-4"><p>See which stories were read and for how long. Hide one before breakfast, add an article by pasting its link, and read what the checker found in each.</p><p><a class="link" href="https://github.com/kris-g/early-edition-kids/blob/master/docs/dashboard.md">See every dashboard page</a></p></div>
+      </div>
+      <div class="shot dash fill">
+        <picture>
+          <source media="(max-width: 639px)" srcset="img/dashboard-story-phone.webp" width="600" height="1299">
+          <img src="img/dashboard-story.webp" srcset="img/dashboard-story-1200.webp 1200w, img/dashboard-story.webp 2400w" sizes="(max-width: 1440px) 100vw, 1376px" width="2400" height="1175" alt="The dashboard on a laptop: today&rsquo;s stories with what was read, beside the open beaver story, where the number 400 is marked and its note says it matches the source article" loading="lazy" data-source="client" data-subject="the parent dashboard&rsquo;s story page">
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAKING (chapter): feeds into the server and out to the devices; the figures row closes it (moment: counter-rolls) -->
+  <section class="section ground-surface" id="making" aria-labelledby="making-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <h2 class="span-5" id="making-h">How the server makes each paper</h2>
+        <p class="span-6 start-7">At 05:30 the server reads the news feeds you chose, picks about six stories and rewrites each one. A second AI call then checks every story against its source before the paper goes out.</p>
+      </div>
+      <div class="frame" style="margin-top: var(--s-7)">
+        <div class="dg" data-diagram data-dg-still><script type="application/json">{"layout":"bowtie","motion":{"pulse":"none"},"alt":"News feeds from BBC Newsround, BBC Sport and Science News Explores go into the Early Edition server, which sends the finished paper to the Kindle, the iPad and the parent dashboard.","sources":[{"label":"BBC Newsround","icon":"ui:rss","sub":"Children's news"},{"label":"BBC Sport","icon":"ui:rss","sub":"Football"},{"label":"Science News Explores","icon":"ui:rss","sub":"Science"}],"core":{"label":"Early Edition server","icon":"ui:newspaper"},"targets":[{"label":"Kindle","icon":"ui:book-open","sub":"KOReader plugin"},{"label":"iPad","icon":"ui:tablet","sub":"Home-screen app"},{"label":"Dashboard","icon":"ui:smartphone","sub":"Your phone"}]}</script></div>
+      </div>
+      <div class="grid steps-row" style="margin-top: var(--s-7)">
+        <div class="span-3"><p class="t-card">Picks</p><p>Six stories and a reserve, weighted by topic.</p></div>
+        <div class="span-3"><p class="t-card">Rewrites</p><p>To the length you set, with a Word to know.</p></div>
+        <div class="span-3"><p class="t-card">Checks</p><p>Is it safe, and does the source support it?</p></div>
+        <div class="span-3"><p class="t-card">Delivers</p><p>To the Kindle, the iPad and your dashboard.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVICES (two open tiles): the Kindle's own screens, the iPad mid page-turn -->
+  <section class="section" id="devices" aria-labelledby="devices-h" style="--h: 1; --hm: 2">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="devices-h">One paper on a Kindle or an iPad</h2>
+      </div>
+      <div class="grid">
+        <article class="card card--row card--open span-6 m-nolift" id="kindle">
+          <h3>Reads like paper on a Kindle</h3>
+          <p>A KOReader plugin fetches the paper when the Kindle wakes. The screen is e-ink and the device holds nothing else to open.</p>
+          <div class="panel">
+            <div class="stage stage--fade-b">
+              <div class="at-corner device device--kindle" style="--ax: 9%; --ay: 40px"><img src="img/kindle-front-page.webp" width="666" height="900" alt="The Kindle front page: today's paper, the first story, back issues and the word of the day" loading="lazy" data-source="client" data-subject="Kindle front page"></div>
+              <div class="at-right device device--kindle" style="--ax: 9%; --ay: 72px"><img src="img/kindle-todays-paper.webp" width="666" height="900" alt="The Kindle headline list: six stories, each with its topic and reading time" loading="lazy" data-source="client" data-subject="Kindle headline list"></div>
+            </div>
+          </div>
+        </article>
+        <article class="card card--row card--open span-6 m-nolift" id="ipad">
+          <h3>Turns pages like a book on an iPad</h3>
+          <p>A home-screen web app with the stories&rsquo; photographs and colour. It opens full screen from its own icon.</p>
+          <div class="panel">
+            <div class="stage stage--fade-b">
+              <div class="at-rise device device--ipad" style="--w: min(58%, 380px); --ay: 40px"><img src="img/ipad-curl.webp" srcset="img/ipad-curl-520.webp 520w, img/ipad-curl.webp 984w" sizes="(max-width: 639px) 200px, 380px" width="984" height="1416" alt="A story on the iPad with its page curling over to the next one" data-source="client" data-subject="the reader mid page-turn"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTTO (statement; moment: letters-assemble): the line under the paper's own masthead -->
+  <section class="section" id="motto" data-moment="letters-assemble" data-moment-opts='{"spread": 0.8}'>
+    <div class="wrap">
+      <h2 class="mo-la__type">The news, written for you</h2>
+      <p class="mo-la__sub">That line sits under the masthead of every paper. Real stories from real sources, rewritten and checked for one reader, on a device with nothing else to pull them away.</p>
+      <picture class="masthead">
+        <source media="(max-width: 639px)" srcset="img/masthead-phone.webp" width="684" height="221">
+        <img src="img/masthead.webp" width="1476" height="360" alt="The paper's masthead: a rising sun over Early Edition, and under it the line The news, written for you" loading="lazy" data-source="client" data-subject="the paper's masthead">
+      </picture>
+    </div>
+  </section>
+
+  <!-- TOPICS (split): the settings a parent changes; the topics row closes it (moment: marquee-row) -->
+  <section class="section" id="topics" aria-labelledby="topics-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <div class="span-5 stack-5">
+          <h2 id="topics-h">A paper tuned to one child</h2>
+          <p class="t-lead">Set the age, the story length and a favourite team, then pin or block topics. Each child in the house gets their own paper and dashboard.</p>
+          <ul class="rows">
+            <li><span class="rows__name">Football, science, space, animals, games, weather</span></li>
+            <li><span class="rows__name">Any article added by pasting its link</span></li>
+            <li><span class="rows__name">A choice of AI models, from Claude Opus down</span></li>
+          </ul>
+          <p><a class="link" href="https://github.com/kris-g/early-edition-kids/blob/master/docs/settings.md">Read the settings guide</a></p>
+        </div>
+        <div class="frame frame--split span-6 start-7">
+          <div class="stage stage--fade-b">
+            <div class="at-rise device device--phone" style="--w: min(66%, 390px); --ay: 44px; --ay-sm: 16px"><img src="img/topics-phone.webp" srcset="img/topics-phone-520.webp 520w, img/topics-phone.webp 780w" sizes="(max-width: 639px) 240px, 390px" width="780" height="1688" alt="The dashboard&rsquo;s Topics page on a phone: Football pinned, the other topics with a Pin button and an on switch" loading="lazy" data-source="client" data-subject="the dashboard&rsquo;s Topics page"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTIONS (faq): every answer open -->
+  <section class="section" id="questions" aria-labelledby="questions-h" style="--h: 1; --hm: 2">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <div class="span-5 stack-5">
+          <h2 id="questions-h">Questions</h2>
+          <p>You need three things before you give it an evening.</p>
+          <ul class="rows">
+            <li><span class="rows__name">A computer that stays on, with Docker</span></li>
+            <li><span class="rows__name">An Anthropic or OpenRouter API key</span></li>
+            <li><span class="rows__name">A jailbroken Kindle, or an iPad on your Wi-Fi</span></li>
+          </ul>
+          <p><a class="link" href="https://github.com/kris-g/early-edition-kids#getting-started">Read the full setup guide</a></p>
+        </div>
+        <div class="faq span-6 start-7">
+          <div class="faq__item"><h3>What does the paper cost?</h3><p>The software is free under the MIT licence. With Claude Opus writing and checking, a paper costs about $0.35, so about $10 a month. Cheaper models can be chosen on the dashboard.</p></div>
+          <div class="faq__item"><h3>Why must the Kindle stay in KOReader?</h3><p>KOReader only runs plugins while it is open, so the Kindle fetches the paper when it wakes there. Left on the stock Kindle screen overnight, it fetches nothing.</p></div>
+          <div class="faq__item"><h3>Where does the reading history go?</h3><p>It stays on your server, in one Docker volume. The AI model you choose is sent the news articles and the paper&rsquo;s settings, such as the age and the topics.</p></div>
+          <div class="faq__item"><h3>Does the paper work outside the UK?</h3><p>It suits a UK reader best. The paper runs on London time and the built-in feeds are British; you can change the feeds in the config file.</p></div>
+          <div class="faq__item"><h3>Is it a finished product?</h3><p>It runs every morning for one family, and most of the code was written with AI under one person&rsquo;s direction. Read the code before you rely on it.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- SETUP (steps): three real steps, each with what it needs -->
+  <section class="section" id="setup" aria-labelledby="setup-h" style="--hm: 2">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="setup-h">Set up Early Edition in 3 steps</h2>
+      </div>
+      <div class="grid">
+        <article class="card card--row card--open span-4 m-nolift">
+          <span class="step-num">1</span>
+          <h3>Run the paper&rsquo;s server</h3>
+          <p>One Docker command on a computer that stays on: a home server, a NAS or a Raspberry Pi 4 or 5.</p>
+          <div class="panel">
+            <div class="stage stage--fade-b">
+              <div class="at-rise shot" style="--dw: min(332px, calc(100% - 48px)); --ax: max(24px, calc(50% - 166px)); --ay: 40px; --ay-sm: 24px"><img src="img/about-server.webp" width="664" height="296" alt="The dashboard&rsquo;s About this server card: version 0.2.0, runs on Docker, arm64, running for 3 days 4 hours" loading="lazy" data-source="client" data-subject="the dashboard&rsquo;s About this server card"></div>
+            </div>
+          </div>
+        </article>
+        <article class="card card--row card--open span-4 m-nolift">
+          <span class="step-num">2</span>
+          <h3>Add the Kindle or the iPad</h3>
+          <p>Copy the plugin into KOReader, or scan the dashboard&rsquo;s QR code with the iPad&rsquo;s camera.</p>
+          <div class="panel">
+            <div class="stage stage--fade-r">
+              <div class="at-corner shot" style="--ax: 24px; --ay: 32px"><img src="img/devices-card.webp" width="1050" height="434" alt="The dashboard's Read on an iPad card: a QR code, the reader's address and three steps" loading="lazy" data-source="client" data-subject="the dashboard's Devices page"></div>
+            </div>
+          </div>
+        </article>
+        <article class="card card--row card--open span-4 m-nolift">
+          <span class="step-num">3</span>
+          <h3>Open the dashboard</h3>
+          <p>Pick the age, the topics and the AI model that writes. The first paper is made straight away.</p>
+          <div class="panel">
+            <div class="stage stage--fade-b">
+              <div class="at-rise shot" style="--dw: min(332px, calc(100% - 48px)); --ax: max(24px, calc(50% - 166px)); --ay: 40px; --ay-sm: 24px"><img src="img/providers.webp" width="664" height="496" alt="The dashboard&rsquo;s Providers card: Anthropic and OpenRouter, both connected" loading="lazy" data-source="client" data-subject="the dashboard&rsquo;s Providers card"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer closing footer--statement g2m" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--type">
+      <div class="section-head">
+        <h2 id="close-h">Run tomorrow&rsquo;s paper at home</h2>
+        <p>Free and open source under the MIT licence.</p>
+      </div>
+      <a class="btn btn--primary btn--xl btn--wide" href="https://github.com/kris-g/early-edition-kids">Get it on GitHub<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="#top"><svg class="sun" viewBox="0 0 44 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 23a10 10 0 0 1 20 0z" fill="#ffd21f"/><path d="M2 23h40M22 2v5M8.5 8.5l3.5 3.5M35.500 8.500l-3.500 3.500"/></svg>Early Edition Kids</a>
+          <p class="footer__lede">A daily newspaper for one child, made on your own server.</p>
+        </div>
+        <div class="span-2 footer__col"><h3>Reading</h3><ul><li><a href="#paper">Paper</a></li><li><a href="#devices">Devices</a></li><li><a href="#topics">Topics</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Parents</h3><ul><li><a href="#dashboard">Dashboard</a></li><li><a href="#making">How it is made</a></li><li><a href="#questions">Questions</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Running it</h3><ul><li><a href="#setup">Setup</a></li><li><a href="https://github.com/kris-g/early-edition-kids/blob/master/deploy/README.md">Kubernetes guide</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Project</h3><ul><li><a href="https://github.com/kris-g/early-edition-kids/releases/latest">Latest release</a></li><li><a href="https://github.com/kris-g/early-edition-kids/tree/master/docs">Documentation</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 Early Edition Kids &nbsp; Product names and logos are trademarks of their owners</span>
+        <div class="socials"></div>
+        <a class="credits" href="credits.html">Photographs via Wikimedia Commons</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<nav class="actionbar" aria-label="Quick actions">
+  <a class="btn btn--primary" href="https://github.com/kris-g/early-edition-kids">Get it on GitHub</a>
+</nav>
+
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+<script type="module" src="assets/diagrams/mount.js"></script>
+</body>
+</html>
