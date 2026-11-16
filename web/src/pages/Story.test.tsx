@@ -125,7 +125,7 @@ describe('Story, the paper view on a wide screen', () => {
     const today = await within(list).findByRole('region', { name: 'Today' })
     const yesterday = await within(list).findByRole('region', { name: 'Yesterday' })
     expect(today.compareDocumentPosition(yesterday) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(within(today).getByText('1 of 1 read')).toBeInTheDocument() // the hidden one is not counted
+    expect(await within(today).findByText('1 of 1 read')).toBeInTheDocument() // the hidden one is not counted
 
     // In paper order, each with its topic, title, status, reading time and a Hidden badge.
     const rows = await within(today).findAllByRole('link')
