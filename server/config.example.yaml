@@ -17,30 +17,39 @@ story_words:
 topics:
   - name: Liverpool FC
     base_weight: 3
+    description: "Liverpool's matches, goals and players."
     notes: "The reader's team. Aim for one Liverpool story a day when there is a suitable one: results, goals, players, the next match. Stay on the football: no transfer gossip, contract rows or refereeing arguments. A manager change is fine as plain news."
   - name: England
     base_weight: 3
+    description: "The England men's team: matches, the squad and records."
     notes: "England men's national team: matches, goals, records, the squad and the manager. Men's football only."
   - name: Football
     base_weight: 3
+    description: "Club football beyond Liverpool, and the favourite players."
     notes: "Club football other than Liverpool (England has its own topic). After Liverpool, the clubs the reader cares about are the rivals Arsenal, Manchester United, Manchester City, Real Madrid and Barcelona: prefer their stories over other clubs (including when they lose or change manager), but never above a suitable Liverpool story. Favour stories about the favourite players."
   - name: Science
     base_weight: 3
+    description: "Discoveries, experiments and how things work."
     notes: ""
   - name: Space
     base_weight: 2
+    description: "Rockets, planets and the night sky."
     notes: ""
   - name: Animals and nature
     base_weight: 2
+    description: "Wildlife, pets and the natural world."
     notes: ""
   - name: Games and tech
     base_weight: 1
+    description: "Video games, gadgets and robots."
     notes: ""
   - name: Weather
     base_weight: 1
+    description: "Snow, storms and other big UK weather."
     notes: UK weather only when notable (snow, storms, eclipses).
   - name: Weird but true
     base_weight: 1
+    description: "Odd stories that really happened."
     notes: One a day at most.
 
 favourite_players:

@@ -1,7 +1,7 @@
 /** Reading stats, calendar, run costs and the AI view (CONTRACT.md "Dashboard v2"). */
 
 import { effectiveAiSettings } from "../aisettings.js";
-import { PROVIDER_NAMES, catalog, configured, type ProviderId } from "../providers.js";
+import { PROVIDER_DESCRIPTIONS, PROVIDER_NAMES, catalog, configured, type ProviderId } from "../providers.js";
 import { loadsJson, type Row } from "../db.js";
 import { injected, type Context } from "../pipeline.js";
 import { LONDON, addDays, londonDate } from "../timeutil.js";
@@ -307,6 +307,7 @@ function providerList(ctx: Context): AiView["providers"] {
   return (["anthropic", "openrouter"] as ProviderId[]).map((id) => ({
     id,
     name: PROVIDER_NAMES[id],
+    description: PROVIDER_DESCRIPTIONS[id],
     configured: on[id],
     last_used: (ctx.db.queryOne("SELECT MAX(at) AS t FROM llm_calls WHERE provider = ?", [id])?.t as string | null) ?? null,
   }));

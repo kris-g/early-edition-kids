@@ -36,7 +36,8 @@ Which model writes and which checks, what each costs, and how the month's spend 
 
 ## Pages without a screenshot here
 
-- **Topics:** pin or block a topic.
+- **Topics:** turn a topic on or off, or pin it so the paper has a story from it whenever there is a suitable one. Details shows how much of each topic gets read.
+- **Devices:** the addresses and steps for putting the paper on a Kindle or an iPad, and the server's version, what it runs on and how long it has been running.
 - **Share:** six picture cards (streak, today, his week, milestone, words learned, ask me about) to send to family. They are drawn in the browser; [CONTRACT.md](CONTRACT.md#share-cards-added-14-november-2026) has the rules.
 
 ## Remaking the screenshots

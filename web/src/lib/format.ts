@@ -1,4 +1,4 @@
-import type { StoryStats } from '../api/types'
+import type { AboutView, StoryStats } from '../api/types'
 
 const TZ = 'Europe/London'
 
@@ -65,6 +65,33 @@ export function duration(totalSeconds: number): string {
   if (m === 0) return `${r} s`
   if (r === 0) return `${m} min`
   return `${m} min ${String(r).padStart(2, "0")} s`
+}
+
+/** How long something has been running, in its two biggest units: "3 days 4 hours", "2 hours 5 minutes", "40 seconds". */
+export function uptime(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds))
+  const units: [number, string][] = [
+    [Math.floor(s / 86400), 'day'],
+    [Math.floor((s % 86400) / 3600), 'hour'],
+    [Math.floor((s % 3600) / 60), 'minute'],
+    [s % 60, 'second'],
+  ]
+  const first = units.findIndex(([n]) => n > 0)
+  if (first === -1) return 'Less than a second'
+  return units
+    .slice(first, first + 2)
+    .filter(([n]) => n > 0)
+    .map(([n, unit]) => plural(n, unit))
+    .join(' ')
+}
+
+const CONTAINER: Record<NonNullable<AboutView['container']>, string> = { kubernetes: 'Kubernetes', docker: 'Docker' }
+const PLATFORM: Record<string, string> = { linux: 'Linux', darwin: 'macOS', win32: 'Windows' }
+
+/** "Docker, arm64" in a container, else the operating system: "macOS, arm64". */
+export function runsOn(about: Pick<AboutView, 'container' | 'platform' | 'arch'>): string {
+  const where = about.container ? CONTAINER[about.container] : (PLATFORM[about.platform] ?? about.platform)
+  return `${where}, ${about.arch}`
 }
 
 export function percent(rate: number): string {

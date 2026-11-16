@@ -2,14 +2,15 @@
 // so screenshots and tests look the same every run.
 import type { ArticleHit, IssueView, RunView, StoryCard, StoryChecks, StoryDetail, TopicView } from '../src/api/types.ts'
 
-export const TOPICS: { name: string; base_weight: number }[] = [
-  { name: 'Football', base_weight: 3 },
-  { name: 'Science', base_weight: 3 },
-  { name: 'Space', base_weight: 2 },
-  { name: 'Animals and nature', base_weight: 2 },
-  { name: 'Games and tech', base_weight: 1 },
-  { name: 'Weather', base_weight: 1 },
-  { name: 'Weird but true', base_weight: 1 },
+// `description` is the config's optional line for a parent; one topic has none, as a config may leave it out.
+export const TOPICS: { name: string; base_weight: number; description: string | null }[] = [
+  { name: 'Football', base_weight: 3, description: 'Matches, goals and the favourite players.' },
+  { name: 'Science', base_weight: 3, description: 'Discoveries, experiments and how things work.' },
+  { name: 'Space', base_weight: 2, description: 'Rockets, planets and the night sky.' },
+  { name: 'Animals and nature', base_weight: 2, description: 'Wildlife, pets and the natural world.' },
+  { name: 'Games and tech', base_weight: 1, description: 'Video games, gadgets and robots.' },
+  { name: 'Weather', base_weight: 1, description: 'Snow, storms and other big UK weather.' },
+  { name: 'Weird but true', base_weight: 1, description: null },
 ]
 
 export type Template = {
@@ -431,7 +432,7 @@ export function seedData(opts: { noIssueToday: boolean; shift?: number }) {
 
 export function topicViews(): TopicView[] {
   const since = addDays(londonToday(), -13)
-  return TOPICS.map(({ name, base_weight }) => {
+  return TOPICS.map(({ name, base_weight, description }) => {
     let shown = 0
     let opened = 0
     let engaged = 0
@@ -449,6 +450,7 @@ export function topicViews(): TopicView[] {
     const maths = base_weight * (0.5 + engagement_rate)
     return {
       name,
+      description,
       base_weight,
       effective_weight: Math.round((mode === 'block' ? 0 : mode === 'pin' ? Math.max(maths, base_weight * 1.5) : maths) * 10) / 10,
       mode,

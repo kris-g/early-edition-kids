@@ -67,7 +67,8 @@ theme switch).
   next month, a day's stories and "Open this day's paper", and the month's totals.
 - **AI**: last run, who writes (models grouped by provider), who checks and how hard, a live estimate and
   "Use from tomorrow's paper" (sends only what changed), the monthly limit, cost this month and per day,
-  where a day's money goes, tokens, quality, and one row per provider. API keys stay on the server.
+  where a day's money goes, tokens, quality, and one row per provider with a line on what it is. API keys stay
+  on the server.
 - **Share** (sidebar, or More on a phone): six picture cards (Streak, Today, The week, Milestone, Words learned,
   Ask me about) in a row you swipe through, with dots and arrows; a name for the cards (kept on this device only)
   and a colour (Paper, Green, Night); Share… (the phone's share sheet), Copy image and Save image. Cards are drawn on
@@ -82,16 +83,20 @@ theme switch).
 - **Find articles**: search the feed archive or paste a link; add to today or for tomorrow. Each add is
   rewritten and checked by the server; the page polls the job every 2 seconds and shows the new story or
   the reasons it was refused. Polling carries on while you move between pages.
-- **Topics**: base and effective weight, shown, opened and engaged counts, and None, Pin or Block.
+- **Topics**: each topic with its description, an on/off switch (off is the API's `block`) and a Pin toggle, and
+  "5 of 6 on" in the header. Details opens a row's base and effective weight and its shown, opened and engaged
+  counts.
 - **Devices**: the child's Kindle server address and the plugin's install steps, and the iPad reader's address
-  with a QR code. Today and the Overview point here until a Kindle or an iPad has asked for a paper.
+  with a QR code, then "About this server": its version, what it runs on and how long it has been running
+  (`GET /api/dashboard/about`, the same for every child). Today and the Overview point here until a Kindle or an
+  iPad has asked for a paper.
 - **Back issues**, **Recent runs** and **More** (links, home-screen help, and "Signed in through Authelia" or, with the server's own sign-in, "Sign out").
 
 ## Develop with the mock API
 
 `mock/server.ts` is a small Express server that implements every dashboard route on one port (8090) with
 fake data: 120 days of issues (6 stories a day, with a few missed days so streaks break), reading stats,
-calendar months, topics, search hits, AI models from two providers (Anthropic and OpenRouter) with
+calendar months, topics, search hits, the AI models the server offers by default from two providers (Anthropic and OpenRouter) with
 estimates, a month of costs, `PUT /ai` that validates like the contract and keeps changes in memory, add
 jobs that finish after 4 seconds, and one article that fails the checks ("Storm Bert", or any pasted URL
 containing `fail`).
