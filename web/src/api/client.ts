@@ -20,6 +20,11 @@ export function setApiRoot(root: string): void {
   apiRoot = root
 }
 
+/** The current child's API root, for addresses the browser loads itself (a story's photo). */
+export function currentApiRoot(): string {
+  return apiRoot
+}
+
 export const SIGNED_OUT_MESSAGE = 'You’re signed out. Reload to sign in again.'
 
 export class ApiError extends Error {

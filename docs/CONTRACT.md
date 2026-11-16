@@ -8,8 +8,8 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - Timezone for "today" and the schedule: `Europe/London`.
 - Daily run: either a Kubernetes CronJob calls `POST /admin/generate`, or env `GENERATE_AT` (`HH:MM`, London time) makes the server run it itself, at that time or at start when later. Both are safe together: runs are serialised and a date that already has a paper returns `exists`.
 - Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`. With several profiles, see "Profiles" for where the others live.
-- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes}`), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), and optionally `profiles` (see "Profiles").
-- Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
+- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes}`), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), and optionally `profiles` (see "Profiles").
+- Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `EARLY_EDITION_KIDS_READER_DIR` (where the built iPad reader is), `KINDLE_BASE_URL` (see "iPad reader"), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
 - Stub LLM: when `LLM_BASE_URL` is `stub`, the server uses canned responses and needs no key or network for the LLM (feeds may still be fetched; tests use fixture feeds).
 
 ## Profiles (added 15 November 2026)
@@ -18,7 +18,7 @@ One server can make a paper for more than one child. Each profile is a full copy
 
 - **Config.** An optional top-level `profiles:` list. Each entry has a required `id` (lowercase letters, digits and hyphens, unique; never a name: use something like `older` / `younger`) and may override any other top-level key. The merge is shallow: a profile's key replaces the top-level one, and a list replaces the list rather than adding to it. Each merged profile is validated like a whole config. `llm_prices` and `openrouter_models` are global; setting them in a profile is an error. No `profiles:` key means one implicit profile, `default`, exactly as before.
 - **Data.** The root location (`$DATA/early-edition-kids.db` and `$DATA/issues/`) belongs to one profile id. The first time the config has a `profiles:` list, the server records the first listed id as its owner in `$DATA/profiles.json` (`{"root": "older"}`); without a list nothing is written and `default` owns it. Every other profile keeps its data in `$DATA/profiles/<id>/` (the same two names inside). Data is found by id, never by position, so adding, removing or reordering profiles never gives one child's data to another. If the recorded owner is not in the config, the server logs a warning and leaves the root data unused (nothing is served at `/`) until a profile with that id is back. A single-child setup is never migrated or moved.
-- **Kindle port.** Every profile's Kindle routes are mounted at `/p/<id>/` (`/p/<id>/api/issue/today`, `/p/<id>/issues/...`, `/p/<id>/api/events`), and the root owner's are also at `/`, so an existing Kindle keeps working unchanged. An unknown id is a 404. A second child's Kindle uses `http://<server>:8080/p/<id>` as its server address; story `path`s stay relative to the mount (no `/p/<id>`), and the plugin joins them to the address.
+- **Kindle port.** Every profile's Kindle routes are mounted at `/p/<id>/` (`/p/<id>/api/issue/today`, `/p/<id>/issues/...`, `/p/<id>/api/events`, and the iPad reader at `/p/<id>/read/` with `/p/<id>/api/reader`), and the root owner's are also at `/`, so an existing Kindle keeps working unchanged. An unknown id is a 404. A second child's Kindle uses `http://<server>:8080/p/<id>` as its server address; story `path`s stay relative to the mount (no `/p/<id>`), and the plugin joins them to the address.
 - **Dashboard port.** The dashboard API is at `/api/dashboard/p/<id>/...` for every profile, and also at `/api/dashboard/...` for the root owner. `GET /api/dashboard/profiles` returns `ProfilesView` (below). The web app keeps today's URLs with one profile; with several (or when no profile owns the root data) its pages are under `/dashboard/p/<id>/`, `/dashboard/` opens the child used last on that device (or the first), and a switcher in the header shows the profile id.
 - **Generation.** `POST /admin/generate` and `GENERATE_AT` run every profile in turn; one lock shared by all profiles means two papers are never made at once (see "Admin and parent").
 - **Scripts.** `reset-reading.ts`, `rewrite-issues.ts` and `import-comparison.ts` take `--profile <id>` (default: the root owner). `src/backup.ts` copies every profile's database.
@@ -26,7 +26,9 @@ One server can make a paper for more than one child. Each profile is a full copy
 ```ts
 type ProfilesView = { profiles: { id: string; title: string }[];   // config order
                       root: string | null;                          // the profile also served at /api/dashboard, or null
-                      login: boolean };                             // the built-in sign-in is on
+                      login: boolean;                               // the built-in sign-in is on
+                      kindle_base_url: string;                      // see "iPad reader"
+                      kindle_base_url_derived: boolean };
 ```
 
 ## Topics (exact strings)
@@ -51,7 +53,8 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
     {"id": 41, "position": 1, "topic": "Football", "title": "Harry Kane wins the Ballon d'Or",
      "teaser": "The first English winner for 25 years.", "minutes": 2,
      "path": "/issues/2026-11-13/v1/1.html",
-     "word_to_know": {"word": "ceremony", "definition": "a special event held to celebrate something."}}
+     "word_to_know": {"word": "ceremony", "definition": "a special event held to celebrate something."},
+     "image": {"path": "/issues/2026-11-13/v1/1.jpg", "alt": "Harry Kane holds the trophy"}}
   ],
   "hidden": [43],
   "reading_since": "2026-11-14",
@@ -68,6 +71,7 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
 - `number` is the edition number: how many distinct issue dates exist up to and including this date (1 for the first issue ever). It does not change when a date is regenerated.
 - `created_at` is when this version was made, ISO 8601 in UTC.
 - `word_to_know` per story is `{word, definition}` or `null`, the same as the box at the end of the story page.
+- `image` per story (added 16 November 2026) is the story's photo, `{path, alt}` or `null` (see "Story photos"). `path` is server-relative like the story's `path`; `alt` is the source's description or `null`. The Kindle ignores it.
 - `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
 - `profile` is the id of the profile this paper is for (`default` without a profiles list); `profile_root` is true when that profile owns the root data. Story ids restart at 1 in each profile's database, so a client treats a change of paper as a fresh start. The paper differs when exactly one side has `profile_root`, or neither has and the ids differ. The root data stays the same paper when its owner's id changes, which happens once: from `default` to the first listed profile.
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
@@ -84,6 +88,10 @@ Reading is recorded in two places: events on the server (the dashboard and topic
 ### `GET /issues/{date}/v{version}/{position}.html`
 
 `text/html; charset=utf-8`, standalone story page (DESIGN 4.8). Served for hidden stories too (a device may already have it), but clients should not show them.
+
+### `GET /issues/{date}/v{version}/{position}.{jpg|png|webp}`
+
+The story's photo, with its type as `Content-Type`, when the issue payload names it (404 otherwise). Served for hidden stories too. See "Story photos".
 
 ### `POST /api/events`
 
@@ -126,7 +134,7 @@ The dashboard is a separate front end in `web/` (React, TypeScript, Vite, Tailwi
 
 By default the app has no login, password, session or user of its own (see "Built-in sign-in" for the optional one). Access control is Authelia on the edge, and the dashboard is only reachable through it:
 
-- **Two ports.** The server listens on `PORT` (8080) for the Kindle routes only (`/api/issue/*`, `/issues/*`, `/api/events`, each also under `/p/<id>`, plus `/admin/generate` and `/healthz`), and on `DASHBOARD_PORT` (8081) for the dashboard only (`/dashboard/*`, `/api/dashboard/*`, `/healthz`, and `/login`, `/logout` with the built-in sign-in; `GET /` redirects to `/dashboard/`). Neither port serves the other's routes (404).
+- **Two ports.** The server listens on `PORT` (8080) for the Kindle routes only (`/api/issue/*`, `/issues/*`, `/api/events`, and the iPad reader's `/read/*` and `/api/reader`, each also under `/p/<id>`, plus `/admin/generate` and `/healthz`), and on `DASHBOARD_PORT` (8081) for the dashboard only (`/dashboard/*`, `/api/dashboard/*`, `/healthz`, and `/login`, `/logout` with the built-in sign-in; `GET /` redirects to `/dashboard/`). Neither port serves the other's routes (404).
 - **Exposure.** Port 8080 is the LAN LoadBalancer the Kindle uses. Port 8081 is ClusterIP only and is reached solely through the dashboard's Ingress, on Traefik's `websecure` entrypoint, with TLS from the default TLSStore and an Authelia `forwardAuth` middleware (use a two-factor policy). Plain HTTP is redirected to HTTPS.
 - **No identity headers.** The existing middleware does not forward `Remote-User`, so the app does not know or need to know who is signed in.
 - **Session expiry.** When the Authelia session expires, an API `fetch` gets a redirect to the Authelia sign-in page instead of JSON. The web app fetches with `redirect: "manual"`; an `opaqueredirect` response (or a 401) means "signed out", and it reloads the page so the browser does the Authelia sign-in, then comes back.
@@ -155,7 +163,8 @@ type StoryCard = { id: number; date: string; version: number; position: number; 
                    stats: StoryStats };
 type StoryDetail = StoryCard & { body_html: string;              // the <body> content he sees, no <html>/<head>
                                  word_to_know: { word: string; definition: string } | null;
-                                 think_about_it: string; prev_id: number | null; next_id: number | null };
+                                 think_about_it: string; prev_id: number | null; next_id: number | null;
+                                 image: { alt: string | null } | null };   // the photo, at GET /stories/:id/image
 type IssueView = { date: string; version: number; fallback: boolean; created_at: string;
                    downloaded_by: { device: string; version: number; received_at: string }[];
                    read_count: number; stories: StoryCard[] };   // includes hidden ones, flagged
@@ -179,6 +188,7 @@ type RunView = { started_at: string; finished_at: string | null; date: string; s
 | `GET /issues?limit=30` | `IssueSummary[]`, newest first |
 | `GET /issues/:date` | `IssueView` for the latest version of that date, or 404 |
 | `GET /stories/:id` | `StoryDetail` |
+| `GET /stories/:id/image` | the story's photo (as the iPad shows it), or 404 |
 | `POST /stories/:id/hide`, `POST /stories/:id/unhide` | `StoryCard` |
 | `POST /regenerate` `{confirm: true}` | the `/admin/generate?force=true` result; 409 `{error}` without `confirm` when a device has already downloaded today's issue |
 | `GET /topics` | `TopicView[]` |
@@ -289,6 +299,28 @@ type ShareView = { today: string; streak: Streak;
 | Method and path | Returns |
 |---|---|
 | `GET /share` | `ShareView` for today |
+
+## Story photos (added 16 November 2026)
+
+The iPad reader shows each story's source photo; the Kindle shows none and its story pages are unchanged.
+
+- **Where it comes from.** When a story is made (the pipeline's extract step, a parent-added article, or a rewrite), after it passes its checks, the source article's main image is chosen: the article page's `og:image` (with `og:image:alt`), then `twitter:image`, then the feed item's own image (`media:content`, the widest `media:thumbnail`, or an image `enclosure`). The page is fetched for this only when extraction did not already fetch it.
+- **Downloaded once** to the server and stored beside the story file as `issues/<date>/v<version>/<position>.<ext>`. Only `image/jpeg`, `image/png` and `image/webp` are kept, checked by the response type and by the bytes themselves; at most 5 MB, with the same 20-second timeout as page fetches. An image whose alt text has a blocklisted word is skipped. Nothing is decoded or resized, so there are no image libraries.
+- **No photo is normal.** A missing or failed image is never an error; the story has `image: null` and every layout holds without it.
+- **Stored** in `stories.image_ext`, `image_alt` and `image_url` (migration 4). A catch-up story carries a copy of its source story's photo; a regenerated version downloads its own; a rewritten story keeps its photo unless a new one is found.
+
+## iPad reader (added 16 November 2026)
+
+A home-screen web app for the child (`reader/`, plain TypeScript and Vite), the same paper as the Kindle with photos and colour. Design: `docs/mockups/ipad-reader/`.
+
+- **Where.** Served on the Kindle port only, at `<mount>/read/` for every profile mount (`/read/` for the root owner, `/p/<id>/read/` for each profile); never on the dashboard port. One build serves every mount: its assets and API calls are relative (`../api/issue/today`, `../api/issue/<date>`, `../api/events`, `../api/reader`, and payload paths joined onto the mount). `<mount>/read` redirects to `<mount>/read/`.
+- **Home screen.** `<mount>/read/manifest.webmanifest` is written per mount: `name` and `short_name` are the profile's `title`, `start_url` and `scope` are that mount's `read/`, `display: standalone`. The page carries the title as `apple-mobile-web-app-title`, an `apple-touch-icon` (the sunrise mark), and a Content-Security-Policy that allows only the home server. Fonts (Playfair Display, Noto Serif, Noto Sans; OFL) are part of the build. There is no service worker: it would need HTTPS, and the reader runs over plain HTTP on the LAN.
+- **No way out.** No links to source sites or to the dashboard; the source is plain text.
+- **`GET <mount>/api/reader`** returns `{profile, profile_root, title, mode, age}`: `mode` is the profile's `reader_mode` (`pages` turns pages with no scrolling; `scroll` runs the paper down one long page), `age` its `child_age`, which sets the type size (6 and under, 7 to 8, 9 and over).
+- **Reading.** The reader sends the Kindle's events with the same rules: a random `device_id` kept on the iPad; `issue_downloaded` the first time it receives a date and version (today's or a back issue), `list_shown` the first time that front page is shown, `story_opened` and `story_closed` with `active_seconds` (not counting time hidden or asleep, and at most 300 seconds between interactions), `pages_total`, `max_page` and `finished`. In pages, the last page shown counts as the end, as on the Kindle. In the long paper a story counts as opened after two seconds on screen, its "pages" are screens of it, and it is finished when its end comes into view. Events queue on the iPad and go up in batches a few seconds after a story closes and when the reader comes back, with `profile` and `profile_root`; the reader deletes exactly the `accepted` ids and tries again later on a network failure. A story left open when the app was closed is closed with what was measured the next time it starts.
+- **On the iPad.** Everything is kept in `localStorage`, each key namespaced by the mount the reader was opened from (`root` or `p:<id>`), since all mounts share one origin: the last papers loaded (shown without the server), which stories were opened and read, the queue, and a reading log for My week (stories read this week, the streak, the words to know). It follows the plugin's rules for `reading_since`, for a newer version (taken only if nothing in the kept one was opened) and for a change of paper (everything of the old paper is forgotten).
+- **Checks.** Today's paper is fetched when the reader opens, with Check for news, and when it comes back to the front after 30 minutes or more (or on a new day). A 404 shows "isn't ready yet" with yesterday's paper; an unreachable server keeps showing the last paper loaded.
+- **The dashboard's card.** `ProfilesView` gains `kindle_base_url` (the Kindle port as the family's devices reach it, no trailing slash) and `kindle_base_url_derived`. It is `KINDLE_BASE_URL` when set, else `http://<this request's host name>:<PORT>` with `derived: true`. The More page shows each child's reader address (`<base>/read/` for the root owner, `<base>/p/<id>/read/` for the others) as text and a QR code, with the Kindle address beside it.
 
 ## Plugin sync rules (so the server can rely on them)
 

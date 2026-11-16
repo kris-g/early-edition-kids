@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from '../components/Icons'
+import { ReadOnIpad } from '../components/ReadOnIpad'
 import { Button, Card, PageHeader, SectionTitle } from '../components/ui'
 import { APP_NAME } from '../config'
 import { useProfiles } from '../lib/profile'
@@ -34,7 +35,9 @@ export function More() {
         ))}
       </nav>
 
-      <SectionTitle className="mt-2">Add to your home screen</SectionTitle>
+      <ReadOnIpad />
+
+      <SectionTitle className="mt-2">Add this dashboard to your home screen</SectionTitle>
       <Card className="flex flex-col gap-2 text-sm">
         <Step label="iPhone">open this page in Safari, tap Share, then Add to Home Screen.</Step>
         <Step label="Android">open it in Chrome, tap the menu, then Add to home screen or Install app.</Step>

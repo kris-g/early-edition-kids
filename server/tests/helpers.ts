@@ -7,6 +7,7 @@ import YAML from "yaml";
 import { createApp, type AppOptions, type EarlyEditionKidsApp } from "../src/app.js";
 import { makeSettings, parseConfig, type Config, type Settings } from "../src/config.js";
 import { Database } from "../src/db.js";
+import type { FetchedImage } from "../src/images.js";
 import { StubLLM } from "../src/llm.js";
 import { buildContext, type Context } from "../src/pipeline.js";
 
@@ -60,6 +61,28 @@ export async function fixturePageFetcher(url: string): Promise<string> {
   return fakeArticleHtml(url);
 }
 
+/** The default in tests: no network, so every story simply has no photo. */
+export async function noNetworkImages(url: string): Promise<FetchedImage> {
+  throw new Error(`no network in tests (${url})`);
+}
+
+/** The smallest real JPEG, PNG and WebP headers, padded: enough for the type check. */
+export const TINY_IMAGES = {
+  jpg: Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(60, 1)]),
+  png: Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(60, 2)]),
+  webp: Buffer.concat([Buffer.from("RIFF"), Buffer.from([0x40, 0, 0, 0]), Buffer.from("WEBPVP8 "), Buffer.alloc(60, 3)]),
+};
+
+/** Serves TINY_IMAGES by extension (`.jpg`, `.png`, `.webp` anywhere in the URL); anything else is a 404. */
+export function fixtureImageFetcher(calls: string[] = []) {
+  return async (url: string): Promise<FetchedImage> => {
+    calls.push(url);
+    const ext = (["jpg", "png", "webp"] as const).find((e) => url.includes(`.${e}`));
+    if (!ext) throw new Error(`HTTP 404 for ${url}`);
+    return { bytes: TINY_IMAGES[ext], contentType: { jpg: "image/jpeg", png: "image/png", webp: "image/webp" }[ext] };
+  };
+}
+
 export class Clock {
   constructor(public now: Date = NOW) {}
   fn = () => this.now;
@@ -76,6 +99,7 @@ export function testSettings(dir: string, overrides: Partial<Settings> = {}): Se
     llmBaseUrl: "stub",
     adminToken: "test-admin",
     webDir: path.join(dir, "no-web"),
+    readerDir: path.join(dir, "no-reader"),
     ...overrides,
   });
 }
@@ -103,6 +127,7 @@ export function makeApp(
     checker: opts.checker,
     feedFetcher: opts.feedFetcher ?? fixtureFeedFetcher,
     pageFetcher: opts.pageFetcher ?? fixturePageFetcher,
+    imageFetcher: opts.imageFetcher ?? noNetworkImages,
     clock: clock.fn,
   });
   return {
@@ -127,6 +152,7 @@ export function makeCtx(overrides: Partial<Context> = {}): Context & { dir: stri
     writer: new StubLLM(),
     feedFetcher: fixtureFeedFetcher,
     pageFetcher: fixturePageFetcher,
+    imageFetcher: noNetworkImages,
   });
   Object.assign(ctx, overrides);
   return Object.assign(ctx, {

@@ -5,6 +5,7 @@ import type { StoryCard } from '../api/types'
 import { ChevronLeft, ChevronRight, ExternalIcon, EyeIcon, EyeOffIcon } from '../components/Icons'
 import { BackLink } from '../components/BackLink'
 import { KindlePage } from '../components/KindlePage'
+import { StoryPhoto } from '../components/StoryPhoto'
 import { StatusPill } from '../components/StoryCardItem'
 import { Badge, Button, Card, ErrorNote, LinkButton, Loading, SectionTitle, TopicChip } from '../components/ui'
 import { ENGAGED_EXPLAINER, londonToday, longDate, statsSentence } from '../lib/format'
@@ -47,6 +48,7 @@ export function Story() {
         </span>
       </div>
 
+      {s.image && <StoryPhoto id={s.id} alt={s.image.alt} />}
       <KindlePage story={s} />
 
       <SectionTitle className="mt-7 mb-3">Reading</SectionTitle>

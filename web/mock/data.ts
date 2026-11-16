@@ -222,6 +222,7 @@ export function makeStory(
     think_about_it: t.think,
     prev_id: null,
     next_id: null,
+    image: null,
     template: typeof templateIndex === "number" ? templateIndex : -1,
     ...extra,
   }
@@ -262,6 +263,7 @@ export function toDetail(s: Stored): StoryDetail {
     think_about_it: s.think_about_it,
     prev_id: null,
     next_id: null,
+    image: null,
   }
   const rec = db.issues.get(s.date)
   if (rec && rec.version === s.version) {

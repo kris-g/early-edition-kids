@@ -183,6 +183,7 @@ describe("both providers in one run", () => {
       openrouterFetch: or.fetchImpl,
       feedFetcher: base.feedFetcher,
       pageFetcher: base.pageFetcher,
+      imageFetcher: base.imageFetcher,
     });
     updateAiSettings(settings, base.db, base.config, {
       writer_model: "openrouter:moonshotai/kimi-k3.1-pro",

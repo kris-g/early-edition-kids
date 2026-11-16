@@ -110,7 +110,13 @@ app.use('/api/dashboard', (req: Request, res: Response, next: NextFunction) => {
 })
 
 app.get('/api/dashboard/profiles', (_req, res) => {
-  res.json({ profiles: IDS.map((id, i) => ({ id, title: TITLES[i] ?? 'Early Edition' })), root: IDS[0], login: LOGIN })
+  res.json({
+    profiles: IDS.map((id, i) => ({ id, title: TITLES[i] ?? 'Early Edition' })),
+    root: IDS[0],
+    login: LOGIN,
+    kindle_base_url: 'http://192.168.1.50:8080',
+    kindle_base_url_derived: false,
+  })
 })
 
 // After the latency above, so the handlers below (all synchronous until they

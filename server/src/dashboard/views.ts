@@ -1,7 +1,7 @@
 /** Mapping database rows and reading stats to the dashboard API shapes. */
 
 import { loadsJson, type Row } from "../db.js";
-import type { Context } from "../pipeline.js";
+import { isImageExt, type Context } from "../pipeline.js";
 import { parseWordToKnow, renderStory } from "../render.js";
 import { londonDate } from "../timeutil.js";
 
@@ -66,6 +66,7 @@ export function storyDetail(ctx: Context, id: number, today: string): StoryDetai
     think_about_it: row.think_about_it ?? "",
     prev_id: idx > 0 ? Number(siblings[idx - 1].id) : null,
     next_id: idx >= 0 && idx < siblings.length - 1 ? Number(siblings[idx + 1].id) : null,
+    image: isImageExt(row.image_ext) ? { alt: row.image_alt ?? null } : null,
   };
 }
 

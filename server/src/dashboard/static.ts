@@ -41,7 +41,8 @@ export function webApp(webDir: string): Router {
       const index = path.join(dir, "index.html");
       if (!existsSync(index) || !statSync(index).isFile()) return next();
       res.setHeader("Cache-Control", "no-cache");
-      res.sendFile(index);
+      // With root, only "index.html" is checked for dotfiles, so a checkout under a dot folder still works.
+      res.sendFile("index.html", { root: dir });
     });
   });
   return router;

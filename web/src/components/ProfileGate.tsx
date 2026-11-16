@@ -11,12 +11,13 @@ import {
   resolveLocation,
   setCurrentProfile,
   splitPath,
+  type KindleBase,
   type ProfileMode,
   type ProfilesState,
 } from '../lib/profile'
 import { readText, writeText } from '../lib/storage'
 
-type Known = { profiles: ProfileInfo[]; root: string | null; login: boolean }
+type Known = { profiles: ProfileInfo[]; root: string | null; login: boolean; kindle: KindleBase | null }
 
 /** Point the API client and per-child storage at a profile. Called before it renders. */
 function activate(mode: ProfileMode): void {
@@ -46,7 +47,8 @@ export function ProfileGate({ children }: { children: (mode: ProfileMode) => Rea
     const ctrl = new AbortController()
     api.profiles(ctrl.signal).then(
       (v) => {
-        const k = { profiles: v.profiles, root: v.root, login: v.login }
+        const kindle = typeof v.kindle_base_url === 'string' && v.kindle_base_url ? { url: v.kindle_base_url, derived: v.kindle_base_url_derived === true } : null
+        const k: Known = { profiles: v.profiles, root: v.root, login: v.login, kindle }
         setKnown(k)
         settle(k)
       },
@@ -55,7 +57,9 @@ export function ProfileGate({ children }: { children: (mode: ProfileMode) => Rea
         // An older server, or offline with nothing cached: the single-child app,
         // or the child the address names.
         const id = splitPath(window.location.pathname).id
-        const k: Known = id ? { profiles: [{ id, title: id }], root: null, login: false } : { profiles: [], root: null, login: false }
+        const k: Known = id
+          ? { profiles: [{ id, title: id }], root: null, login: false, kindle: null }
+          : { profiles: [], root: null, login: false, kindle: null }
         setKnown(k)
         settle(k)
       },
@@ -81,7 +85,14 @@ export function ProfileGate({ children }: { children: (mode: ProfileMode) => Rea
   )
 
   const state = useMemo<ProfilesState>(
-    () => ({ profiles: known?.profiles ?? [], current: mode ?? SINGLE, login: known?.login ?? false, switchTo }),
+    () => ({
+      profiles: known?.profiles ?? [],
+      current: mode ?? SINGLE,
+      login: known?.login ?? false,
+      root: known?.root ?? null,
+      kindle: known?.kindle ?? null,
+      switchTo,
+    }),
     [known, mode, switchTo],
   )
 

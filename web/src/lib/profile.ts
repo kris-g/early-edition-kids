@@ -90,12 +90,34 @@ export function pathForSwitch(id: string, pathname: string): string {
   return `${DASHBOARD}/p/${id}${section}`
 }
 
+/** The Kindle port as the family's devices reach it (ProfilesView.kindle_base_url). */
+export type KindleBase = { url: string; derived: boolean }
+
 export type ProfilesState = {
   profiles: ProfileInfo[]
   current: ProfileMode
   /** The built-in sign-in is on (show "Sign out"). */
   login: boolean
+  /** The profile that owns the root data (also served at / on the Kindle port), or null. */
+  root?: string | null
+  /** Where the Kindle port is; null when the server did not say (an older server, or offline). */
+  kindle?: KindleBase | null
   switchTo: (id: string) => void
+}
+
+/**
+ * A child's addresses on the Kindle port: the Kindle's server address and the iPad reader.
+ * The root profile keeps the plain address; every other child is under /p/<id>.
+ */
+export function childAddresses(base: string, id: string, isRoot: boolean): { kindle: string; reader: string } {
+  const kindle = isRoot ? base : `${base}/p/${encodeURIComponent(id)}`
+  return { kindle, reader: `${kindle}/read/` }
+}
+
+/** When the server did not say, guess as it would: this page's host with the Kindle port. */
+export function guessKindleBase(hostname: string): KindleBase {
+  const host = hostname.includes(":") && !hostname.startsWith("[") ? `[${hostname}]` : hostname || "localhost"
+  return { url: `http://${host}:8080`, derived: true }
 }
 
 export const ProfilesContext = createContext<ProfilesState>({

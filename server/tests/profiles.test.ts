@@ -18,6 +18,7 @@ import {
   exampleConfigData,
   fixtureFeedFetcher,
   fixturePageFetcher,
+  noNetworkImages,
   generateReq,
   makeApp,
   testSettings,
@@ -152,7 +153,7 @@ describe("where each profile's data lives", () => {
     const settings = testSettings(dir);
     const clock = new Clock();
     const open = (profiles: ProfilesConfig): EarlyEditionKidsApp =>
-      createApp({ settings, profiles, writer: new StubLLM(), feedFetcher: fixtureFeedFetcher, pageFetcher: fixturePageFetcher, clock: clock.fn });
+      createApp({ settings, profiles, writer: new StubLLM(), feedFetcher: fixtureFeedFetcher, pageFetcher: fixturePageFetcher, imageFetcher: noNetworkImages, clock: clock.fn });
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     // Today: one child, no profiles list.
@@ -297,6 +298,8 @@ describe("several profiles on one server", () => {
       ],
       root: "older",
       login: false,
+      kindle_base_url: "http://127.0.0.1:8080",
+      kindle_base_url_derived: true,
     });
     const root = (await t.agent.get("/api/dashboard/summary")).body;
     const older = (await t.agent.get("/api/dashboard/p/older/summary")).body;

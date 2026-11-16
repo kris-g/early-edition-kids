@@ -41,6 +41,8 @@ export type StoryDetail = StoryCard & {
   think_about_it: string;
   prev_id: number | null;
   next_id: number | null;
+  /** The photo the iPad reader shows, at GET /stories/:id/image, or null when the story has none. */
+  image: { alt: string | null } | null;
 };
 
 export type IssueView = {
@@ -131,6 +133,10 @@ export type ProfilesView = {
   root: string | null;
   /** True when the built-in sign-in is on (DASHBOARD_PASSWORD). */
   login: boolean;
+  /** The Kindle port as reached on the home network, without a trailing slash: KINDLE_BASE_URL, or derived. */
+  kindle_base_url: string;
+  /** True when KINDLE_BASE_URL is unset and the address was worked out from this request's host name. */
+  kindle_base_url_derived: boolean;
 };
 
 export type GenerateResponse = {

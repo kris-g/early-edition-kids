@@ -14,6 +14,8 @@ server/tests
 server/coverage
 web/dist
 web/coverage
+reader/dist
+reader/coverage
 **/*.log
 reports
 docs

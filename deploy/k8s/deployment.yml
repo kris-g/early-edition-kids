@@ -58,6 +58,11 @@ spec:
               value: /config/config.yaml
             - name: TZ
               value: Europe/London
+            # The Kindle port as the family's devices reach it, for the dashboard's "Read on an iPad"
+            # card (the reader's address and QR code). Behind the dashboard's Ingress the server can't
+            # work it out, so set it to the LoadBalancer's LAN address:
+            # - name: KINDLE_BASE_URL
+            #   value: http://192.168.1.50:8080
           envFrom:
             - secretRef:
                 name: early-edition-kids-secrets

@@ -30,8 +30,9 @@ More in the docs: [the Kindle screens](docs/kindle.md), [the parent dashboard](d
 
 | Path | What it is |
 |---|---|
-| `server/` | Node.js + TypeScript (Express) server: feeds, selection, rewriting, checking, SQLite, the Kindle API and the dashboard API. `server/Dockerfile` builds the image from the repo root and includes the built `web/` app. |
+| `server/` | Node.js + TypeScript (Express) server: feeds, selection, rewriting, checking, SQLite, the Kindle API and the dashboard API. `server/Dockerfile` builds the image from the repo root and includes the built `web/` and `reader/` apps. |
 | `web/` | The parent dashboard: a React PWA served by the server at `/dashboard/`. |
+| `reader/` | The child's iPad reader: a home-screen web app served on the Kindle port at `/read/`. |
 | `plugin/` | `earlyeditionkids.koplugin`, the KOReader plugin for the Kindle. |
 | `deploy/` | Example Kubernetes manifests (`deploy/k8s/`) and a local multi-arch build script. |
 | `.github/workflows/image.yml` | Builds the multi-arch image and publishes it to `ghcr.io/kris-g/early-edition-kids`. |
@@ -62,7 +63,7 @@ docker run -d --name early-edition-kids --restart unless-stopped \
 ```
 
 - **`GENERATE_AT`** makes the paper every morning at that time, London time. If the server starts later in the day and there's no paper yet, it makes one straight away.
-- **Port 8080** is for the Kindle, so it's open to your network.
+- **Port 8080** is for the Kindle and the iPad reader, so it's open to your network.
 - **Port 8081** is the parent dashboard, at <http://localhost:8081/dashboard/> or the same port on the computer's address from your phone. **`DASHBOARD_PASSWORD`** makes it ask for that password and keeps you signed in for 30 days (add `-e DASHBOARD_USER=...` to ask for a user name too). It is plain HTTP, so keep it on your home network, or put an HTTPS proxy in front to use it from outside. Without `DASHBOARD_PASSWORD` the dashboard has no login at all: then use `-p 127.0.0.1:8081:8081` so it only opens on the computer itself, or put it behind a proxy that asks for a login, such as Authelia or Tailscale.
 - **Data** (issues, reading history, settings) lives in the `early-edition-kids` Docker volume.
 - **OpenRouter:** use `-e OPENROUTER_API_KEY=...` instead of, or as well as, `LLM_API_KEY`.
@@ -86,13 +87,17 @@ docker run -d --name early-edition-kids --restart unless-stopped \
 
 Open the dashboard to see what was read, hide or add stories, pick topics, and choose which AI model writes the paper. [The dashboard tour](docs/dashboard.md) shows each page.
 
+### 4. Reading on an iPad (optional)
+
+The same paper, with the stories' photos and colour, can be read on an iPad as a home-screen app. Open the dashboard's **More** page: **Read on an iPad** has the reader's address and a QR code. Scan the code with the iPad's camera (or open the address in Safari on the iPad), tap **Share**, then **Add to Home Screen**. The iPad has to be on the home Wi-Fi, like the Kindle. If the address on that card doesn't open, set `-e KINDLE_BASE_URL=http://192.168.1.50:8080` (the address the Kindle uses) and restart the server. A child can read on both: the dashboard counts the reading from each.
+
 ### Running it on Kubernetes instead
 
 If you already run a Kubernetes cluster, [`deploy/README.md`](deploy/README.md) has example manifests: a Deployment, a CronJob for the morning run, an HTTPS ingress for the dashboard behind Authelia, and nightly backups. It's more work than Docker, and it's how the author runs it, on k3s.
 
 ### Working on the code
 
-[`server/README.md`](server/README.md) runs the server from source, [`web/README.md`](web/README.md) the dashboard with a mock API, and [`plugin/README.md`](plugin/README.md) covers the plugin's tests and the KOReader emulator.
+[`server/README.md`](server/README.md) runs the server from source, [`web/README.md`](web/README.md) the dashboard with a mock API, [`reader/README.md`](reader/README.md) the iPad reader, and [`plugin/README.md`](plugin/README.md) covers the plugin's tests and the KOReader emulator.
 
 ## Important: leave the Kindle in KOReader overnight
 

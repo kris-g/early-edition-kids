@@ -4,13 +4,15 @@
  * which a proxy such as Authelia, or the built-in sign-in (login.ts), guards.
  */
 
+import { existsSync, readFileSync } from "node:fs";
 import express, { type NextFunction, type Request, type Response, Router } from "express";
 import { SettingsError, updateAiSettings } from "../aisettings.js";
 import { addArticle, searchArchive } from "../articles.js";
 import { topicNames } from "../config.js";
 import { HttpError } from "../http.js";
 import { kindleSeenAt } from "../kindleseen.js";
-import { generate, injected, resultApi, type Context } from "../pipeline.js";
+import { generate, injected, isImageExt, resultApi, storyImageFile, type Context } from "../pipeline.js";
+import { CONTENT_TYPES, type ImageExt } from "../images.js";
 import { londonDate } from "../timeutil.js";
 import { fullStreak, storyStats, topicStats } from "../weights.js";
 import { requireHeader } from "./guard.js";
@@ -129,6 +131,18 @@ export function dashboardApi(deps: DashboardDeps): Router {
     const detail = storyDetail(ctx, storyId(req), today());
     if (!detail) throw new HttpError(404, "That story could not be found.");
     res.json(detail);
+  });
+
+  // The story's photo, so a parent sees what the iPad shows (CONTRACT.md "Story photos").
+  router.get("/stories/:id/image", (req, res) => {
+    const row = ctx.db.getStory(storyId(req));
+    const file = row && isImageExt(row.image_ext)
+      ? storyImageFile(ctx.settings, row.issue_date, Number(row.issue_version), Number(row.position), row.image_ext)
+      : null;
+    if (!row || !file || !existsSync(file)) throw new HttpError(404, "That story has no photo.");
+    res
+      .set({ "Content-Type": CONTENT_TYPES[row.image_ext as ImageExt], "Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff" })
+      .send(readFileSync(file));
   });
 
   for (const [action, hidden] of [

@@ -118,6 +118,13 @@ export const MIGRATIONS: string[] = [
         value TEXT NOT NULL
     );
   `,
+  // 4: story photos for the iPad reader (CONTRACT.md "Story photos"): the source article's main
+  // image, stored beside the story file as <position>.<image_ext>. NULL image_ext means no photo.
+  `
+    ALTER TABLE stories ADD COLUMN image_ext TEXT;
+    ALTER TABLE stories ADD COLUMN image_alt TEXT;
+    ALTER TABLE stories ADD COLUMN image_url TEXT;
+  `,
 ];
 
 // Full-text search over the archive, when this SQLite build has FTS5. Not a numbered migration

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import * as cheerio from "cheerio";
 import { XMLParser } from "fast-xml-parser";
 import { APP_NAME, VERSION, type Config, type Feed } from "./config.js";
+import type { ImageRef } from "./images.js";
 
 export const USER_AGENT = `${APP_NAME}/${VERSION} (household news reader)`;
 
@@ -22,6 +23,8 @@ export interface Candidate {
   topicHint: string | null;
   published: Date;
   contentHtml: string | null;
+  /** The feed item's own image (media:content, media:thumbnail or an image enclosure), if any. */
+  feedImage?: ImageRef | null;
 }
 
 export function promptCandidate(c: Candidate) {
@@ -128,6 +131,8 @@ export interface FeedItem {
   published: Date | null;
   contentHtml: string | null;
   feed: Feed;
+  /** The item's own image, if the feed gives one. */
+  image?: ImageRef | null;
 }
 
 const xml = new XMLParser({
@@ -164,6 +169,47 @@ function linkOf(v: unknown): string {
   return textOf(v);
 }
 
+const asList = (v: unknown): any[] => (v === undefined || v === null ? [] : Array.isArray(v) ? v : [v]);
+
+function feedUrl(raw: unknown): string | null {
+  const s = typeof raw === "string" ? raw.trim() : "";
+  if (!s) return null;
+  try {
+    const u = new URL(s);
+    return u.protocol === "http:" || u.protocol === "https:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+const isImageMedia = (m: any) => {
+  const type = String(m?.["@_type"] ?? "").toLowerCase();
+  const medium = String(m?.["@_medium"] ?? "").toLowerCase();
+  if (type) return type.startsWith("image/");
+  return medium ? medium === "image" : /\.(jpe?g|png|webp)(\?|$)/i.test(String(m?.["@_url"] ?? ""));
+};
+
+/**
+ * The item's own image: the widest media:content image (also inside media:group), else the widest
+ * media:thumbnail, else an image enclosure. Alt text from media:description or media:title.
+ */
+export function feedItemImage(it: any): ImageRef | null {
+  const widest = (list: any[]) =>
+    list
+      .filter((m) => feedUrl(m?.["@_url"]))
+      .sort((a, b) => (Number(b?.["@_width"]) || 0) - (Number(a?.["@_width"]) || 0))[0];
+  const contents = [...asList(it["media:content"]), ...asList(it["media:group"]).flatMap((g) => asList(g?.["media:content"]))].filter(isImageMedia);
+  const thumbs = [...asList(it["media:thumbnail"]), ...asList(it["media:group"]).flatMap((g) => asList(g?.["media:thumbnail"]))];
+  const enclosures = [
+    ...asList(it.enclosure),
+    ...asList(it.link).filter((l) => l && typeof l === "object" && l["@_rel"] === "enclosure").map((l) => ({ "@_url": l["@_href"], "@_type": l["@_type"] })),
+  ].filter((e) => String(e?.["@_type"] ?? "").toLowerCase().startsWith("image/"));
+  const pick = widest(contents) ?? widest(thumbs) ?? widest(enclosures);
+  if (!pick) return null;
+  const alt = htmlToText(textOf(pick["media:description"] ?? pick["media:title"] ?? it["media:description"]));
+  return { url: feedUrl(pick["@_url"])!, alt: alt || null };
+}
+
 export function parseFeed(data: Buffer | string, feed: Feed): FeedItem[] {
   const doc = xml.parse(typeof data === "string" ? data : data.toString("utf8"));
   const items: FeedItem[] = [];
@@ -182,6 +228,7 @@ export function parseFeed(data: Buffer | string, feed: Feed): FeedItem[] {
       published: parseDate(it.pubDate ?? it["dc:date"]),
       contentHtml,
       feed,
+      image: feedItemImage(it),
     });
   }
   for (const e of atomEntries) {
@@ -196,6 +243,7 @@ export function parseFeed(data: Buffer | string, feed: Feed): FeedItem[] {
       published: parseDate(e.published ?? e.updated),
       contentHtml: content || null,
       feed,
+      image: feedItemImage(e),
     });
   }
   return items;
@@ -293,6 +341,7 @@ export function filterCandidates(
       topicHint: item.feed.topicHint,
       published: item.published!,
       contentHtml: item.contentHtml,
+      feedImage: item.image ?? null,
     });
   }
   report.kept = out.length;
@@ -396,11 +445,22 @@ export async function extractArticle(
   pageFetcher: PageFetcher,
   charLimit: number,
 ): Promise<string> {
+  return (await extractArticlePage(c, pageFetcher, charLimit)).text;
+}
+
+/** As extractArticle, also returning the page HTML when it was fetched (null when the feed had enough). */
+export async function extractArticlePage(
+  c: Pick<Candidate, "url" | "contentHtml">,
+  pageFetcher: PageFetcher,
+  charLimit: number,
+): Promise<{ text: string; pageHtml: string | null }> {
   let text = "";
+  let pageHtml: string | null = null;
   if (c.contentHtml) text = textFromContentHtml(c.contentHtml);
   if (countWordsLoose(text) < 150) {
-    const pageText = textFromPageHtml(await pageFetcher(c.url));
+    pageHtml = await pageFetcher(c.url);
+    const pageText = textFromPageHtml(pageHtml);
     if (pageText.length > text.length) text = pageText;
   }
-  return truncateText(text, charLimit);
+  return { text: truncateText(text, charLimit), pageHtml };
 }

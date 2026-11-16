@@ -30,7 +30,20 @@ import { HttpError, safeEqual } from "./http.js";
 import { Database, utcnowIso } from "./db.js";
 import type { FeedFetcher, PageFetcher } from "./feeds.js";
 import type { LLM } from "./llm.js";
-import { Mutex, buildContext, resultApi, storyFile, storyPath, type Context, type GenerateResult } from "./pipeline.js";
+import {
+  Mutex,
+  buildContext,
+  isImageExt,
+  resultApi,
+  storyFile,
+  storyImageField,
+  storyImageFile,
+  storyPath,
+  type Context,
+  type GenerateResult,
+} from "./pipeline.js";
+import { CONTENT_TYPES, type ImageFetcher } from "./images.js";
+import { readerRouter, readerSettings } from "./reader.js";
 import { generateAll, resolveProfileLayout, type Profile } from "./profiles.js";
 import { markKindleSeen } from "./kindleseen.js";
 import { beforeReset, readingSince } from "./readingreset.js";
@@ -53,6 +66,7 @@ export interface AppOptions {
   checker?: LLM;
   feedFetcher?: FeedFetcher;
   pageFetcher?: PageFetcher;
+  imageFetcher?: ImageFetcher;
   clock?: () => Date;
 }
 
@@ -141,6 +155,7 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
       checker: opts.checker,
       feedFetcher: opts.feedFetcher,
       pageFetcher: opts.pageFetcher,
+      imageFetcher: opts.imageFetcher,
     });
     if (ctx.llmSetupError) console.warn(`LLM not configured: ${ctx.llmSetupError} (generation will use the catch-up fallback)`);
     return { id, title: config.title, root: id === layout.root, ctx, jobs: new Jobs() };
@@ -160,9 +175,15 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
   return { kindleApp, dashboardApp, profiles, ctx: main.ctx, jobs: main.jobs, close: () => dbs.forEach((db) => db.close()) };
 }
 
-/** The Kindle routes for one profile, relative to where they are mounted (/ or /p/<id>). */
-function kindleRouter(ctx: Context): Router {
+/** The Kindle routes for one profile, relative to where they are mounted (/ or /p/<id>), with the iPad reader. */
+function kindleRouter(ctx: Context, settings: Settings): Router {
   const app = Router();
+  // The iPad reader (CONTRACT.md "iPad reader"): its pages, and what it needs to know about the profile.
+  app.use("/read", readerRouter(ctx, settings.readerDir));
+  app.get("/api/reader", (_req, res) => {
+    res.set("Cache-Control", "no-store").json(readerSettings(ctx));
+  });
+
   app.get("/api/issue/today", (req, res) => {
     markKindleSeen(ctx.db, req.app.locals.clock());
     const today = londonDate(req.app.locals.clock());
@@ -193,6 +214,23 @@ function kindleRouter(ctx: Context): Router {
     res.set("Content-Type", "text/html; charset=utf-8").send(html);
   });
 
+  // Story photos (CONTRACT.md "Story photos"), beside the story HTML. Served for hidden stories too.
+  app.get(/^\/issues\/(\d{4}-\d{2}-\d{2})\/v(\d+)\/(\d+)\.(jpg|png|webp)$/, (req, res) => {
+    const params = req.params as unknown as Record<string, string>;
+    const [date, version, position, ext] = [params[0], Number(params[1]), Number(params[2]), params[3]];
+    const row = ctx.db.queryOne("SELECT image_ext FROM stories WHERE issue_date = ? AND issue_version = ? AND position = ?", [
+      date,
+      version,
+      position,
+    ]);
+    if (!row || row.image_ext !== ext || !isImageExt(ext)) throw new HttpError(404, "not found");
+    const file = storyImageFile(ctx.settings, date, version, position, ext);
+    if (!existsSync(file)) throw new HttpError(404, "not found");
+    res
+      .set({ "Content-Type": CONTENT_TYPES[ext], "Cache-Control": "public, max-age=604800", "X-Content-Type-Options": "nosniff" })
+      .send(readFileSync(file));
+  });
+
   app.post("/api/events", express.json({ limit: "5mb" }), (req, res) => {
     markKindleSeen(ctx.db, req.app.locals.clock());
     res.json(ingestEvents(ctx, req.body));
@@ -201,9 +239,9 @@ function kindleRouter(ctx: Context): Router {
 }
 
 function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings): express.Express {
-  for (const p of profiles) app.use(`/p/${p.id}`, kindleRouter(p.ctx));
+  for (const p of profiles) app.use(`/p/${p.id}`, kindleRouter(p.ctx, settings));
   const root = profiles.find((p) => p.root);
-  if (root) app.use(kindleRouter(root.ctx));
+  if (root) app.use(kindleRouter(root.ctx, settings));
 
   app.post("/admin/generate", async (req, res) => {
     if (!settings.adminToken) throw new HttpError(403, "ADMIN_TOKEN is not set on the server");
@@ -260,11 +298,12 @@ function dashboardRoutes(
     app.use(login.guard());
   }
   const root = profiles.find((p) => p.root) ?? null;
-  app.get("/api/dashboard/profiles", (_req, res) => {
+  app.get("/api/dashboard/profiles", (req, res) => {
     const body: ProfilesView = {
       profiles: profiles.map((p) => ({ id: p.id, title: p.title })),
       root: root?.id ?? null,
       login: login !== null,
+      ...kindleBase(req, settings),
     };
     res.set("Cache-Control", "no-store").json(body);
   });
@@ -282,6 +321,17 @@ function dashboardRoutes(
   });
   app.use("/dashboard", webApp(settings.webDir));
   return app;
+}
+
+/**
+ * The Kindle port as the family's devices reach it (for the dashboard's "Read on an iPad" card):
+ * KINDLE_BASE_URL, or else this request's host name with the Kindle PORT, which is right when both
+ * ports are on one machine (a plain docker run) but not behind a proxy on another host name.
+ */
+export function kindleBase(req: Request, settings: Settings): { kindle_base_url: string; kindle_base_url_derived: boolean } {
+  if (settings.kindleBaseUrl) return { kindle_base_url: settings.kindleBaseUrl, kindle_base_url_derived: false };
+  const host = req.hostname || "localhost";
+  return { kindle_base_url: `http://${host}:${settings.port}`, kindle_base_url_derived: true };
 }
 
 export function parseBool(v: unknown): boolean {
@@ -308,6 +358,8 @@ export function issuePayload(ctx: Context, date: string) {
       minutes: minutesFor(Number(r.word_count), ctx.config.readingWpm),
       path: storyPath(date, version, Number(r.position)),
       word_to_know: parseWordToKnow(r.word_to_know),
+      // The source article's photo for the iPad reader, {path, alt} relative to the mount, or null.
+      image: storyImageField(r),
     });
   }
   // Edition number: distinct issue dates up to and including this one (one row per date), so it

@@ -251,6 +251,7 @@ describe("AI settings reach the Anthropic requests", () => {
       anthropicClient: client,
       feedFetcher: base.feedFetcher,
       pageFetcher: base.pageFetcher,
+      imageFetcher: base.imageFetcher,
     });
     await generate(c, TODAY, NOW);
     expect(new Set(client.calls.map((p) => p.model))).toEqual(new Set(["claude-opus-5-5"]));

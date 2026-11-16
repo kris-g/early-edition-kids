@@ -1,4 +1,4 @@
-# Builds the server image (server + built dashboard) for linux/amd64 and linux/arm64
+# Builds the server image (server + built dashboard and iPad reader) for linux/amd64 and linux/arm64
 # and publishes it as ghcr.io/<owner>/early-edition-kids, so it runs with one docker command.
 name: Image
 
@@ -8,6 +8,7 @@ on:
     paths:
       - "server/**"
       - "web/**"
+      - "reader/**"
       - ".dockerignore"
       - ".github/workflows/image.yml"
     tags: ["v*"]

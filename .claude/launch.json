@@ -24,6 +24,24 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["docs/mockups/ipad-reader/serve.mjs"],
       "port": 8095
+    },
+    {
+      "name": "early-edition-kids-docs-sample",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd server && HOST=0.0.0.0 PORT=8080 DASHBOARD_PORT=8081 EARLY_EDITION_KIDS_DATA_DIR=/tmp/claude-501/eek-docs EARLY_EDITION_KIDS_CONFIG=../docs/tools/sample-config.yaml EARLY_EDITION_KIDS_WEB_DIR=../web/dist LLM_BASE_URL=stub KINDLE_BASE_URL=http://192.168.1.50:8080 npm start"
+      ],
+      "port": 8081
+    },
+    {
+      "name": "early-edition-kids-reader-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd reader && EARLY_EDITION_KIDS_API=http://localhost:8080 npx vite --host 0.0.0.0 --port 5174 --strictPort"
+      ],
+      "port": 5174
     }
   ]
 }

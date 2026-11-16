@@ -8,6 +8,8 @@ import { z } from "zod";
 
 /** The built web app (web/dist), relative to the server/ directory. */
 export const DEFAULT_WEB_DIR = fileURLToPath(new URL("../../web/dist", import.meta.url));
+/** The built iPad reader (reader/dist), relative to the server/ directory. */
+export const DEFAULT_READER_DIR = fileURLToPath(new URL("../../reader/dist", import.meta.url));
 
 export const APP_NAME = "Early Edition Kids";
 export const VERSION = "0.2.0";
@@ -39,6 +41,10 @@ export interface Settings {
   checkLlmEffort: string;
   adminToken: string;
   webDir: string;
+  /** EARLY_EDITION_KIDS_READER_DIR: the built iPad reader, served at <mount>/read/ on the Kindle port. */
+  readerDir: string;
+  /** KINDLE_BASE_URL: the Kindle port as reached on the home network (for the dashboard's iPad card); empty means derive it. */
+  kindleBaseUrl: string;
   host: string;
   port: number;
   dashboardPort: number;
@@ -66,6 +72,8 @@ export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings 
     checkLlmEffort: env.CHECK_LLM_EFFORT || "",
     adminToken: env.ADMIN_TOKEN || "",
     webDir: env.EARLY_EDITION_KIDS_WEB_DIR || DEFAULT_WEB_DIR,
+    readerDir: env.EARLY_EDITION_KIDS_READER_DIR || DEFAULT_READER_DIR,
+    kindleBaseUrl: normaliseBaseUrl(env.KINDLE_BASE_URL),
     host: env.HOST || "127.0.0.1",
     port: Number(env.PORT || 8080),
     dashboardPort: Number(env.DASHBOARD_PORT || 8081),
@@ -74,6 +82,25 @@ export function settingsFromEnv(env: NodeJS.ProcessEnv = process.env): Settings 
     dashboardUser: (env.DASHBOARD_USER || "").trim(),
     sessionSecret: env.SESSION_SECRET || "",
   };
+}
+
+/**
+ * KINDLE_BASE_URL without a trailing slash, or "" when unset. A value that is not an http(s) URL is
+ * ignored with a warning, so a typo never stops the server.
+ */
+export function normaliseBaseUrl(value: string | undefined): string {
+  const raw = (value || "").trim();
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    if ((u.protocol === "http:" || u.protocol === "https:") && u.hostname && !u.search && !u.hash) {
+      return `${u.protocol}//${u.host}${u.pathname.replace(/\/+$/, "")}`;
+    }
+  } catch {
+    // fall through
+  }
+  console.warn(`KINDLE_BASE_URL is not an http address (${JSON.stringify(raw)}); ignoring it`);
+  return "";
 }
 
 export function makeSettings(overrides: Partial<Settings> = {}): Settings {
@@ -154,6 +181,10 @@ export const DEFAULT_OPENROUTER_MODELS: OpenRouterModel[] = [
   },
 ];
 
+/** How the iPad reader shows a story: turning pages, or one long scrolling paper. */
+export const READER_MODES = ["pages", "scroll"] as const;
+export type ReaderMode = (typeof READER_MODES)[number];
+
 export interface Topic {
   name: string;
   baseWeight: number;
@@ -192,6 +223,8 @@ export interface Config {
   llmConcurrency: number;
   /** Story body length in words (CONTRACT/DESIGN 4.2). Default 100 to 160. */
   storyWords: { min: number; max: number };
+  /** The iPad reader's reading mode (config reader_mode, default pages). */
+  readerMode: ReaderMode;
   /** USD per million tokens, per model (CONTRACT.md "LLM usage"). */
   llmPrices: Record<string, ModelPrice>;
   /** Models offered through OpenRouter (CONTRACT.md "Two providers side by side"). */
@@ -245,6 +278,9 @@ const configSchema = z.object({
   story_words: z
     .object({ min: z.number().int().min(1), max: z.number().int().min(1) })
     .refine((w) => w.max >= w.min, { message: "max must be at least min" })
+    .nullish(),
+  reader_mode: z
+    .enum(READER_MODES, { error: "must be pages or scroll" })
     .nullish(),
   openrouter_models: z
     .array(
@@ -306,6 +342,7 @@ export function parseConfig(data: unknown): Config {
     sourceCharLimit: c.source_char_limit,
     llmConcurrency: Math.max(1, c.llm_concurrency),
     storyWords: c.story_words ?? { ...DEFAULT_STORY_WORDS },
+    readerMode: c.reader_mode ?? "pages",
     llmPrices: { ...DEFAULT_LLM_PRICES, ...(c.llm_prices ?? {}) },
     openrouterModels: c.openrouter_models ?? DEFAULT_OPENROUTER_MODELS,
   };

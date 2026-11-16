@@ -22,6 +22,7 @@ publish:
       changes:
         - server/**/*
         - web/**/*
+        - reader/**/*
         - .dockerignore
         - .gitlab-ci.yml
     - if: $CI_COMMIT_TAG

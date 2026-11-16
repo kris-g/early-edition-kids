@@ -14,8 +14,16 @@ const TWO: ProfilesView = {
   ],
   root: 'older',
   login: false,
+  kindle_base_url: 'http://192.168.1.50:8080',
+  kindle_base_url_derived: false,
 }
-const ONE: ProfilesView = { profiles: [{ id: 'default', title: 'Early Edition' }], root: 'default', login: false }
+const ONE: ProfilesView = {
+  profiles: [{ id: 'default', title: 'Early Edition' }],
+  root: 'default',
+  login: false,
+  kindle_base_url: 'http://localhost:8080',
+  kindle_base_url_derived: true,
+}
 
 const fetchMock = vi.fn<typeof fetch>()
 const urls = () => fetchMock.mock.calls.map((c) => String(c[0]))

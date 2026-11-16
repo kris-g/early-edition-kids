@@ -58,7 +58,8 @@ In the cluster, the CronJob makes this call at 05:30 Europe/London. The pipeline
 
 - `http://localhost:8080/api/issue/today` is the issue index the Kindle reads. Each story's `path` is its HTML page, for example `http://localhost:8080/issues/2026-11-14/v1/1.html`.
 - `http://localhost:8081/dashboard/` is the parent dashboard (`http://localhost:8081/` redirects there). Build it first (`cd ../web && npm ci && npm run build`); the server serves `../web/dist` (or `EARLY_EDITION_KIDS_WEB_DIR`). Without a build, `/dashboard/` says "web app not built". There is no login locally unless `DASHBOARD_PASSWORD` is set.
-- The files are also on disk under `$EARLY_EDITION_KIDS_DATA_DIR/issues/<date>/v<version>/`, with an `index.json` per version.
+- `http://localhost:8080/read/` is the child's iPad reader (`/p/<id>/read/` for each profile). Build it first (`cd ../reader && npm ci && npm run build`); the server serves `../reader/dist` (or `EARLY_EDITION_KIDS_READER_DIR`).
+- The files are also on disk under `$EARLY_EDITION_KIDS_DATA_DIR/issues/<date>/v<version>/`, with an `index.json` per version, and each story's photo beside its page as `<position>.jpg`, `.png` or `.webp` when it has one.
 
 To see a story as the Kindle will, open its HTML file in the KOReader desktop emulator.
 
@@ -101,6 +102,8 @@ Environment variables (secrets never go in the YAML file):
 | `EARLY_EDITION_KIDS_DATA_DIR` | `./data` (`/data` in the image) | SQLite database `early-edition-kids.db` and the `issues/` story files |
 | `EARLY_EDITION_KIDS_CONFIG` | `./config.yaml` (`/config/config.yaml` in the image) | The YAML config below |
 | `EARLY_EDITION_KIDS_WEB_DIR` | `../web/dist` (`/app/web` in the image) | Built dashboard files served at `/dashboard/` |
+| `EARLY_EDITION_KIDS_READER_DIR` | `../reader/dist` (`/app/reader` in the image) | Built iPad reader files, served on the Kindle port at `/read/` and `/p/<id>/read/` |
+| `KINDLE_BASE_URL` | worked out from the dashboard's address | The Kindle port as the family's devices reach it, such as `http://192.168.1.50:8080`. Only for the dashboard's "Read on an iPad" card (the addresses and QR code). Set it when the dashboard is behind a proxy on another host name. |
 | `LLM_PROVIDER` | `openai` if `LLM_BASE_URL` alone is set | `anthropic` (the provider registry) or `openai` (one generic endpoint) |
 | `LLM_BASE_URL` | none | OpenAI-compatible base URL, or `stub` (any provider). Not used for Anthropic. |
 | `LLM_API_KEY` | none | Anthropic API key, or the generic endpoint's key |

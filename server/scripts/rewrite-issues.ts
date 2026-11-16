@@ -21,6 +21,7 @@ import { LLMUnavailable } from "../src/llm.js";
 import {
   buildContext,
   draftRow,
+  rowImageOf,
   monthlyLimitReached,
   produce,
   storeIssue,
@@ -54,7 +55,8 @@ export interface DateResult {
   lines: string[];
 }
 
-const rowFrom = (s: Row): StoryRow => ({
+/** A stored story carried into the new version unchanged, photo and all. */
+const rowFrom = (ctx: Context, s: Row): StoryRow => ({
   topic: s.topic,
   title: s.title,
   teaser: s.teaser,
@@ -67,6 +69,7 @@ const rowFrom = (s: Row): StoryRow => ({
   word_count: Number(s.word_count),
   reused_from: s.reused_from ?? null,
   added_by: s.added_by ?? null,
+  image: rowImageOf(ctx.settings, s),
 });
 
 function candidateFor(ctx: Context, s: Row, date: string): Candidate {
@@ -155,7 +158,7 @@ export async function rewriteIssues(base: Context, o: RewriteOptions): Promise<D
         if (!stopped && limit) stopped = limit;
         if (!stopped && spent + perStory > budget) stopped = `budget of $${budget} would be passed ($${spent.toFixed(4)} spent)`;
         if (stopped || !ctx.writer) {
-          rows.push(rowFrom(s));
+          rows.push(rowFrom(ctx, s));
           r.carried++;
           detail.push(`carried over ${label}: ${stopped ?? ctx.llmSetupError ?? "no LLM configured"}`);
           continue;
@@ -174,11 +177,18 @@ export async function rewriteIssues(base: Context, o: RewriteOptions): Promise<D
         if (cost > 0) perStory = Math.max(perStory === FIRST_STORY_ESTIMATE_USD ? 0 : perStory, cost);
         if (outcome.draft) {
           const row = draftRow(outcome.draft);
-          rows.push({ ...row, topic: s.topic, reused_from: s.reused_from ?? null, added_by: s.added_by ?? null });
+          rows.push({
+            ...row,
+            topic: s.topic,
+            reused_from: s.reused_from ?? null,
+            added_by: s.added_by ?? null,
+            // A new photo when one was found, else the story keeps the one it had.
+            image: row.image ?? rowImageOf(ctx.settings, s),
+          });
           r.rewritten++;
           detail.push(`rewritten ${label} -> ${JSON.stringify(row.title)} (${row.word_count} words, $${cost.toFixed(4)})`);
         } else {
-          rows.push(rowFrom(s));
+          rows.push(rowFrom(ctx, s));
           r.carried++;
           detail.push(`failed, carried over unchanged ${label}: ${outcome.problems.join("; ")}`);
         }

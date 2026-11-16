@@ -1,0 +1,25 @@
+# Config for the sample papers made by sample-paper.mts: a 12-year-old reader with longer stories.
+# Used only for screenshots and videos; see docs/ipad.md.
+title: Early Edition
+child_age: 12
+story_count: 6
+reading_wpm: 150
+story_words:
+  min: 280
+  max: 450
+reader_mode: pages
+topics:
+  - name: Football
+    base_weight: 3
+  - name: Science
+    base_weight: 3
+  - name: Space
+    base_weight: 2
+  - name: Animals and nature
+    base_weight: 2
+  - name: Games and tech
+    base_weight: 1
+  - name: Weather
+    base_weight: 1
+  - name: Weird but true
+    base_weight: 1

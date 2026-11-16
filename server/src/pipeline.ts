@@ -5,12 +5,12 @@
  * the event loop, and /healthz, keep answering while a run waits on the LLM.
  */
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { DEFAULT_PROFILE, issuesDir, topicNames, type Config, type Settings } from "./config.js";
 import { utcnowIso, type Database, type Row } from "./db.js";
 import {
-  extractArticle,
+  extractArticlePage,
   fetchAll,
   filterCandidates,
   httpFetchFeed,
@@ -27,6 +27,7 @@ import {
   type PageFetcher,
 } from "./feeds.js";
 import { settingsForLlms, effectiveAiSettings } from "./aisettings.js";
+import { IMAGE_EXTS, downloadFirstImage, httpFetchImage, pageImages, type ImageExt, type ImageFetcher, type ImageRef, type StoryImage } from "./images.js";
 import {
   LLMError,
   LLMRefusal,
@@ -104,6 +105,8 @@ export interface Context {
   llmSetupError: string | null;
   feedFetcher: FeedFetcher;
   pageFetcher: PageFetcher;
+  /** Downloads story photos (CONTRACT.md "Story photos"); injectable so tests never touch the network. */
+  imageFetcher: ImageFetcher;
   lock: Mutex;
   /** True when the LLM clients were injected (tests); otherwise they are rebuilt per run from the AI settings. */
   llmFixed: boolean;
@@ -119,7 +122,7 @@ export function buildContext(
   settings: Settings,
   config: Config,
   db: Database,
-  extra: Partial<Pick<Context, "profileId" | "profileRoot" | "lock" | "writer" | "checker" | "feedFetcher" | "pageFetcher" | "anthropicClient" | "openrouterFetch">> = {},
+  extra: Partial<Pick<Context, "profileId" | "profileRoot" | "lock" | "writer" | "checker" | "feedFetcher" | "pageFetcher" | "imageFetcher" | "anthropicClient" | "openrouterFetch">> = {},
 ): Context {
   const ctx: Context = {
     profileId: extra.profileId ?? DEFAULT_PROFILE,
@@ -132,6 +135,7 @@ export function buildContext(
     llmSetupError: null,
     feedFetcher: extra.feedFetcher ?? httpFetchFeed,
     pageFetcher: extra.pageFetcher ?? httpFetchText,
+    imageFetcher: extra.imageFetcher ?? ((url) => httpFetchImage(url)),
     lock: extra.lock ?? new Mutex(),
     llmFixed: Boolean(extra.writer),
     anthropicClient: extra.anthropicClient,
@@ -172,6 +176,8 @@ export interface Draft {
   sourceText: string;
   addedBy: string | null;
   requestId: number | null;
+  /** The source article's main image, downloaded once the story has passed its checks. */
+  image?: StoryImage | null;
 }
 
 // ---- public entry point ----
@@ -601,8 +607,9 @@ export async function produce(
   const limit = sem ?? { run: <T>(fn: () => Promise<T>) => fn() };
   if (!ctx.writer || !ctx.checker) throw new LLMUnavailable(ctx.llmSetupError || "no LLM configured");
   let article: string;
+  let pageHtml: string | null = null;
   try {
-    article = await extractArticle(cand, ctx.pageFetcher, cfg.sourceCharLimit);
+    ({ text: article, pageHtml } = await extractArticlePage(cand, ctx.pageFetcher, cfg.sourceCharLimit));
   } catch (err) {
     detail.push(`[${cand.id}] extract failed: ${String(err)}`);
     return { draft: null, problems: [`could not read the article: ${String(err)}`] };
@@ -694,10 +701,40 @@ export async function produce(
       continue;
     }
     detail.push(`[${cand.id}] passed: ${JSON.stringify(story.title)} (${storyWordCount(story)} words)`);
-    return { draft: { story, candidate: cand, sourceText, addedBy: null, requestId: null }, problems: [] };
+    const image = await findImage(ctx, cand, pageHtml, detail);
+    return { draft: { story, candidate: cand, sourceText, addedBy: null, requestId: null, image }, problems: [] };
   }
   detail.push(`[${cand.id}] dropped after 2 attempts`);
   return { draft: null, problems };
+}
+
+/**
+ * The story's photo (CONTRACT.md "Story photos"): the article page's og:image, then twitter:image,
+ * then the feed item's own image. The page is fetched here only when extraction did not need it.
+ * Never throws: a story without a photo is normal.
+ */
+export async function findImage(ctx: Context, cand: Candidate, pageHtml: string | null, detail: string[]): Promise<StoryImage | null> {
+  const log = (line: string) => detail.push(`[${cand.id}] ${line}`);
+  const refs: ImageRef[] = [];
+  try {
+    const html = pageHtml ?? (await ctx.pageFetcher(cand.url));
+    refs.push(...pageImages(html, cand.url));
+  } catch (err) {
+    log(`photo: page not read (${err instanceof Error ? err.message : String(err)})`);
+  }
+  if (cand.feedImage) refs.push(cand.feedImage);
+  if (!refs.length) {
+    log("no photo");
+    return null;
+  }
+  try {
+    const image = await downloadFirstImage(refs, ctx.imageFetcher, { blocklist: ctx.config.blocklist, log });
+    log(image ? `photo: ${image.url} (${image.ext}, ${image.bytes.length} bytes)` : "no photo");
+    return image;
+  } catch (err) {
+    log(`no photo (${String(err)})`);
+    return null;
+  }
 }
 
 // ---- storing ----
@@ -705,6 +742,40 @@ export async function produce(
 export const storyPath = (date: string, version: number, position: number) => `/issues/${date}/v${version}/${position}.html`;
 export const storyFile = (settings: Settings, date: string, version: number, position: number) =>
   path.join(issuesDir(settings), date, `v${version}`, `${position}.html`);
+/** A story photo sits beside its HTML file: /issues/<date>/v<version>/<position>.<ext>. */
+export const storyImagePath = (date: string, version: number, position: number, ext: string) =>
+  `/issues/${date}/v${version}/${position}.${ext}`;
+export const storyImageFile = (settings: Settings, date: string, version: number, position: number, ext: string) =>
+  path.join(issuesDir(settings), date, `v${version}`, `${position}.${ext}`);
+
+export const isImageExt = (v: unknown): v is ImageExt => typeof v === "string" && (IMAGE_EXTS as readonly string[]).includes(v);
+
+/** The issue payload's `image` for a stories row: {path, alt} relative to the mount, or null. */
+export function storyImageField(r: Row): { path: string; alt: string | null } | null {
+  if (!isImageExt(r.image_ext)) return null;
+  return { path: storyImagePath(r.issue_date, Number(r.issue_version), Number(r.position), r.image_ext), alt: r.image_alt ?? null };
+}
+
+/** A photo to store with a new story row: new bytes, or a copy of an earlier story's file. */
+export interface RowImage {
+  ext: ImageExt;
+  alt: string | null;
+  url: string | null;
+  bytes?: Buffer;
+  /** Copy this file (a catch-up story carries its source story's photo). */
+  from?: string;
+}
+
+/** The photo of an existing stories row, to carry into a new row (catch-up, rewrites), or null. */
+export function rowImageOf(settings: Settings, r: Row): RowImage | null {
+  if (!isImageExt(r.image_ext)) return null;
+  return {
+    ext: r.image_ext,
+    alt: r.image_alt ?? null,
+    url: r.image_url ?? null,
+    from: storyImageFile(settings, r.issue_date, Number(r.issue_version), Number(r.position), r.image_ext),
+  };
+}
 
 export interface StoryRow {
   topic: string;
@@ -719,6 +790,8 @@ export interface StoryRow {
   word_count: number;
   reused_from: number | null;
   added_by: string | null;
+  /** The story's photo, if it has one. */
+  image?: RowImage | null;
 }
 
 export function draftRow(d: Draft): StoryRow {
@@ -736,7 +809,27 @@ export function draftRow(d: Draft): StoryRow {
     word_count: storyWordCount(s),
     reused_from: null,
     added_by: d.addedBy,
+    image: d.image ? { ext: d.image.ext, alt: d.image.alt, url: d.image.url, bytes: d.image.bytes } : null,
   };
+}
+
+/**
+ * Write a row's photo beside its story file. Returns the stored image, or null when there is none or
+ * it could not be written (never an error: the story then has no photo).
+ */
+function writeRowImage(ctx: Context, date: string, version: number, position: number, image: RowImage | null | undefined): RowImage | null {
+  if (!image || !isImageExt(image.ext)) return null;
+  try {
+    const bytes = image.bytes ?? (image.from && existsSync(image.from) ? readFileSync(image.from) : null);
+    if (!bytes || !bytes.length) return null;
+    const file = storyImageFile(ctx.settings, date, version, position, image.ext);
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, bytes);
+    return image;
+  } catch (err) {
+    console.warn(`could not store the photo for ${date} v${version} story ${position}: ${String(err)}`);
+    return null;
+  }
 }
 
 function nextVersion(db: Database, date: string): number {
@@ -750,10 +843,12 @@ function nextVersion(db: Database, date: string): number {
 /** Insert one story row at a position and write its HTML file. Call inside a transaction. */
 function insertStory(ctx: Context, date: string, version: number, position: number, row: StoryRow, at?: Date): number {
   const createdAt = utcnowIso(at);
+  const image = writeRowImage(ctx, date, version, position, row.image);
   const id = ctx.db.run(
     "INSERT INTO stories (issue_date, issue_version, position, topic, title, teaser, body_html, word_to_know, " +
-      "think_about_it, source_name, source_url, source_title, word_count, reused_from, hidden, created_at, added_by) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
+      "think_about_it, source_name, source_url, source_title, word_count, reused_from, hidden, created_at, added_by, " +
+      "image_ext, image_alt, image_url) " +
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)",
     [
       date,
       version,
@@ -771,6 +866,9 @@ function insertStory(ctx: Context, date: string, version: number, position: numb
       row.reused_from,
       createdAt,
       row.added_by,
+      image?.ext ?? null,
+      image?.alt ?? null,
+      image?.url ?? null,
     ],
   ).lastId;
   const file = storyFile(ctx.settings, date, version, position);
@@ -790,6 +888,7 @@ export function writeIndex(ctx: Context, date: string, version: number): void {
     teaser: r.teaser,
     minutes: minutesFor(Number(r.word_count), ctx.config.readingWpm),
     path: storyPath(date, version, Number(r.position)),
+    image: storyImageField(r),
   }));
   const index = { date, version, fallback: Boolean(issue?.fallback), title: ctx.config.title, stories };
   const file = path.join(issuesDir(ctx.settings), date, `v${version}`, "index.json");
@@ -887,6 +986,8 @@ function publishFallback(ctx: Context, date: string, detail: string[]): Generate
     word_count: Number(p.word_count),
     reused_from: Number(p.reused_from ?? p.id),
     added_by: p.added_by ?? null,
+    // A catch-up story carries its source story's photo, copied into the new version.
+    image: rowImageOf(ctx.settings, p),
   }));
   const version = storeIssue(ctx, date, rows, true);
   detail.push(`catch-up: reused stories [${rows.map((r) => r.reused_from).join(", ")}]`);

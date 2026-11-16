@@ -23,6 +23,9 @@ Early Edition Kids is set up in three places:
 | `story_count` | `6` | Stories in each day's paper. A paper is published when at least 3 of them pass their checks, or all of them when `story_count` is 1 or 2. |
 | `story_words` | `{ min: 100, max: 160 }` | How long each story is, in words. A story outside the range is sent back to be rewritten. The example file uses 120 to 200. |
 | `reading_wpm` | `90` | How many words a minute the child reads. It sets the "2 min" shown on each story, and how long a story has to be open before it counts as properly read for topic weighting. |
+| `reader_mode` | `pages` | How the iPad reader shows a story: `pages` turns pages like the Kindle, with no scrolling; `scroll` runs the whole paper down one long page. The Kindle is not affected. |
+
+**On the iPad** the type size follows `child_age`: largest for 6 and under, middle for 7 and 8, smallest for 9 and over. The reader keeps its reading log on the iPad, like the Kindle, so My week there shows what was read on that iPad.
 
 ## Interests
 
@@ -102,6 +105,7 @@ profiles:
 - **A list replaces, it doesn't add.** A profile that sets `topics`, `feeds` or `blocklist` must list all of its own. Copy the full list from the top of the file and change it.
 - **List the child who already reads it first.** The first profile listed the first time keeps the existing paper, reading history and Kindle address. The server records which one in `profiles.json` in its data folder, so reordering the list later moves nothing. If that profile is removed, its data is left alone and the log says so.
 - **Each other child's Kindle** uses the same server address with `/p/<id>` added, such as `http://192.168.1.50:8080/p/younger`.
+- **Each child's iPad reader** is that address with `/read/` added, such as `http://192.168.1.50:8080/p/younger/read/`. The dashboard's More page has it, with a QR code.
 - **The dashboard** gets a switcher at the top. Each child has their own pages, and nothing adds them together.
 - **Each child costs the same again.** Every profile makes its own paper each morning, with its own calls to the AI, so two children cost about twice as much. The monthly limit on the dashboard is set per child.
 
@@ -123,4 +127,5 @@ These are shared by every child. The full list, with defaults, is in the [server
 | `OPENROUTER_API_KEY` | Your OpenRouter key, instead of or as well as the Anthropic one. |
 | `GENERATE_AT` | The time each morning the papers are made, London time, such as `05:30`. |
 | `DASHBOARD_PASSWORD` | Makes the dashboard ask for a password. `DASHBOARD_USER` adds a user name. |
+| `KINDLE_BASE_URL` | The Kindle port's address on your network, such as `http://192.168.1.50:8080`. The dashboard's "Read on an iPad" card uses it for the reader's address and QR code. Unset, it is worked out from the dashboard's own address, which is right for a plain `docker run` but not behind a proxy. |
 | `EARLY_EDITION_KIDS_CONFIG` | Where `config.yaml` is. `/config/config.yaml` in the Docker image. |

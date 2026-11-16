@@ -1,4 +1,4 @@
-# Early Edition Kids server plus the built parent dashboard (web/). Build from the REPO ROOT:
+# Early Edition Kids server plus the built parent dashboard (web/) and iPad reader (reader/). Build from the REPO ROOT:
 #   docker build -f server/Dockerfile .
 #   docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile -t <registry>/early-edition-kids:<tag> .
 #
@@ -13,6 +13,14 @@ RUN npm ci --no-audit --no-fund
 COPY web/ ./
 # The web app imports the dashboard API types from the server by relative path.
 COPY server/src/dashboard/types.ts /repo/server/src/dashboard/types.ts
+RUN npm run build
+
+# ---- iPad reader: static files too (fonts come from npm, the icons are committed PNGs) ----
+FROM --platform=$BUILDPLATFORM node:22-slim AS reader
+WORKDIR /repo/reader
+COPY reader/package.json reader/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY reader/ ./
 RUN npm run build
 
 # ---- server production dependencies ----
@@ -31,6 +39,7 @@ ENV NODE_ENV=production \
     EARLY_EDITION_KIDS_DATA_DIR=/data \
     EARLY_EDITION_KIDS_CONFIG=/config/config.yaml \
     EARLY_EDITION_KIDS_WEB_DIR=/app/web \
+    EARLY_EDITION_KIDS_READER_DIR=/app/reader \
     HOST=0.0.0.0 \
     PORT=8080 \
     DASHBOARD_PORT=8081
@@ -48,6 +57,7 @@ COPY server/scripts ./scripts
 COPY server/prompts ./prompts
 COPY server/templates ./templates
 COPY --from=web /repo/web/dist ./web
+COPY --from=reader /repo/reader/dist ./reader
 
 # A default config so the image runs on its own; the ConfigMap is mounted over /config.
 COPY server/config.example.yaml /config/config.yaml
@@ -55,7 +65,7 @@ RUN mkdir -p /data && chown -R 10001:10001 /data
 
 USER 10001:10001
 VOLUME ["/data"]
-# 8080: Kindle API (LAN LoadBalancer). 8081: dashboard (ClusterIP, behind Authelia).
+# 8080: Kindle API and the iPad reader at /read/ (LAN LoadBalancer). 8081: dashboard (ClusterIP, behind Authelia).
 EXPOSE 8080 8081
 
 HEALTHCHECK --interval=60s --timeout=5s --start-period=15s \
