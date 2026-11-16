@@ -7,6 +7,7 @@ import { parseStoryHtml } from './body'
 import { addDays, isIsoDate, londonDate, nowSeconds } from './clock'
 import { EventQueue } from './events'
 import { Library } from './library'
+import { SIZES, applyLook, readLook, type Look, type Theme } from './look'
 import { ReadingLog, myWeek } from './readlog'
 import { Store, browserKV, deviceId, namespaceFor, uuid, type KV } from './storage'
 import { Tracker, type TrackerState } from './tracker'
@@ -19,6 +20,7 @@ import {
   frontHtml,
   loadingHtml,
   longHtml,
+  lookHtml,
   myWeekHtml,
   pagedHtml,
   place,
@@ -89,6 +91,9 @@ export class ReaderApp {
   readonly log: ReadingLog
   readonly uploader: Uploader
   settings: ReaderSettings
+  /** Text size and page colour, chosen from the Aa button on a story. */
+  look: Look
+  lookOpen = false
 
   screen: Screen = 'loading'
   /** The paper on show: today's, or a back issue. */
@@ -120,6 +125,7 @@ export class ReaderApp {
     this.queue = new EventQueue(this.store, uuid)
     this.log = new ReadingLog(this.store)
     this.uploader = new Uploader({ queue: this.queue, deviceId: deviceId(kv, uuid), paper: () => this.library.paper() })
+    this.look = readLook(this.store.get<unknown>('look', null))
     this.settings = this.library.settings() ?? { profile: '', profile_root: true, title: document.title || 'Early Edition', mode: 'pages', age: 8 }
   }
 
@@ -132,6 +138,7 @@ export class ReaderApp {
   start(): void {
     this.recoverSession()
     this.applySettings()
+    applyLook(this.look)
     const today = this.today()
     this.library.tidy(today)
     this.log.prune(today)
@@ -289,6 +296,7 @@ export class ReaderApp {
   render(): void {
     this.scrollCleanup?.()
     this.scrollCleanup = null
+    if (this.screen !== 'story') this.lookOpen = false
     this.app.dataset.mode = this.mode
     this.app.dataset.screen = this.screen
     const today = this.today()
@@ -531,6 +539,7 @@ export class ReaderApp {
     this.stage.innerHTML = pagedHtml(this.ctx(), this.story, body)
     this.layoutPages(false)
     if (this.finished) this.showFinished(false)
+    this.showLook()
     if (!body) {
       void this.fetchBody(issue, s).then((b) => {
         if (this.screen === 'story' && this.mode === 'pages' && this.issue === issue && this.issue.stories[this.story] === s) {
@@ -541,19 +550,31 @@ export class ReaderApp {
     }
   }
 
-  /** Lay the story out as pages (a spread on its side). `keepPlace` keeps the reader on the same words. */
-  layoutPages(keepPlace: boolean): void {
+  /** The first block on the page showing, to keep the reader on the same words through a re-layout. */
+  private pageAnchor(): Element | null {
+    const pager = $('#pager', this.stage)
+    const flow = $('#flow', this.stage)
+    if (!pager || !flow) return null
+    const box = pager.getBoundingClientRect()
+    const blocks = Array.from(flow.children)
+    // A paragraph carried over from the page before reports a box that starts there, so the first
+    // block that starts on this page is the better mark; the carried-over one only when there is none.
+    const showing = (el: Element) => {
+      const r = el.getBoundingClientRect()
+      return r.right > box.left + 1 && r.left < box.right - 1 && r.height > 0
+    }
+    return blocks.find((el) => showing(el) && el.getBoundingClientRect().left >= box.left - 1) ?? blocks.find(showing) ?? null
+  }
+
+  /**
+   * Lay the story out as pages (a spread on its side). `keepPlace` keeps the reader on the same
+   * words; pass the anchor when it had to be found before the layout changed (a new text size).
+   */
+  layoutPages(keepPlace: boolean, before: Element | null = null): void {
     const pager = $('#pager', this.stage)
     const flow = $('#flow', this.stage)
     if (!pager || !flow) return
-    let anchor: Element | null = null
-    if (keepPlace) {
-      const box = pager.getBoundingClientRect()
-      anchor = Array.from(flow.children).find((el) => {
-        const r = el.getBoundingClientRect()
-        return r.right > box.left + 1 && r.left < box.right - 1 && r.height > 0
-      }) ?? null
-    }
+    const anchor = before ?? (keepPlace ? this.pageAnchor() : null)
     const landscape = window.matchMedia('(orientation: landscape)').matches
     const cols = landscape ? 2 : 1
     const w = pager.clientWidth || 1
@@ -669,6 +690,7 @@ export class ReaderApp {
     const base = long.offsetTop
     const start = restore ?? { story: this.story, offset: 0 }
     long.scrollTop = topOf(start.story) - base + start.offset
+    this.showLook()
 
     const missing = issue.stories.filter((_, i) => !bodies[i])
     if (missing.length) {
@@ -802,7 +824,22 @@ export class ReaderApp {
   // ---------- events from the page ----------
 
   private onClick(e: MouseEvent): void {
-    const t = (e.target as Element).closest<HTMLElement>('[data-go],[data-turn],[data-act],[data-issue]')
+    const target = e.target as Element
+    if (this.lookOpen) {
+      const choice = target.closest<HTMLButtonElement>('[data-look]')
+      if (choice) {
+        if (choice.dataset.look === 'done') this.closeLook()
+        else if (!choice.disabled) this.changeLook(choice.dataset.look ?? '')
+        return
+      }
+      // A tap anywhere else puts the panel away and does nothing more (no page turn), except the Aa button's own.
+      if (!target.closest('#look') && !target.closest('.look-btn')) {
+        this.closeLook()
+        return
+      }
+      if (target.closest('#look')) return
+    }
+    const t = target.closest<HTMLElement>('[data-go],[data-turn],[data-act],[data-issue]')
     if (t) {
       if ((t as HTMLButtonElement).disabled) return
       if (t.dataset.go !== undefined) this.go(t.dataset.go)
@@ -837,7 +874,70 @@ export class ReaderApp {
       case 'myweek':
         this.openMyWeek()
         break
+      case 'look':
+        if (this.lookOpen) this.closeLook()
+        else this.openLook()
+        break
     }
+  }
+
+  // ---------- text size and page colour ----------
+
+  openLook(): void {
+    if (this.screen !== 'story') return
+    this.lookOpen = true
+    this.showLook(true)
+  }
+
+  closeLook(): void {
+    this.lookOpen = false
+    this.showLook()
+  }
+
+  /** Draw the Aa panel as it now is (or take it away), and mark the button. `animate`: it is just opening. */
+  private showLook(animate = false): void {
+    const old = $('#look', this.stage)
+    $('.look-btn', this.stage)?.setAttribute('aria-expanded', String(this.lookOpen))
+    if (!this.lookOpen) return void old?.remove()
+    const holder = document.createElement('div')
+    holder.innerHTML = lookHtml(this.look)
+    const el = holder.firstElementChild!
+    if (animate) el.classList.add('enter')
+    if (old) old.replaceWith(el)
+    else this.stage.appendChild(el)
+  }
+
+  /** "smaller", "bigger" or "theme:<name>" from the panel. */
+  changeLook(what: string): void {
+    const next: Look = { ...this.look }
+    if (what === 'smaller') next.size = Math.max(0, next.size - 1)
+    else if (what === 'bigger') next.size = Math.min(SIZES.length - 1, next.size + 1)
+    else if (what.startsWith('theme:')) next.theme = readLook({ theme: what.slice(6) as Theme }).theme
+    if (next.size === this.look.size && next.theme === this.look.theme) return
+    const resize = next.size !== this.look.size
+    // Where the reader is, found before the text moves.
+    const paged = resize && this.screen === 'story' && this.mode === 'pages'
+    const scrolled = resize && this.screen === 'story' && this.mode === 'scroll'
+    if (paged) {
+      this.pageTurn?.finishNow()
+      $('#flow', this.stage)?.classList.remove('turning')
+    }
+    const anchor = paged ? this.pageAnchor() : null
+    const placeNow = scrolled ? this.scrollPlace() : null
+    const oldHeight = placeNow ? ($(`#story-${placeNow.story}`, this.stage)?.offsetHeight ?? 0) : 0
+    this.look = next
+    this.store.set('look', next)
+    applyLook(next)
+    if (paged) this.layoutPages(true, anchor)
+    if (placeNow) {
+      const long = $('#long', this.stage)
+      const el = $(`#story-${placeNow.story}`, this.stage)
+      if (long && el) {
+        const k = oldHeight ? el.offsetHeight / oldHeight : 1
+        long.scrollTop = el.offsetTop - long.offsetTop + placeNow.offset * k
+      }
+    }
+    this.showLook()
   }
 
   /** Hidden (another app, the iPad asleep): stop the reading clock and send what is queued. */
@@ -885,7 +985,7 @@ export class ReaderApp {
       drag = null
     })
     this.stage.addEventListener('pointermove', (e) => {
-      if (downX === null || this.screen !== 'story' || this.mode !== 'pages' || this.finished) return
+      if (downX === null || this.screen !== 'story' || this.mode !== 'pages' || this.finished || this.lookOpen) return
       const dx = e.clientX - downX
       const dy = e.clientY - downY
       if (!drag) {
@@ -915,7 +1015,7 @@ export class ReaderApp {
         swallowClick()
         return
       }
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) && this.screen === 'story' && this.mode === 'pages') {
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) && this.screen === 'story' && this.mode === 'pages' && !this.lookOpen) {
         this.turn(dx < 0 ? 1 : -1)
         e.preventDefault()
         // The swipe ends in a click; it should not also turn by tapping.
@@ -929,7 +1029,8 @@ export class ReaderApp {
     })
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') this.turn(1)
+      if (e.key === 'Escape' && this.lookOpen) this.closeLook()
+      else if (e.key === 'ArrowRight' || e.key === 'PageDown') this.turn(1)
       else if (e.key === 'ArrowLeft' || e.key === 'PageUp') this.turn(-1)
     })
 
