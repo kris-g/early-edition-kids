@@ -52,9 +52,9 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 
 ## With Simple UI
 
-<img src="images/kindle/simpleui-home.png" width="360" alt="Simple UI home screen with Early Edition shortcuts">
+<img src="images/kindle/simpleui-home.png" width="360" alt="Simple UI home screen: a deck of book covers, reading goals and stats, with Early Edition in the navigation bar between Home and History">
 
-If the [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) plugin is installed, Early Edition adds two Quick Actions to it: the front page and today's paper. The [plugin README](../plugin/README.md#using-with-simple-ui) explains how to place them.
+If the [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) plugin is installed, Early Edition fits into it rather than taking over: it can sit in Simple UI's navigation bar, as here, or as Quick Action buttons on its home screen for the front page and today's paper. The [plugin README](../plugin/README.md#using-with-simple-ui) explains how to place them.
 
 ## Where it started
 
