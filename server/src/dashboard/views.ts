@@ -4,6 +4,7 @@ import { loadsJson, type Row } from "../db.js";
 import { isImageExt, type Context } from "../pipeline.js";
 import { parseWordToKnow, renderStory } from "../render.js";
 import { londonDate } from "../timeutil.js";
+import { parseChecks, type StoryChecks } from "../validate.js";
 
 import { minutesFor, storyStats, type StoryStat, type TopicStat } from "../weights.js";
 import type { IssueSummary, IssueView, RunView, StoryCard, StoryDetail, TopicView } from "./types.js";
@@ -46,9 +47,12 @@ export function cardById(ctx: Context, id: number, today: string): StoryCard | n
   return row ? cardsFor(ctx, [row], today)[0] : null;
 }
 
-/** The <body> content of the story page, exactly what the Kindle renders. */
-export function storyBodyHtml(ctx: Context, row: Row): string {
-  const html = renderStory(row, ctx.config.readingWpm);
+/**
+ * The <body> content of the story page. Without `checks` it is exactly what the Kindle renders;
+ * with them, the same with the dashboard's marks on the checked numbers and the word to know.
+ */
+export function storyBodyHtml(ctx: Context, row: Row, checks: StoryChecks | null = null): string {
+  const html = renderStory(row, ctx.config.readingWpm, null, checks ? { numbers: checks.numbers.map((n) => n.value) } : null);
   const m = html.match(/<body>\n?([\s\S]*?)\n?<\/body>/);
   return m ? m[1] : html;
 }
@@ -59,14 +63,19 @@ export function storyDetail(ctx: Context, id: number, today: string): StoryDetai
   const card = cardsFor(ctx, [row], today)[0];
   const siblings = ctx.db.storiesFor(row.issue_date, Number(row.issue_version));
   const idx = siblings.findIndex((s) => Number(s.id) === id);
+  const checks = parseChecks(row.checks);
+  // A catch-up story was written when its original was; the copy only has the day it was reused.
+  const original = row.reused_from != null ? ctx.db.getStory(Number(row.reused_from)) : undefined;
   return {
     ...card,
-    body_html: storyBodyHtml(ctx, row),
+    body_html: storyBodyHtml(ctx, row, checks),
     word_to_know: parseWordToKnow(row.word_to_know),
     think_about_it: row.think_about_it ?? "",
     prev_id: idx > 0 ? Number(siblings[idx - 1].id) : null,
     next_id: idx >= 0 && idx < siblings.length - 1 ? Number(siblings[idx + 1].id) : null,
     image: isImageExt(row.image_ext) ? { alt: row.image_alt ?? null } : null,
+    checks,
+    created_at: original?.created_at ?? row.created_at,
   };
 }
 

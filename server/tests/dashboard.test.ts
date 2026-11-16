@@ -1,9 +1,11 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
-import { StubLLM } from "../src/llm.js";
-import { generateReq, makeApp, postEvents, tmpDir, waitJob, type TestApp } from "./helpers.js";
+import { LLMUnavailable, StubLLM } from "../src/llm.js";
+import { storyFile } from "../src/pipeline.js";
+import { renderStory } from "../src/render.js";
+import { NOW, WithFigures, generateReq, makeApp, pagesWithFigures, postEvents, tmpDir, waitJob, type TestApp } from "./helpers.js";
 
 let t: TestApp;
 afterEach(() => t?.cleanup());
@@ -195,6 +197,72 @@ describe("dashboard routes", () => {
     expect((await t.agent.get(`/api/dashboard/stories/${ids[0]}`)).body.prev_id).toBeNull();
     expect((await t.agent.get(`/api/dashboard/stories/${ids[5]}`)).body.next_id).toBeNull();
     expect((await t.agent.get("/api/dashboard/stories/99999")).status).toBe(404);
+  });
+
+  it("shows a story's checks, and marks them in the dashboard's copy only", async () => {
+    t = makeApp({ writer: new WithFigures(), pageFetcher: pagesWithFigures });
+    await generateReq(t);
+    const issue = (await request(t.app).get("/api/issue/today")).body;
+    const [first, second] = issue.stories;
+    const row = t.ctx.db.getStory(first.id)!;
+    const bodyOf = (page: string) => page.match(/<body>\n?([\s\S]*?)\n?<\/body>/)![1];
+
+    const d = (await t.agent.get(`/api/dashboard/stories/${first.id}`)).body;
+    expect(d.created_at).toBe(row.created_at);
+    expect(d.checks).toEqual({
+      numbers: expect.arrayContaining([
+        { value: "1300", in_source: true },
+        { value: "40", in_source: true },
+      ]),
+      verdict: { safe: true, supported: true, reasons: [] },
+      attempts: 1,
+      writer_model: "stub",
+      checker_model: "stub",
+    });
+    expect(d.body_html).toContain(
+      '<mark data-check="number" data-value="1300">1,300</mark> pupils from <mark data-check="number" data-value="40">40</mark> schools',
+    );
+    expect(d.body_html).toContain('<mark data-check="word"><b>practice</b></mark>');
+
+    // The Kindle and the iPad read the story page and the issue payload: neither has a mark, the
+    // page is byte for byte what it was before marks existed, and the dashboard's copy is that
+    // page's body with the marks added and nothing else.
+    const page = (await request(t.app).get(first.path)).text;
+    expect(page).toBe(renderStory(row, t.ctx.config.readingWpm));
+    expect(page).toBe(readFileSync(storyFile(t.ctx.settings, row.issue_date, 1, 1), "utf8"));
+    for (const sent of [page, (await request(t.app).get(`${first.path}?photo=1`)).text, JSON.stringify(issue)]) {
+      expect(sent).not.toContain("<mark");
+      expect(sent).not.toContain("data-check");
+    }
+    expect(d.body_html.replace(/<\/?mark[^>]*>/g, "")).toBe(bodyOf(page));
+
+    // A story from before checks were kept: no checks, and exactly the Kindle's body.
+    t.ctx.db.run("UPDATE stories SET checks = NULL WHERE id = ?", [second.id]);
+    const old = (await t.agent.get(`/api/dashboard/stories/${second.id}`)).body;
+    expect(old.checks).toBeNull();
+    expect(old.created_at).toBeTruthy();
+    expect(old.body_html).toBe(bodyOf((await request(t.app).get(second.path)).text));
+  });
+
+  it("gives a catch-up story its original's checks and the time that was written", async () => {
+    t = makeApp({ writer: new WithFigures(), pageFetcher: pagesWithFigures });
+    t.clock.now = new Date(NOW.getTime() - 86400_000);
+    await generateReq(t);
+    t.ctx.db.run("UPDATE stories SET created_at = '2026-11-13T05:31:07+00:00'");
+    t.clock.now = NOW;
+    class Down extends StubLLM {
+      override async chat(): Promise<string> {
+        throw new LLMUnavailable("connection refused");
+      }
+    }
+    t.ctx.writer = t.ctx.checker = new Down();
+    expect((await generateReq(t)).body.fallback).toBe(true);
+    const copy = t.ctx.db.storiesFor("2026-11-14", 1)[0];
+    const d = (await t.agent.get(`/api/dashboard/stories/${copy.id}`)).body;
+    expect(d.reused).toBe(true);
+    expect(d.created_at).toBe("2026-11-13T05:31:07+00:00");
+    expect(d.checks.numbers).toContainEqual({ value: "1300", in_source: true });
+    expect(d.body_html).toContain('data-value="1300"');
   });
 
   it("hides and unhides, returning the card", async () => {

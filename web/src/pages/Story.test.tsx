@@ -14,6 +14,8 @@ const detail = (id: number, prev: number | null, next: number | null): StoryDeta
   prev_id: prev,
   next_id: next,
   image: null,
+  checks: null,
+  created_at: '2026-11-13T05:31:07+00:00',
 })
 const stories: Record<string, StoryDetail> = { '41': detail(41, null, 42), '42': detail(42, 41, 43), '43': detail(43, 42, null) }
 

@@ -12,7 +12,10 @@ export const WORD_TO_KNOW_MAX = 40;
 export const DEFINITION_MAX = 160;
 export const THINK_MAX = 200;
 
-const NUMBER = /\d+(?:[.,]\d+)*/g;
+/** A number as written in text: digits, with thousands commas or a decimal point inside. */
+export const NUMBER = /\d+(?:[.,]\d+)*/g;
+/** How a written number is compared: thousands commas stripped ('1,300' -> '1300'). */
+export const numberValue = (raw: string) => raw.replace(/,/g, "").replace(/\.+$/, "");
 const WORD = /[A-Za-z0-9À-ɏ]+(?:['’-][A-Za-z0-9À-ɏ]+)*/g;
 
 export interface WordToKnow {
@@ -55,7 +58,7 @@ export const storyWordCount = (s: Story) => countWords(s.body.join(" "));
 /** Digit sequences with thousands commas stripped: '1,300' -> '1300', '3.8' stays '3.8'. */
 export function numberTokens(text: string): Set<string> {
   const out = new Set<string>();
-  for (const raw of (text || "").match(NUMBER) ?? []) out.add(raw.replace(/,/g, "").replace(/\.+$/, ""));
+  for (const raw of (text || "").match(NUMBER) ?? []) out.add(numberValue(raw));
   return out;
 }
 

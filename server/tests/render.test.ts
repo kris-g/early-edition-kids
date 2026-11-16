@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { bodyToHtml, renderStory } from "../src/render.js";
+import { bodyToHtml, markNumbers, renderStory } from "../src/render.js";
 import { HERE } from "./helpers.js";
 
 const SNAPSHOT = path.join(HERE, "snapshots", "story.html");
@@ -48,6 +48,48 @@ describe("story HTML", () => {
     for (const banned of ["<script", "<a ", "<img", "<link", "http://", "https://", "@font-face", "display: flex", "grid"]) {
       expect(html).not.toContain(banned);
     }
+  });
+
+  const unmarked = (html: string) => html.replace(/<\/?mark[^>]*>/g, "");
+
+  it("marks checked numbers and the word to know only when asked, and changes nothing else", () => {
+    const plain = renderStory(sampleStory(), 90);
+    expect(plain).not.toContain("<mark");
+    expect(renderStory(sampleStory(), 90, null, null)).toBe(plain);
+
+    // 2 and 39 are "checked" too, to show what must never be marked: the reading time and an entity.
+    const marked = renderStory(sampleStory(), 90, null, { numbers: ["26", "25", "2001", "61", "51", "2", "39"] });
+    expect(marked).toContain('on <mark data-check="number" data-value="26">26</mark> October');
+    expect(marked).toContain('<mark data-check="number" data-value="61">61</mark> times in <mark data-check="number" data-value="51">51</mark> games');
+    expect(marked).toContain('<mark data-check="word"><b>ceremony</b></mark> in London');
+    expect(marked.split("<mark").length - 1).toBe(6); // five numbers and the word
+    expect(marked).toContain("FOOTBALL · 2 MINUTE READ");
+    expect(marked).toContain("<h1>Harry Kane wins the Ballon d&#39;Or</h1>");
+    expect(marked).toContain("<title>Football · Harry Kane wins the Ballon d&#39;Or</title>");
+    // Take the marks out and it is the Kindle's page, byte for byte.
+    expect(unmarked(marked)).toBe(plain);
+    expect(plain).toBe(readFileSync(SNAPSHOT, "utf8"));
+  });
+
+  it("marks numbers in the headline, never in the boxes or a number that was not checked", () => {
+    const story = { ...sampleStory(), title: "Kane's 61 goals win it", think_about_it: "Could you score 61 goals?" };
+    const marked = renderStory(story, 90, null, { numbers: ["61"] });
+    expect(marked).toContain('<h1>Kane&#39;s <mark data-check="number" data-value="61">61</mark> goals win it</h1>');
+    expect(marked).toContain("<title>Football · Kane&#39;s 61 goals win it</title>");
+    expect(marked).toContain("<p>Could you score 61 goals?</p>");
+    expect(marked).toContain("in 51 games"); // not in the list
+    expect(unmarked(marked)).toBe(renderStory(story, 90));
+  });
+
+  it("matches numbers as the check compares them", () => {
+    const values = new Set(["1300", "3.8"]);
+    expect(markNumbers("More than 1,300 pupils, 3.8 each, 13 late.", values)).toBe(
+      'More than <mark data-check="number" data-value="1300">1,300</mark> pupils, <mark data-check="number" data-value="3.8">3.8</mark> each, 13 late.',
+    );
+    expect(markNumbers("<p>1300 &amp; &#1300; <b>1,300</b></p>", values)).toBe(
+      '<p><mark data-check="number" data-value="1300">1300</mark> &amp; &#1300; <b><mark data-check="number" data-value="1300">1,300</mark></b></p>',
+    );
+    expect(markNumbers("1,300", new Set())).toBe("1,300");
   });
 
   it("omits the word to know box when there is none", () => {

@@ -61,6 +61,19 @@ export async function fixturePageFetcher(url: string): Promise<string> {
   return fakeArticleHtml(url);
 }
 
+/** Every article page also says how many pupils and schools took part. */
+export const pagesWithFigures = async (url: string) =>
+  (await fixturePageFetcher(url)).replace("</article>", "<p>More than 1,300 pupils from 40 schools took part.</p></article>");
+
+/** A writer that repeats both of those figures in the first paragraph. */
+export class WithFigures extends StubLLM {
+  override rewrite(ctx: Record<string, any>) {
+    const story = super.rewrite(ctx);
+    story.body[0] += " In all, 1,300 pupils from 40 schools came.";
+    return story;
+  }
+}
+
 /** The default in tests: no network, so every story simply has no photo. */
 export async function noNetworkImages(url: string): Promise<FetchedImage> {
   throw new Error(`no network in tests (${url})`);

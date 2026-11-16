@@ -34,8 +34,31 @@ export type StoryCard = {
   stats: StoryStats;
 };
 
+/** One number in a story's title, teaser or body, and whether the source text has it too. */
+export type NumberCheck = {
+  /** As compared: digits with thousands commas stripped ("1300" for "1,300"). */
+  value: string;
+  in_source: boolean;
+};
+
+/** What the pipeline found when it checked a story (CONTRACT.md "Story checks"). */
+export type StoryChecks = {
+  numbers: NumberCheck[];
+  /** The checker's verdict on the published version. `reasons` is usually empty when it passed. */
+  verdict: { safe: boolean; supported: boolean; reasons: string[] };
+  /** Rewrites it took: 1, or 2 when the first was sent back. */
+  attempts: number;
+  /** The models that answered, namespaced as in the AI settings, or "stub". */
+  writer_model: string | null;
+  checker_model: string | null;
+};
+
 export type StoryDetail = StoryCard & {
-  /** The <body> content he sees, no <html>/<head>. */
+  /**
+   * The <body> content he sees, no <html>/<head>. With `checks`, the dashboard's copy also has
+   * `<mark data-check="number" data-value="1300">` around each checked number and
+   * `<mark data-check="word">` around the bold word to know; the Kindle and the iPad never get these.
+   */
   body_html: string;
   word_to_know: { word: string; definition: string } | null;
   think_about_it: string;
@@ -43,6 +66,10 @@ export type StoryDetail = StoryCard & {
   next_id: number | null;
   /** The photo the iPad reader shows, at GET /stories/:id/image, or null when the story has none. */
   image: { alt: string | null } | null;
+  /** Null for a story made before checks were kept; its body_html then has no marks. */
+  checks: StoryChecks | null;
+  /** When the story was written (UTC ISO). For a catch-up story, when its original was. */
+  created_at: string;
 };
 
 export type IssueView = {

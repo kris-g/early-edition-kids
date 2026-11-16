@@ -6,7 +6,7 @@ import { LLMUnavailable, StubLLM, type ChatMessage, type ChatOptions } from "../
 import { fallbackCandidates, generate, minStories, type Context } from "../src/pipeline.js";
 import { addDays } from "../src/timeutil.js";
 import { parseChecks } from "../src/validate.js";
-import { NOW, TODAY, fixturePageFetcher, makeCtx } from "./helpers.js";
+import { NOW, TODAY, WithFigures, fixturePageFetcher, makeCtx, pagesWithFigures } from "./helpers.js";
 
 class RecordingStub extends StubLLM {
   messages: ChatMessage[][] = [];
@@ -41,17 +41,6 @@ class BadNumbers extends StubLLM {
     const n = this.seen.get(ctx.candidate.id) ?? 0;
     this.seen.set(ctx.candidate.id, n + 1);
     if (n === 0) story.body[0] += " About 4321 people came.";
-    return story;
-  }
-}
-
-/** Every article page also says how many pupils and schools; the writer repeats both figures. */
-const FIGURES = "More than 1,300 pupils from 40 schools took part.";
-const pagesWithFigures = async (url: string) => (await fixturePageFetcher(url)).replace("</article>", `<p>${FIGURES}</p></article>`);
-class WithFigures extends StubLLM {
-  override rewrite(ctx: Record<string, any>) {
-    const story = super.rewrite(ctx);
-    story.body[0] += " In all, 1,300 pupils from 40 schools came.";
     return story;
   }
 }
