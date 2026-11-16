@@ -1,5 +1,5 @@
-import { useCallback } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
 import type { StoryCard } from '../api/types'
 import { ChevronLeft, ChevronRight, ExternalIcon, EyeIcon, EyeOffIcon } from '../components/Icons'
@@ -12,6 +12,45 @@ import { ENGAGED_EXPLAINER, londonToday, longDate, statsSentence } from '../lib/
 import { dayPath } from '../lib/day'
 import { useApi } from '../lib/useApi'
 import { useHideToggle } from '../lib/useHideToggle'
+import { cx } from '../lib/cx'
+
+const ARROW = 'grid size-10 shrink-0 place-items-center rounded-full border border-line transition'
+
+/** A small round previous/next button, or a faded stand-in at either end of the paper. */
+function Arrow({ to, state, dir }: { to: string | null; state: unknown; dir: 'prev' | 'next' }) {
+  const Icon = dir === 'prev' ? ChevronLeft : ChevronRight
+  const label = dir === 'prev' ? 'Previous story' : 'Next story'
+  if (!to) {
+    return (
+      <span aria-hidden="true" className={cx(ARROW, 'text-muted opacity-40')}>
+        <Icon className="size-5" />
+      </span>
+    )
+  }
+  return (
+    <Link to={to} state={state} replace aria-label={label} title={`${label} (${dir === 'prev' ? '←' : '→'})`} className={cx(ARROW, 'text-ink hover:bg-chip')}>
+      <Icon className="size-5" />
+    </Link>
+  )
+}
+
+/** The left and right arrow keys go to the previous and next story, unless a field or dialog has them. */
+function useArrowKeys(prev: string | null, next: string | null, state: unknown) {
+  const navigate = useNavigate()
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+      const t = e.target
+      if (t instanceof HTMLElement && (t.isContentEditable || t.closest('input, textarea, select, [role="dialog"]'))) return
+      const to = e.key === 'ArrowLeft' ? prev : e.key === 'ArrowRight' ? next : null
+      if (!to) return
+      e.preventDefault()
+      navigate(to, { state, replace: true })
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [navigate, prev, next, state])
+}
 
 export function Story() {
   const { id: idParam } = useParams()
@@ -22,6 +61,11 @@ export function Story() {
   const { mutate } = story
   const onUpdated = useCallback((card: StoryCard) => mutate((s) => (s ? { ...s, ...card } : s)), [mutate])
   const hide = useHideToggle(onUpdated)
+  // Neighbours of the story asked for only, not of the one still on screen while it loads.
+  const shown = story.data?.id === id ? story.data : undefined
+  const prev = shown?.prev_id ? `/story/${shown.prev_id}` : null
+  const next = shown?.next_id ? `/story/${shown.next_id}` : null
+  useArrowKeys(prev, next, location.state)
 
   if (!valid) return <ErrorNote>That story link is not right.</ErrorNote>
   if (story.error && !story.data) return <ErrorNote onRetry={story.reload}>{story.error.message}</ErrorNote>
@@ -43,9 +87,14 @@ export function Story() {
         {s.added_by_parent && <Badge tone="violet">Added by you</Badge>}
         {s.reused && <Badge>From an earlier day</Badge>}
         <span className="text-xs text-muted">
-          Story {s.position}
-          {s.version > 1 && `, version ${s.version}`} · {s.word_count} words
+          {s.version > 1 && `Version ${s.version} · `}
+          {s.word_count} words
         </span>
+        <nav aria-label="Previous and next story" className="ml-auto flex items-center gap-2">
+          <Arrow to={prev} state={location.state} dir="prev" />
+          <span className="min-w-14 text-center text-sm font-semibold tabular-nums">Story {s.position}</span>
+          <Arrow to={next} state={location.state} dir="next" />
+        </nav>
       </div>
 
       {s.image && <StoryPhoto id={s.id} alt={s.image.alt} />}
