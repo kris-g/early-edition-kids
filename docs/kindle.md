@@ -13,7 +13,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/front-page.png" width="360" alt="The Early Edition front page">
 
 - **Masthead:** the date, the issue number and the title.
-- **Today's paper:** how many stories and minutes, how many are read, a topic icon per story, and the first unread story with **Start reading**.
+- **Today's paper:** how many stories and minutes, how many are read, a topic icon per story, and the first unread story with **Start reading**. When that story has a photo, it sits beside the headline instead of the teaser, and tapping either opens the story.
 - **Back issues** and **My week** open their own screens.
 - **Word of the day** comes from one of today's stories.
 - **Check for news** syncs straight away, ignoring the usual wait between automatic tries.
@@ -31,6 +31,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/story-page.png" width="360" alt="The first page of a story: topic and reading time, the headline, a grey photo of a stadium with its credit, and the start of the text">
 
 - Stories open in KOReader's normal reader: swipe or tap to turn the page.
+- **Leaving early:** turning back from the first page (a left tap or a swipe right) closes the story and goes back to the headlines or front page it was opened from. What he read still counts; the story isn't marked read.
 - **The photo:** most stories have the source's main photo under the headline, in grey and cropped to the page's width, with a credit. A story without one starts with its text. The photo makes a story about a page longer.
 - The photo and the page are downloaded together, so a story never shows a missing picture.
 

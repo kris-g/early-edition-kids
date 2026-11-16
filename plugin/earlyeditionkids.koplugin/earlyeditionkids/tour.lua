@@ -8,6 +8,7 @@ saves a screenshot of it into <KOReader data dir>/screenshots/, and quits:
   1-front-page.png      the front page
   2-todays-paper.png    the headline list of the newest issue
   3-story-page.png      the first page of that story (its photo, if it has one)
+  3-back-from-page-one.png  after a left tap on that page: the headlines again
   3-story-finished.png  a story at its last page with the finished panel
   4-back-issues.png     back issues
   5-my-week.png         my week
@@ -64,24 +65,33 @@ function Tour.start(Controller)
             end,
         }
     end
+    -- Opens the first unread story of the newest paper (so the panel offers a next one), as from the headlines.
+    local function openPick()
+        local date = Controller:latestDate()
+        local stories = date and Controller.issues:visibleStories(date) or {}
+        local st = date and Controller.store:issueState(date)
+        local pick = stories[1]
+        for _, s in ipairs(stories) do
+            if not st.read[tostring(s.id)] then pick = s break end
+        end
+        if pick then Controller:openStory(date, pick, { kind = "headlines", date = date }) end
+    end
     local main_steps = {
         function() Controller:showFrontPage() end,
         function() shot("1-front-page.png") end,
         function() Controller:showHeadlines() end,
         function() shot("2-todays-paper.png") end,
-        function()
-            local date = Controller:latestDate()
-            local stories = date and Controller.issues:visibleStories(date) or {}
-            -- Prefer an unread story so the panel offers a next one.
-            local st = date and Controller.store:issueState(date)
-            local pick = stories[1]
-            for _, s in ipairs(stories) do
-                if not st.read[tostring(s.id)] then pick = s break end
-            end
-            if pick then Controller:openStory(date, pick, { kind = "headlines", date = date }) end
-        end,
+        openPick,
         function() end, -- let the reader open
         function() shot("3-story-page.png") end,
+        function()
+            -- A left tap on page one: back to the headlines it was opened from.
+            local rui = require("apps/reader/readerui").instance
+            if rui then rui:handleEvent(Event:new("GotoViewRel", -1)) end
+        end,
+        function() shot("3-back-from-page-one.png") end,
+        openPick,
+        function() end, -- let the reader open
         function()
             local rui = require("apps/reader/readerui").instance
             if rui and rui.rolling then
