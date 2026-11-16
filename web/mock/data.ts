@@ -1,6 +1,6 @@
 // Fake but realistic data for the mock dashboard API. Deterministic (seeded),
 // so screenshots and tests look the same every run.
-import type { ArticleHit, IssueView, RunView, StoryCard, StoryDetail, TopicView } from '../src/api/types.ts'
+import type { ArticleHit, IssueView, RunView, StoryCard, StoryChecks, StoryDetail, TopicView } from '../src/api/types.ts'
 
 // `description` is the config's optional line for a parent; one topic has none, as a config may leave it out.
 export const TOPICS: { name: string; base_weight: number; description: string | null }[] = [
@@ -161,11 +161,59 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 }
 
-function bodyHtml(t: Template, minutes: number): string {
+// --- story checks (CONTRACT.md "Story checks") --------------------------------
+const NUMBER = /\d+(?:[.,]\d+)*/g
+const numberValue = (raw: string) => raw.replace(/,/g, '')
+
+/** Stories older than this many days have no checks, like ones written before checks were kept. */
+export const CHECKS_DAYS = 20
+
+/** A passing story's checks: every number in its title, teaser and paragraphs, all in the source. */
+function makeChecks(t: Template, n: number): StoryChecks {
+  const values = new Set([t.title, t.teaser, ...t.paras].flatMap((s) => s.match(NUMBER) ?? []).map(numberValue))
+  return {
+    numbers: [...values].map((value) => ({ value, in_source: true })),
+    verdict: { safe: true, supported: true, reasons: [] },
+    attempts: n % 5 === 0 ? 2 : 1,
+    writer_model: 'anthropic:claude-opus-5-5',
+    checker_model: 'anthropic:claude-opus-5-5',
+  }
+}
+
+/** Escaped text with the dashboard's mark on each checked number, as the server renders it. */
+function withNumbers(text: string, checks: StoryChecks | null): string {
+  const html = escapeHtml(text)
+  if (!checks) return html
+  const values = new Set(checks.numbers.map((x) => x.value))
+  return html.replace(/&[#\w]+;|[^&]+/g, (part) =>
+    part.startsWith('&')
+      ? part
+      : part.replace(NUMBER, (raw) =>
+          values.has(numberValue(raw)) ? `<mark data-check="number" data-value="${numberValue(raw)}">${raw}</mark>` : raw,
+        ),
+  )
+}
+
+/** The paragraphs, with the first use of the word to know in bold (and marked, with checks). */
+function parasHtml(t: Template, checks: StoryChecks | null): string[] {
+  const word = t.word ? new RegExp(`(?<![\\p{L}\\p{N}_])(${t.word[0]})(?![\\p{L}\\p{N}_])`, 'iu') : null
+  let done = false
+  return t.paras.map((p) => {
+    const m = word && !done ? word.exec(p) : null
+    if (!m) return `<p>${withNumbers(p, checks)}</p>`
+    done = true
+    const bold = `<b>${escapeHtml(m[1])}</b>`
+    const before = withNumbers(p.slice(0, m.index), checks)
+    const after = withNumbers(p.slice(m.index + m[1].length), checks)
+    return `<p>${before}${checks ? `<mark data-check="word">${bold}</mark>` : bold}${after}</p>`
+  })
+}
+
+function bodyHtml(t: Template, minutes: number, checks: StoryChecks | null): string {
   const parts = [
     `<p class="kicker">${escapeHtml(t.topic.toUpperCase())} · ${minutes} MINUTE READ</p>`,
-    `<h1>${escapeHtml(t.title)}</h1>`,
-    ...t.paras.map((p) => `<p>${escapeHtml(p)}</p>`),
+    `<h1>${withNumbers(t.title, checks)}</h1>`,
+    ...parasHtml(t, checks),
   ]
   if (t.word) {
     parts.push(
@@ -185,7 +233,7 @@ export function makeStory(
   position: number,
   templateIndex: number | Template,
   stats: StatsKind,
-  extra: Partial<StoryCard> = {},
+  extra: Partial<StoryCard & Pick<StoryDetail, 'checks'>> = {},
 ): Stored {
   const t = typeof templateIndex === "number" ? TEMPLATES[templateIndex % TEMPLATES.length] : templateIndex
   const word_count = 110 + Math.round(rand() * 90)
@@ -194,6 +242,8 @@ export function makeStory(
   const active =
     stats === 'none' ? 0 : stats === 'opened' ? Math.round(expected * 0.3) : stats === 'finished' ? Math.round(expected * 0.35) : Math.round(expected * (0.8 + rand() * 0.6))
   const id = db.nextId++
+  // Older stories have no checks, as if written before checks were kept.
+  const checks = 'checks' in extra ? (extra.checks ?? null) : date >= addDays(londonToday(), -CHECKS_DAYS) ? makeChecks(t, id) : null
   const s: Stored = {
     id,
     date,
@@ -218,14 +268,17 @@ export function makeStory(
       engaged: stats === 'engaged',
       read_on: stats === 'finished' || stats === 'engaged' ? date : null,
     },
-    body_html: bodyHtml(t, minutes),
+    body_html: bodyHtml(t, minutes, checks),
     word_to_know: t.word ? { word: t.word[0], definition: t.word[1] } : null,
     think_about_it: t.think,
     prev_id: null,
     next_id: null,
     image: null,
+    // Stories are written a little apart, a minute or so after the run starts.
+    created_at: at(date, `05:3${Math.min(9, position)}`),
     template: typeof templateIndex === "number" ? templateIndex : -1,
     ...extra,
+    checks,
   }
   db.stories.set(id, s)
   return s
@@ -265,6 +318,8 @@ export function toDetail(s: Stored): StoryDetail {
     prev_id: null,
     next_id: null,
     image: null,
+    checks: s.checks,
+    created_at: s.created_at,
   }
   const rec = db.issues.get(s.date)
   if (rec && rec.version === s.version) {
@@ -324,6 +379,9 @@ export function seedData(opts: { noIssueToday: boolean; shift?: number }) {
         added_by_parent: back === 2 && p === 6,
         hidden: (back === 0 && p === 4) || (back === 7 && p === 2),
       })
+      // One story whose checker wrote a reason with its pass, to see how that reads. Real checkers
+      // are asked for a reason per problem, so a story that passed normally has none.
+      if (back === 1 && p === 2 && s.checks) s.checks.verdict.reasons = ['Every name, number and claim is in the source article.']
       ids.push(s.id)
     }
     db.issues.set(date, {

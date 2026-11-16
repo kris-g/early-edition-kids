@@ -1,6 +1,6 @@
 import type { AiPage } from '../api/routes'
 import type { ReadingView, ShareView } from '../api/types'
-import type { Job, StoryCard, StoryStats } from '../api/types'
+import type { Job, StoryCard, StoryChecks, StoryDetail, StoryStats } from '../api/types'
 
 export function stats(over: Partial<StoryStats> = {}): StoryStats {
   return { opened: false, reached_end: false, active_seconds: 0, expected_seconds: 90, engaged: false, read_on: null, ...over }
@@ -24,6 +24,42 @@ export function card(over: Partial<StoryCard> = {}): StoryCard {
     source_url: 'https://www.bbc.co.uk/sport/football/1',
     source_title: null,
     stats: stats(),
+    ...over,
+  }
+}
+
+/** A passing story's checks: both of the story's figures are in its source. */
+export function checks(over: Partial<StoryChecks> = {}): StoryChecks {
+  return {
+    numbers: [
+      { value: '25', in_source: true },
+      { value: '61', in_source: true },
+    ],
+    verdict: { safe: true, supported: true, reasons: [] },
+    attempts: 1,
+    writer_model: 'anthropic:claude-opus-5-5',
+    checker_model: 'anthropic:claude-opus-5-5',
+    ...over,
+  }
+}
+
+/** A story as GET /stories/:id returns it, with marks on its checked numbers and its word to know. */
+export function detail(over: Partial<StoryDetail> = {}): StoryDetail {
+  return {
+    ...card(),
+    body_html:
+      '<p class="kicker">FOOTBALL · 2 MINUTE READ</p>\n<h1>Harry Kane wins the Ballon d’Or</h1>\n' +
+      '<p>He is the first English winner for <mark data-check="number" data-value="25">25</mark> years.</p>\n' +
+      '<p>Kane scored <mark data-check="number" data-value="61">61</mark> times and got his prize at a big ' +
+      '<mark data-check="word"><b>ceremony</b></mark> in London.</p>\n' +
+      '<div class="box"><p class="label">WORD TO KNOW</p><p><b>Ceremony</b>: a special event held to celebrate something.</p></div>',
+    word_to_know: { word: 'ceremony', definition: 'a special event held to celebrate something.' },
+    think_about_it: 'Who do you think should win next year?',
+    prev_id: null,
+    next_id: null,
+    image: null,
+    checks: checks(),
+    created_at: '2026-11-13T05:31:07+00:00',
     ...over,
   }
 }

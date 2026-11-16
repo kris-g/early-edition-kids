@@ -125,6 +125,12 @@ export const MIGRATIONS: string[] = [
     ALTER TABLE stories ADD COLUMN image_alt TEXT;
     ALTER TABLE stories ADD COLUMN image_url TEXT;
   `,
+  // 5: what the pipeline found when it checked each story (validate.ts StoryChecks, as JSON): its
+  // numbers and whether the source has them, the checker's verdict, the attempts and the models.
+  // NULL for stories made before this, and for imported ones.
+  `
+    ALTER TABLE stories ADD COLUMN checks TEXT;
+  `,
 ];
 
 // Full-text search over the archive, when this SQLite build has FTS5. Not a numbered migration

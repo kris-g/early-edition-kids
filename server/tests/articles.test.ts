@@ -3,6 +3,7 @@ import { addArticle, searchArchive } from "../src/articles.js";
 import { utcnowIso } from "../src/db.js";
 import { StubLLM } from "../src/llm.js";
 import { archiveItems, generate } from "../src/pipeline.js";
+import { parseChecks } from "../src/validate.js";
 import { NOW, TODAY, makeCtx } from "./helpers.js";
 
 let ctx: ReturnType<typeof makeCtx>;
@@ -67,6 +68,8 @@ describe("adding articles", () => {
     expect(row.issue_version).toBe(1);
     expect(row.position).toBe(7);
     expect(row.added_by).toBe("parent");
+    // A parent-added story goes through the same checks, and keeps what they found.
+    expect(parseChecks(row.checks)).toMatchObject({ verdict: { safe: true, supported: true }, attempts: 1, writer_model: "stub" });
     expect(ctx.db.getIssue(TODAY)!.story_count).toBe(7);
     const again = await addArticle(ctx, { url: hit.url, when: "today", now: NOW });
     expect(again.ok).toBe(false);

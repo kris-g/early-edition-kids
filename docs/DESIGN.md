@@ -103,6 +103,8 @@ Each story must pass all three stages.
 
 **Issue level:** fewer than 3 stories passing means the run failed; use the fallback. When `STORY_COUNT` is under 3, every story must pass instead.
 
+**Kept with the story:** what these checks found for the version that passed is stored in `stories.checks` as JSON: the numbers in the title, teaser and body with whether each is in the source text, the checker's verdict and reasons, how many attempts it took, and the writer and checker models that answered. A catch-up copy carries its original's. Stories made before this (migration 5) have none.
+
 ### 4.4 Topic weighting and the catch-up fallback
 
 Topics live in configuration with a base weight. Starting set:

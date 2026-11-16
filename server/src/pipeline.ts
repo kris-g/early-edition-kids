@@ -44,7 +44,7 @@ import { CHECK_SCHEMA, rewriteSchema, selectSchema } from "./schemas.js";
 import * as prompts from "./prompts.js";
 import { bodyToHtml, renderStory } from "./render.js";
 import { addDays, generationNow, longDate } from "./timeutil.js";
-import { countWords, parseVerdict, storyWordCount, validateStory, type Story } from "./validate.js";
+import { countWords, parseVerdict, storyWordCount, validateStory, type Story, type StoryChecks } from "./validate.js";
 import { minutesFor, storyStats, topicStats, type TopicStat } from "./weights.js";
 
 export const MIN_STORIES = 3;
@@ -178,6 +178,8 @@ export interface Draft {
   requestId: number | null;
   /** The source article's main image, downloaded once the story has passed its checks. */
   image?: StoryImage | null;
+  /** What the checks found for the version that passed; stored with the story for the dashboard. */
+  checks?: StoryChecks | null;
 }
 
 // ---- public entry point ----
@@ -623,6 +625,9 @@ export async function produce(
   const sourceText = sourceTextFor(cand, article);
   const base = rewritePromptContext(cfg, cand, topic, allowed, todayLong, article);
   let problems: string[] = [];
+  // The models that answered the latest calls, for the story's stored checks.
+  let writerModel: string | null = null;
+  let checkerModel: string | null = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     const msgs = prompts.messages("rewrite", { ...base, problems });
     const log = (line: string) => detail.push(`[${cand.id}] ${line}`);
@@ -634,7 +639,10 @@ export async function produce(
           context: { candidate: cand, topic, sourceText, allowedTopics: allowed, storyWords: cfg.storyWords },
           schema: rewriteSchema(allowed),
           log,
-          onUsage: (u) => record(ctx, "rewrite", u),
+          onUsage: (u) => {
+            writerModel = u.model;
+            record(ctx, "rewrite", u);
+          },
         }),
       );
       data = parseJsonObject(reply);
@@ -673,6 +681,7 @@ export async function produce(
           schema: CHECK_SCHEMA,
           log,
           onUsage: (u) => {
+            checkerModel = u.model;
             checkCall = record(ctx, "check", u);
           },
         }),
@@ -702,7 +711,14 @@ export async function produce(
     }
     detail.push(`[${cand.id}] passed: ${JSON.stringify(story.title)} (${storyWordCount(story)} words)`);
     const image = await findImage(ctx, cand, pageHtml, detail);
-    return { draft: { story, candidate: cand, sourceText, addedBy: null, requestId: null, image }, problems: [] };
+    const checks: StoryChecks = {
+      numbers: result.numbers,
+      verdict,
+      attempts: attempt + 1,
+      writer_model: writerModel,
+      checker_model: checkerModel,
+    };
+    return { draft: { story, candidate: cand, sourceText, addedBy: null, requestId: null, image, checks }, problems: [] };
   }
   detail.push(`[${cand.id}] dropped after 2 attempts`);
   return { draft: null, problems };
@@ -792,6 +808,8 @@ export interface StoryRow {
   added_by: string | null;
   /** The story's photo, if it has one. */
   image?: RowImage | null;
+  /** The story's checks as JSON (validate.ts StoryChecks), or null when none were kept. */
+  checks?: string | null;
 }
 
 export function draftRow(d: Draft): StoryRow {
@@ -810,6 +828,7 @@ export function draftRow(d: Draft): StoryRow {
     reused_from: null,
     added_by: d.addedBy,
     image: d.image ? { ext: d.image.ext, alt: d.image.alt, url: d.image.url, bytes: d.image.bytes } : null,
+    checks: d.checks ? JSON.stringify(d.checks) : null,
   };
 }
 
@@ -847,8 +866,8 @@ function insertStory(ctx: Context, date: string, version: number, position: numb
   const id = ctx.db.run(
     "INSERT INTO stories (issue_date, issue_version, position, topic, title, teaser, body_html, word_to_know, " +
       "think_about_it, source_name, source_url, source_title, word_count, reused_from, hidden, created_at, added_by, " +
-      "image_ext, image_alt, image_url) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)",
+      "image_ext, image_alt, image_url, checks) " +
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?)",
     [
       date,
       version,
@@ -869,6 +888,7 @@ function insertStory(ctx: Context, date: string, version: number, position: numb
       image?.ext ?? null,
       image?.alt ?? null,
       image?.url ?? null,
+      row.checks ?? null,
     ],
   ).lastId;
   const file = storyFile(ctx.settings, date, version, position);
@@ -988,6 +1008,8 @@ function publishFallback(ctx: Context, date: string, detail: string[]): Generate
     added_by: p.added_by ?? null,
     // A catch-up story carries its source story's photo, copied into the new version.
     image: rowImageOf(ctx.settings, p),
+    // The text is the same, so what was found when it was checked still holds.
+    checks: p.checks ?? null,
   }));
   const version = storeIssue(ctx, date, rows, true);
   detail.push(`catch-up: reused stories [${rows.map((r) => r.reused_from).join(", ")}]`);

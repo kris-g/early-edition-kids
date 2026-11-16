@@ -23,7 +23,7 @@ h1 { font-size: 1.6em; line-height: 1.2; font-weight: bold; margin: 0 0 0.6em 0;
 </head>
 <body>
 <p class="kicker">{{ topic | upper }} · {{ minutes }} MINUTE READ</p>
-<h1>{{ title }}</h1>
+<h1>{{ title_html if title_html else title }}</h1>
 {%- if photo %}
 <div class="photo"><img src="{{ photo.src }}" alt="{{ photo.alt or '' }}"><p class="credit">Photo: {{ source_name }}</p></div>
 {%- endif %}

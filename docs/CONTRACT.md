@@ -172,7 +172,9 @@ type StoryCard = { id: number; date: string; version: number; position: number; 
 type StoryDetail = StoryCard & { body_html: string;              // the <body> content he sees, no <html>/<head>
                                  word_to_know: { word: string; definition: string } | null;
                                  think_about_it: string; prev_id: number | null; next_id: number | null;
-                                 image: { alt: string | null } | null };   // the photo, at GET /stories/:id/image
+                                 image: { alt: string | null } | null;     // the photo, at GET /stories/:id/image
+                                 checks: StoryChecks | null;               // see "Story checks"
+                                 created_at: string };                     // when it was written, UTC ISO
 type IssueView = { date: string; version: number; fallback: boolean; created_at: string;
                    downloaded_by: { device: string; version: number; received_at: string }[];
                    read_count: number; stories: StoryCard[] };   // includes hidden ones, flagged
@@ -322,6 +324,24 @@ type ShareView = { today: string; streak: Streak;
 | Method and path | Returns |
 |---|---|
 | `GET /share` | `ShareView` for today |
+
+### Story checks (added 16 November 2026)
+
+What the pipeline found when it checked a story (DESIGN 4.3) is kept with the story and shown on the dashboard's story page. Nothing here changes a prompt or adds an LLM call: it is what the pipeline already worked out.
+
+```ts
+type StoryChecks = { numbers: { value: string; in_source: boolean }[];   // each number in the title, teaser and body, in order of first use
+                     verdict: { safe: boolean; supported: boolean; reasons: string[] };   // the checker's, on the published version
+                     attempts: number;                                    // 1, or 2 when the first rewrite was sent back
+                     writer_model: string | null;                         // the models that answered: namespaced ids, or "stub"
+                     checker_model: string | null };
+```
+
+- **Stored** as JSON in `stories.checks` (migration 5). A catch-up story carries its original's. A story made before this, or imported, has `null`: the dashboard then shows no notes for it.
+- **`numbers[].value`** is the number as the check compares it, with thousands commas stripped (`"1300"` for "1,300"). A published story's numbers all have `in_source: true`, since one that is not in the source text fails the check.
+- **`verdict.reasons`** is what the checker wrote. It is asked for a reason per problem, so a story that passed usually has none.
+- **`StoryDetail.created_at`** is when the story was written; for a catch-up story, when its original was.
+- **Marks, on the dashboard only.** When a story has checks, `StoryDetail.body_html` wraps each checked number in the headline and the paragraphs in `<mark data-check="number" data-value="1300">1,300</mark>` (`data-value` matches `numbers[].value`), and the bold first use of the word to know in `<mark data-check="word"><b>…</b></mark>`. The reading-time line and the Word to know and Think about it boxes are never marked. Taking the `<mark>` tags out gives exactly the story page's body. The story file, `GET /issues/...` (with or without `?photo=1`) and the issue payload never contain a mark, so the Kindle and the iPad get what they always did.
 
 ## Story photos (added 16 November 2026)
 
