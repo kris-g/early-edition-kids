@@ -169,6 +169,33 @@ body {
   font-size: 0.75em;
   margin: 1.5em 0 0;
 }
+/* The dashboard's marks on a checked number and the word to know (never on the
+   Kindle). The paper is light in both themes, so these colours do not follow the theme. */
+.kindle-page mark[data-check] {
+  color: inherit;
+  background: rgb(11 107 83 / 0.14);
+  box-shadow: inset 0 -2px 0 rgb(11 107 83 / 0.55);
+  border-radius: 3px;
+  padding: 0 0.12em;
+  cursor: pointer;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.kindle-page mark[data-check='word'] {
+  background: rgb(180 83 9 / 0.14);
+  box-shadow: inset 0 -2px 0 rgb(180 83 9 / 0.55);
+}
+.kindle-page mark[data-check]:hover,
+.kindle-page mark[data-check][aria-expanded='true'] {
+  background: rgb(11 107 83 / 0.28);
+}
+.kindle-page mark[data-check='word']:hover,
+.kindle-page mark[data-check='word'][aria-expanded='true'] {
+  background: rgb(180 83 9 / 0.28);
+}
+.kindle-page mark[data-check]:focus-visible {
+  outline-color: #0b6b53;
+}
 .kindle-page a {
   color: inherit;
   text-decoration: underline;

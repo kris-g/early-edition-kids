@@ -73,7 +73,12 @@ theme switch).
   and a colour (Paper, Green, Night); Share… (the phone's share sheet), Copy image and Save image. Cards are drawn on
   a canvas in `src/lib/shareDraw.ts` from `GET /api/dashboard/share`; their wording is in `src/lib/shareCards.ts`.
 - **Story**: the story as he sees it, its reading stats in words, the source link, hide and unhide,
-  previous and next.
+  previous and next. Each number the server checked and the Word to know are marked; press one (a click,
+  a tap, or Enter or Space) for its note: whether the number matches the source, or the word's
+  definition. A story written before checks were kept has no marks. At 900px and wider it is the paper
+  view: today's stories and earlier days in a list on the left (`components/PaperList.tsx`), the open
+  story on the right, and above it when it was written, by which model, and "Checked against its
+  source" with the checker's reasons if it gave any.
 - **Find articles**: search the feed archive or paste a link; add to today or for tomorrow. Each add is
   rewritten and checked by the server; the page polls the job every 2 seconds and shows the new story or
   the reasons it was refused. Polling carries on while you move between pages.

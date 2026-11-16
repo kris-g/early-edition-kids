@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import type { StoryCard, StoryStats } from '../api/types'
 import { cx } from '../lib/cx'
 import { useOrigin } from '../lib/origin'
@@ -19,6 +20,53 @@ export function StatusPill({ stats, short, paperDate }: { stats: StoryStats; sho
     <span className={cx('inline-flex rounded-full px-[9px] py-1 text-xs leading-none font-bold', PILL[s.kind])}>
       {s.label}
     </span>
+  )
+}
+
+/**
+ * One story in the list beside an open story: topic, reading time, title, status
+ * and a Hidden badge. Choosing one moves sideways, like the story page's arrows:
+ * it replaces the open story and keeps where the page was opened from.
+ */
+export function StoryRowItem({ story, current }: { story: StoryCard; current?: boolean }) {
+  const { state } = useLocation()
+  const link = useRef<HTMLAnchorElement>(null)
+  useEffect(() => {
+    // Keep the open story in sight in the list (arrow keys can move past its edge).
+    // Only the list scrolls for this, never the page.
+    const el = link.current
+    const pane = el?.closest<HTMLElement>('[data-scroll-pane]')
+    if (!current || !el || !pane) return
+    const row = el.getBoundingClientRect()
+    const box = pane.getBoundingClientRect()
+    if (row.top < box.top) pane.scrollTop -= box.top - row.top + 8
+    else if (row.bottom > box.bottom) pane.scrollTop += row.bottom - box.bottom + 8
+  }, [current])
+  return (
+    <Link
+      ref={link}
+      to={`/story/${story.id}`}
+      state={state}
+      replace
+      aria-current={current ? 'page' : undefined}
+      className={cx(
+        'flex flex-col gap-1.5 rounded-[10px] px-2 py-2.5',
+        current ? 'bg-bg shadow-[inset_3px_0_0_var(--accent)]' : 'hover:bg-chip',
+        story.hidden && 'opacity-80',
+      )}
+    >
+      <span className="flex items-baseline justify-between gap-2">
+        <TopicChip topic={story.topic} />
+        <span className="shrink-0 text-xs text-muted tabular-nums">{story.minutes} min</span>
+      </span>
+      <span className={cx('text-sm leading-[1.3] font-semibold', story.hidden && 'line-through decoration-muted')}>
+        {story.title}
+      </span>
+      <span className="flex flex-wrap items-center gap-1.5">
+        <StatusPill stats={story.stats} short paperDate={story.date} />
+        {story.hidden && <Badge tone="amber">Hidden</Badge>}
+      </span>
+    </Link>
   )
 }
 

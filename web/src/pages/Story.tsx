@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
-import type { StoryCard } from '../api/types'
+import type { StoryCard, StoryDetail } from '../api/types'
 import { ChevronLeft, ChevronRight, ExternalIcon, EyeIcon, EyeOffIcon } from '../components/Icons'
 import { BackLink } from '../components/BackLink'
-import { KindlePage } from '../components/KindlePage'
+import { PaperList } from '../components/PaperList'
+import { CheckedStory, ChecksLine } from '../components/StoryNotes'
 import { StoryPhoto } from '../components/StoryPhoto'
 import { StatusPill } from '../components/StoryCardItem'
 import { Badge, Button, Card, ErrorNote, LinkButton, Loading, SectionTitle, TopicChip } from '../components/ui'
@@ -12,6 +13,7 @@ import { ENGAGED_EXPLAINER, londonToday, longDate, statsSentence } from '../lib/
 import { dayPath } from '../lib/day'
 import { useApi } from '../lib/useApi'
 import { useHideToggle } from '../lib/useHideToggle'
+import { DESK_QUERY, useMedia } from '../lib/useMedia'
 import { cx } from '../lib/cx'
 
 const ARROW = 'grid size-10 shrink-0 place-items-center rounded-full border border-line transition'
@@ -52,15 +54,32 @@ function useArrowKeys(prev: string | null, next: string | null, state: unknown) 
   }, [navigate, prev, next, state])
 }
 
+/**
+ * One story. On a phone it is the page; on a wide screen it is the paper view:
+ * the stories of today and earlier days on the left, the open one on the right.
+ * Either way a marked number or the word to know shows its note when pressed.
+ */
 export function Story() {
   const { id: idParam } = useParams()
   const location = useLocation()
+  const desk = useMedia(DESK_QUERY)
   const id = Number(idParam)
   const valid = Number.isInteger(id) && id > 0
   const story = useApi(valid ? `story:${id}` : null, (signal) => api.story(id, signal))
   const { mutate } = story
-  const onUpdated = useCallback((card: StoryCard) => mutate((s) => (s ? { ...s, ...card } : s)), [mutate])
+  // The latest hide or unhide, so the list beside the story shows it too.
+  const [changed, setChanged] = useState<StoryCard>()
+  const onUpdated = useCallback(
+    (card: StoryCard) => {
+      mutate((s) => (s ? { ...s, ...card } : s))
+      setChanged(card)
+    },
+    [mutate],
+  )
   const hide = useHideToggle(onUpdated)
+  // The day of the story last shown: the list keeps that day while the next story loads.
+  const [listDate, setListDate] = useState<string>()
+  if (story.data && story.data.date !== listDate) setListDate(story.data.date)
   // Neighbours of the story asked for only, not of the one still on screen while it loads.
   const shown = story.data?.id === id ? story.data : undefined
   const prev = shown?.prev_id ? `/story/${shown.prev_id}` : null
@@ -68,18 +87,56 @@ export function Story() {
   useArrowKeys(prev, next, location.state)
 
   if (!valid) return <ErrorNote>That story link is not right.</ErrorNote>
-  if (story.error && !story.data) return <ErrorNote onRetry={story.reload}>{story.error.message}</ErrorNote>
   const s = story.data
-  if (!s) return <Loading />
-
-  const isToday = s.date === londonToday()
   // Opened directly (no "from"): back to its paper.
-  const fallback = isToday ? { to: '/', label: 'Today' } : { to: dayPath(s.date, 'paper'), label: longDate(s.date) }
+  const fallback =
+    !s || s.date === londonToday() ? { to: '/', label: 'Today' } : { to: dayPath(s.date, 'paper'), label: longDate(s.date) }
+  const back = <BackLink fallback={fallback} />
 
+  const pane =
+    story.error && !s ? (
+      <ErrorNote onRetry={story.reload}>{story.error.message}</ErrorNote>
+    ) : !s ? (
+      <Loading />
+    ) : (
+      <StoryPane s={s} prev={prev} next={next} hide={hide} desk={desk} />
+    )
+
+  if (!desk) {
+    return (
+      <div className="flex flex-col">
+        {s && back}
+        {pane}
+      </div>
+    )
+  }
   return (
-    <div className="flex flex-col">
-      <BackLink fallback={fallback} />
+    <div className="grid grid-cols-[minmax(220px,0.42fr)_minmax(0,1fr)] items-start gap-4">
+      <PaperList currentId={id} currentDate={s?.date ?? listDate} changed={changed} />
+      <div className="flex max-w-[720px] min-w-0 flex-col">
+        {back}
+        {pane}
+      </div>
+    </div>
+  )
+}
 
+function StoryPane({
+  s,
+  prev,
+  next,
+  hide,
+  desk,
+}: {
+  s: StoryDetail
+  prev: string | null
+  next: string | null
+  hide: ReturnType<typeof useHideToggle>
+  desk: boolean
+}) {
+  const location = useLocation()
+  return (
+    <>
       <div className="mt-1 mb-4 flex flex-wrap items-center gap-2">
         <TopicChip topic={s.topic} />
         <StatusPill stats={s.stats} paperDate={s.date} />
@@ -97,8 +154,9 @@ export function Story() {
         </nav>
       </div>
 
+      {desk && <ChecksLine story={s} />}
       {s.image && <StoryPhoto id={s.id} alt={s.image.alt} />}
-      <KindlePage story={s} />
+      <CheckedStory key={s.id} story={s} />
 
       <SectionTitle className="mt-7 mb-3">Reading</SectionTitle>
       <Card>
@@ -155,6 +213,6 @@ export function Story() {
           <span />
         )}
       </nav>
-    </div>
+    </>
   )
 }
