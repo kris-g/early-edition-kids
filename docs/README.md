@@ -5,6 +5,7 @@ Start with the tours if you want to see what it does, and the spec if you want t
 | Page | What it covers |
 |---|---|
 | [The Kindle screens](kindle.md) | What the child sees: front page, today's paper, a story, back issues. |
+| [Reading on an iPad](ipad.md) | Setting up the iPad reader as a home-screen app, step by step, and what the child sees. |
 | [The parent dashboard](dashboard.md) | Annotated screenshots of each dashboard page. |
 | [Settings](settings.md) | Every setting in `config.yaml`, what is set on the dashboard instead, and papers for more than one child. |
 | [Architecture](architecture.md) | The system overview, the daily pipeline and the morning sync. |
@@ -22,6 +23,7 @@ docs/
     architecture/  the system overview, light and dark, made by tools/system-diagram.mjs
     kindle/        screens from the KOReader emulator
     dashboard/     annotated dashboard screenshots, made by tools/annotate.mjs
+    ipad/          annotated iPad setup screenshots, made by tools/annotate-ipad.mjs
     mockups/       the three original mockups the design started from
   tools/           scripts that make the images
 ```

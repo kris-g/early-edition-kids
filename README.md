@@ -17,7 +17,7 @@ Early Edition Kids is a daily news brief for a child's jailbroken Kindle: a smal
 
 ![The parent dashboard's overview page, annotated](docs/images/dashboard/overview.png)
 
-More in the docs: [the Kindle screens](docs/kindle.md), [the parent dashboard](docs/dashboard.md), [architecture diagrams](docs/architecture.md) and [the model comparison](docs/model-comparison.md).
+More in the docs: [the Kindle screens](docs/kindle.md), [reading on an iPad](docs/ipad.md), [the parent dashboard](docs/dashboard.md), [architecture diagrams](docs/architecture.md) and [the model comparison](docs/model-comparison.md).
 
 ## How it fits together
 
@@ -89,7 +89,7 @@ Open the dashboard to see what was read, hide or add stories, pick topics, and c
 
 ### 4. Reading on an iPad (optional)
 
-The same paper, with the stories' photos and colour, can be read on an iPad as a home-screen app. Open the dashboard's **More** page: **Read on an iPad** has the reader's address and a QR code. Scan the code with the iPad's camera (or open the address in Safari on the iPad), tap **Share**, then **Add to Home Screen**. The iPad has to be on the home Wi-Fi, like the Kindle. If the address on that card doesn't open, set `-e KINDLE_BASE_URL=http://192.168.1.50:8080` (the address the Kindle uses) and restart the server. A child can read on both: the dashboard counts the reading from each.
+The same paper, with the stories' photos and colour, can be read on an iPad as a home-screen app. Open the dashboard's **More** page: **Read on an iPad** has the reader's address and a QR code. Scan the code with the iPad's camera (or open the address in Safari on the iPad), tap **Share**, then **Add to Home Screen**. The iPad has to be on the home Wi-Fi, like the Kindle. If the address on that card doesn't open, set `-e KINDLE_BASE_URL=http://192.168.1.50:8080` (the address the Kindle uses) and restart the server. A child can read on both: the dashboard counts the reading from each. [Reading on an iPad](docs/ipad.md) walks through it with screenshots.
 
 ### Running it on Kubernetes instead
 
