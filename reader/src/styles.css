@@ -8,6 +8,9 @@
   --soft: #55554f;
   --faint: #6b6b65;
   --sun: #ffd21f;
+  /* reader: a read story's empty thumbnail, and soft text on an ink panel. */
+  --dim: #e6e4dc;
+  --on-ink-soft: #dddcd5;
 
   /* One flat colour per topic. Unknown topics take --generic. */
   --football: #35c26f;
@@ -26,10 +29,12 @@
   --serif: 'Noto Serif', Georgia, serif;
   --sans: 'Noto Sans', system-ui, sans-serif;
 
-  /* Reading sizes follow the profile's age (body class). */
-  --read: 25px;
+  /* Reading sizes follow the profile's age (body class), scaled by the text size from the Aa
+     panel (--fs on <html>, look.ts). Headlines grow half as fast as the text. */
+  --read-base: 25px;
   --read-lh: 1.6;
-  --head: 50px;
+  --head-base: 50px;
+  --fs: 1;
 
   --gutter: clamp(40px, 6.8vw, 56px);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -40,8 +45,37 @@
   --safe-l: env(safe-area-inset-left, 0px);
   --safe-r: env(safe-area-inset-right, 0px);
 }
-.age-young { --read: 30px; --read-lh: 1.62; --head: 54px; }
-.age-older { --read: 21px; --read-lh: 1.56; --head: 46px; }
+.age-young { --read-base: 30px; --read-lh: 1.62; --head-base: 54px; }
+.age-older { --read-base: 21px; --read-lh: 1.56; --head-base: 46px; }
+body { --read: calc(var(--read-base) * var(--fs)); --head: calc(var(--head-base) * (0.5 + var(--fs) / 2)); }
+
+/* reader: the page colours from the Aa panel. Paper is the mock-up's own. */
+:root[data-theme='sepia'] {
+  --paper: #f4ead5;
+  --ink: #2f2417;
+  --soft: #5f4f3c;
+  --faint: #76644e;
+  --dim: #e3d6ba;
+  --on-ink-soft: #e2d6bf;
+}
+:root[data-theme='night'] {
+  --paper: #1c1b19;
+  --ink: #ece8df;
+  --soft: #b9b4a9;
+  --faint: #959084;
+  --dim: #34322e;
+  --on-ink-soft: #4a4740;
+  color-scheme: dark;
+}
+/* Photos sit a little quieter on the night page. */
+[data-theme='night'] img { filter: brightness(0.9); }
+/* Things printed on a topic colour or the sunrise yellow keep dark ink and light paper in every theme. */
+.flag, .box.word, .opener.plain, .thumb, .lead-photo, .next-story .disc, .finished.paper-done, .closer, .day.today .circle {
+  --ink: #121212;
+  --paper: #fafaf7;
+  --soft: #55554f;
+  color: var(--ink);
+}
 
 [data-topic='football'] { --sec: var(--football); }
 [data-topic='science'] { --sec: var(--science); }
@@ -95,6 +129,16 @@ img { display: block; -webkit-user-drag: none; }
 .home svg { width: 24px; height: 24px; }
 .home:active { background: var(--ink); color: var(--paper); }
 .runhead .word { font: 900 24px/1 var(--display); letter-spacing: -0.01em; white-space: nowrap; }
+/* reader: the place in the paper, and the Aa button for text size and page colour. */
+.head-end { justify-self: end; display: flex; align-items: center; gap: 14px; margin-right: -10px; }
+.look-btn {
+  display: grid; place-items: center;
+  width: 52px; height: 48px; padding: 0;
+  border: 2px solid var(--ink); background: var(--paper);
+  font: 700 24px/1 var(--serif); letter-spacing: -0.02em;
+}
+.look-btn small { font-size: 17px; }
+.look-btn:active, .look-btn[aria-expanded='true'] { background: var(--ink); color: var(--paper); }
 .place { justify-self: end; display: flex; align-items: center; gap: 12px; font: 700 15px/1 var(--sans); white-space: nowrap; }
 .place .pips i { width: 14px; height: 14px; }
 .pips i.now { background: var(--sun); }
@@ -183,7 +227,7 @@ img { display: block; -webkit-user-drag: none; }
 .row .meta { display: block; font: 500 15px/1.3 var(--sans); color: var(--soft); margin-top: 4px; }
 .row.read strong { color: var(--faint); }
 .row.read .thumb img { filter: grayscale(1); opacity: 0.6; }
-.row.read .thumb { background: #e6e4dc; }
+.row.read .thumb { background: var(--dim); }
 .row:active strong { text-decoration: underline; text-underline-offset: 4px; }
 .furniture { display: flex; align-items: center; gap: 10px; min-height: 92px; }
 .furniture .btn { height: 60px; font-size: 19px; }
@@ -198,6 +242,8 @@ img { display: block; -webkit-user-drag: none; }
 
 /* ---------- a story, in pages ---------- */
 .story.paged { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+/* reader: the screens' one column is the screen's width, never wider than what it holds. */
+.story.paged, .scroller, .screen { grid-template-columns: minmax(0, 1fr); }
 .pager { position: relative; overflow: hidden; min-height: 0; touch-action: pan-y; }
 /* Pinned to the pager's edges so the height is definite: Safari only breaks columns (pages) when
    it is, and a percentage height inside the grid row isn't. */
@@ -262,7 +308,7 @@ img { display: block; -webkit-user-drag: none; }
 .next-story .disc { flex: none; width: 60px; height: 60px; border-radius: 50%; background: var(--sec); color: var(--ink); display: grid; place-items: center; }
 .next-story .disc svg { width: 48px; height: 48px; }
 .next-story strong { display: block; font: 700 26px/1.15 var(--serif); text-wrap: balance; }
-.next-story .meta { display: block; font: 500 16px/1.3 var(--sans); color: #dddcd5; margin-top: 5px; }
+.next-story .meta { display: block; font: 500 16px/1.3 var(--sans); color: var(--on-ink-soft); margin-top: 5px; }
 .next-story > svg { margin-left: auto; flex: none; width: 34px; height: 34px; }
 .next-story:focus-visible { outline-offset: 4px; }
 .next-story:active { transform: translateY(1px); }
@@ -448,6 +494,118 @@ img { display: block; -webkit-user-drag: none; }
 .curl-clip { position: absolute; inset: 0; overflow: hidden; }
 .curl-face { position: absolute; top: 0; overflow: hidden; background: var(--paper); }
 .curl-back { left: 0; transform-origin: 0 0; }
-.curl-wash { position: absolute; inset: 0; background: rgba(250, 250, 247, 0.86); }
+.curl-wash { position: absolute; inset: 0; background: var(--paper); opacity: 0.86; }
 .curl-flap { position: absolute; inset: 0; filter: drop-shadow(0 2px 10px rgba(18, 18, 18, 0.28)); }
 .curl-bar { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+
+/* ---------- reader: the Aa panel (text size and page colour) ----------
+   A slip of the paper laid over the page: ink rules, a double rule under its title like the
+   masthead's, and a notch pointing at the Aa button. Pages are shown as small pages. */
+.look {
+  --look-pad: 22px;
+  position: absolute;
+  top: calc(64px + var(--safe-t) + 12px);
+  right: calc(var(--gutter) - 10px);
+  width: min(408px, calc(100% - 32px));
+  z-index: 4;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 0 22px 50px -18px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+/* The notch, centred on the Aa button (52px wide, its right edge on the panel's). */
+.look::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: 18px;
+  width: 16px;
+  height: 16px;
+  background: var(--paper);
+  border-left: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
+  transform: rotate(45deg);
+}
+.look-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 10px 12px var(--look-pad);
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 5px;
+}
+.look-head::after { content: ''; position: absolute; left: 0; right: 0; bottom: -7px; border-bottom: 1px solid var(--ink); }
+.look-head h2 { font: 900 26px/1 var(--display); letter-spacing: -0.01em; }
+.look-done { min-height: 44px; padding: 0 12px; border: 0; background: none; font: 700 17px/1 var(--sans); }
+.look-done:active { background: var(--ink); color: var(--paper); }
+.look-part { padding: 18px var(--look-pad) 20px; }
+.look-part + .look-part { border-top: 1px solid var(--ink); }
+.look-part .kicker { margin-bottom: 14px; }
+
+/* Text size: one ruled control, the smaller A, the steps, the bigger A. */
+.sizes { display: grid; grid-template-columns: 72px 1fr 72px; height: 64px; border: 2px solid var(--ink); }
+.size-btn { display: grid; place-items: center; padding: 0; border: 0; background: none; font-family: var(--serif); font-weight: 700; line-height: 1; }
+.size-btn.smaller { font-size: 18px; border-right: 2px solid var(--ink); }
+.size-btn.bigger { font-size: 34px; border-left: 2px solid var(--ink); }
+.size-btn:not(:disabled):active { background: var(--ink); color: var(--paper); }
+.size-btn:disabled { color: var(--faint); opacity: 0.45; cursor: default; }
+.steps { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.steps i { flex: none; border-radius: 50%; border: 2px solid var(--ink); }
+.steps i:nth-child(1) { width: 8px; height: 8px; }
+.steps i:nth-child(2) { width: 10px; height: 10px; }
+.steps i:nth-child(3) { width: 12px; height: 12px; }
+.steps i:nth-child(4) { width: 14px; height: 14px; }
+.steps i:nth-child(5) { width: 16px; height: 16px; }
+.steps i:nth-child(6) { width: 18px; height: 18px; }
+.steps i.on { background: var(--ink); }
+/* The size in use takes the sunrise yellow, like the story you are on in the running head. */
+.steps i.now { background: var(--sun); border-color: #121212; box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+
+/* Page colour: three small pages, each in its own colours, the one in use ticked. */
+.themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.swatch { display: flex; flex-direction: column; gap: 10px; padding: 0; border: 0; background: none; text-align: left; }
+.swatch .page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  aspect-ratio: 4 / 3.4;
+  padding: 10px 12px;
+  border: 2px solid var(--ink);
+  background: var(--sw-paper);
+  color: var(--sw-ink);
+  overflow: hidden;
+}
+.swatch .page b { font: 900 26px/1 var(--display); margin-bottom: 3px; }
+.swatch .page i { display: block; height: 3px; border-radius: 2px; background: currentColor; opacity: 0.55; }
+.swatch .page i:nth-of-type(2) { width: 82%; }
+.swatch .page i:nth-of-type(3) { width: 60%; }
+.swatch .picked { position: absolute; right: 6px; top: 6px; width: 26px; height: 26px; display: none; }
+.swatch .name { font: 500 16px/1 var(--sans); color: var(--soft); }
+.swatch.paper { --sw-paper: #fafaf7; --sw-ink: #121212; }
+.swatch.sepia { --sw-paper: #f4ead5; --sw-ink: #2f2417; }
+.swatch.night { --sw-paper: #1c1b19; --sw-ink: #ece8df; }
+.swatch[aria-pressed='true'] .page { box-shadow: 0 0 0 2px var(--paper), 0 0 0 5px var(--ink); }
+.swatch[aria-pressed='true'] .picked { display: block; }
+.swatch[aria-pressed='true'] .name { font-weight: 700; color: var(--ink); }
+.swatch:active .page { transform: translateY(1px); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .look.enter { animation: look-in 0.22s var(--ease) both; transform-origin: calc(100% - 26px) 0; }
+}
+@keyframes look-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+@media (max-width: 600px) {
+  .look { right: 16px; --look-pad: 18px; }
+  .look::before { right: 22px; }
+  .head-end { gap: 10px; margin-right: 0; }
+  .themes { gap: 10px; }
+  /* Room for the Aa button: the story pips go, "Story 3 of 6" stays. */
+  .runhead .place .pips { display: none; }
+  .home { white-space: nowrap; }
+  .turner { padding-inline: 16px; gap: 10px; }
+  .where { white-space: nowrap; }
+  .where .dots { display: none; }
+  .turn.next { padding: 0 16px 0 18px; }
+}

@@ -128,6 +128,53 @@ describe('the reader', () => {
   })
 })
 
+describe('text size and page colour', () => {
+  it('opens from the Aa button on a story, and keeps what is chosen for next time', async () => {
+    const kv = memoryKV()
+    serve(issue())
+    const app = start(kv)
+    await settle()
+    expect(stage().querySelector('.look-btn')).toBeNull() // only on a story
+    click('.btn.go')
+    click('.look-btn')
+    expect(app.lookOpen).toBe(true)
+    expect(stage().querySelector('.look-btn')!.getAttribute('aria-expanded')).toBe('true')
+    click('[data-look="bigger"]')
+    click('[data-look="theme:sepia"]')
+    expect(document.documentElement.dataset.theme).toBe('sepia')
+    expect(document.documentElement.style.getPropertyValue('--fs')).toBe('1.1')
+    expect(stage().querySelector('[data-look="theme:sepia"]')!.getAttribute('aria-pressed')).toBe('true')
+    // A tap on the page puts the panel away without turning it.
+    click('#pager')
+    expect(app.lookOpen).toBe(false)
+    expect(stage().querySelector('#look')).toBeNull()
+    expect(stage().querySelector('.finished')).toBeNull()
+
+    document.documentElement.removeAttribute('data-theme')
+    serve(issue())
+    const again = start(kv)
+    expect(again.look).toEqual({ theme: 'sepia', size: 3 })
+    expect(document.documentElement.dataset.theme).toBe('sepia')
+  })
+
+  it('stops at the smallest and biggest sizes', async () => {
+    serve(issue())
+    const app = start()
+    await settle()
+    click('.btn.go')
+    click('.look-btn')
+    for (let k = 0; k < 10; k++) click('[data-look="smaller"]')
+    expect(app.look.size).toBe(0)
+    expect((stage().querySelector('[data-look="smaller"]') as HTMLButtonElement).disabled).toBe(true)
+    click('[data-look="done"]')
+    expect(app.lookOpen).toBe(false)
+    expect(stage().querySelector('#look')).toBeNull()
+    click('.look-btn')
+    click('[data-go="front"]')
+    expect(app.lookOpen).toBe(false)
+  })
+})
+
 describe('pageCount', () => {
   const rect = (left: number, right: number) => ({ left, right, width: right - left, height: 20, top: 0, bottom: 20, x: left, y: 0, toJSON: () => ({}) }) as DOMRect
   function flowWith(scrollWidth: number, rights: number[]) {

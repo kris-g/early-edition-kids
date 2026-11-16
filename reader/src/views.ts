@@ -5,6 +5,7 @@
 import { esc } from './body'
 import { dayAndDate, longDate, stampDate } from './clock'
 import { icon, stamp, topicKey } from './icons'
+import { SIZES, THEMES, type Look } from './look'
 import type { WeekModel } from './readlog'
 import type { ApiStory, Issue, StoryBody } from './types'
 
@@ -123,7 +124,34 @@ export function place(c: ViewCtx, index: number): string {
 }
 
 export const runhead = (c: ViewCtx, index: number) =>
-  `<header class="runhead"><button class="home" data-go="front">${icon('back')}Front page</button><p class="word">${esc(c.issue.title)}</p><p class="place" id="place">${place(c, index)}</p></header>`
+  `<header class="runhead"><button class="home" data-go="front">${icon('back')}Front page</button><p class="word">${esc(c.issue.title)}</p><div class="head-end"><p class="place" id="place">${place(c, index)}</p>${lookButton}</div></header>`
+
+/** The Aa button on a story: text size and page colour. */
+const lookButton = '<button class="look-btn" data-act="look" aria-label="Text size and page colour" aria-haspopup="dialog" aria-expanded="false"><span aria-hidden="true">A<small>a</small></span></button>'
+
+/** The panel the Aa button opens: bigger or smaller text, and paper, sepia or night. */
+export function lookHtml(look: Look): string {
+  const smallest = look.size === 0
+  const biggest = look.size === SIZES.length - 1
+  return `<section class="look" id="look" role="dialog" aria-labelledby="look-title">
+    <header class="look-head"><h2 id="look-title">Text and colour</h2><button class="look-done" data-look="done">Done</button></header>
+    <div class="look-part">
+      <h3 class="kicker">Text size</h3>
+      <div class="sizes">
+        <button class="size-btn smaller" data-look="smaller" aria-label="Smaller text"${smallest ? ' disabled' : ''}>A</button>
+        <span class="steps" role="img" aria-label="Size ${look.size + 1} of ${SIZES.length}">${SIZES.map((_, k) => `<i class="${k < look.size ? 'on' : k === look.size ? 'on now' : ''}"></i>`).join('')}</span>
+        <button class="size-btn bigger" data-look="bigger" aria-label="Bigger text"${biggest ? ' disabled' : ''}>A</button>
+      </div>
+    </div>
+    <div class="look-part">
+      <h3 class="kicker">Page colour</h3>
+      <div class="themes">${THEMES.map(
+        (t) =>
+          `<button class="swatch ${t.key}" data-look="theme:${t.key}" aria-pressed="${t.key === look.theme}"><span class="page" aria-hidden="true"><b>Aa</b><i></i><i></i><i></i>${icon('tick', 'picked')}</span><span class="name">${t.name}</span></button>`,
+      ).join('')}</div>
+    </div>
+  </section>`
+}
 
 export function opener(c: ViewCtx, s: ApiStory, body: StoryBody | null): string {
   const key = topicKey(s.topic)

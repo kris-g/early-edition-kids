@@ -35,6 +35,7 @@ npm run build      # type check, then dist/
 | `src/tracker.ts` | Active reading time and pages, as the plugin measures them |
 | `src/readlog.ts` | The reading log, My week and the streak |
 | `src/body.ts` | Reads a story's text from the story page the Kindle downloads |
+| `src/look.ts` | Text size and page colour (paper, sepia, night) from the Aa button on a story |
 | `src/storage.ts` | `localStorage`, namespaced per profile mount |
 
 Everything from the server is escaped before it is shown; story paragraphs keep only text and bold.
