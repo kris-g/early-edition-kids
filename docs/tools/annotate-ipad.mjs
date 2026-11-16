@@ -24,10 +24,11 @@ const S = 2;
 const ACCENT = "#C2410C";
 
 // crop: [left, top, width, height] in points; width: output width in pixels.
+// notes: [left, top, width, height, place?], where place "right" puts the badge top-right.
 const shots = [
   {
-    in: "card", out: "dashboard-card", crop: [270, 440, 1140, 432], width: 1600,
-    notes: [[310, 528, 166, 166], [507, 538, 874, 48], [507, 592, 874, 96]],
+    in: "card", out: "dashboard-card", crop: [270, 786, 1140, 302], width: 1600,
+    notes: [[301, 861, 184, 184], [507, 879, 874, 48, "right"], [507, 933, 874, 96, "right"]],
   },
   {
     in: "1-safari", out: "1-open-in-safari", crop: [0, 0, 820, 640], width: 1100,
@@ -67,15 +68,16 @@ for (const s of shots) {
   const [cl, ct, cw, ch] = s.crop.map((v) => v * S);
   const shot = await sharp(`${IN}/${s.in}.png`).extract({ left: cl, top: ct, width: cw, height: ch }).toBuffer();
   let ov = `<svg xmlns="http://www.w3.org/2000/svg" width="${cw}" height="${ch}">`;
-  s.notes.forEach(([x, y, w, h], i) => {
+  s.notes.forEach(([x, y, w, h, place], i) => {
     const X = x * S - cl, Y = y * S - ct, W = w * S, H = h * S;
     ov += `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="18" fill="none" stroke="#fff" stroke-width="14" opacity="0.85"/>`;
     ov += `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="18" fill="none" stroke="${ACCENT}" stroke-width="7" stroke-dasharray="22 12"/>`;
-    // Badge beside a short box (so it doesn't cover the label), else on its top-left corner;
-    // either way kept inside the image.
+    // Badge on the top-right corner when the note asks ("right"), beside a short box (so it
+    // doesn't cover the label), else on the top-left corner; always kept inside the image.
     const r = 40;
-    const beside = H < 140 && X > 2 * r + 24;
-    const cx = beside ? X - r - 14 : Math.min(cw - r - 6, Math.max(r + 6, X));
+    const beside = place !== "right" && H < 140 && X > 2 * r + 24;
+    const corner = place === "right" ? X + W : X;
+    const cx = beside ? X - r - 14 : Math.min(cw - r - 6, Math.max(r + 6, corner));
     const cy = beside ? Y + H / 2 : Math.min(ch - r - 6, Math.max(r + 6, Y));
     ov += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${ACCENT}" stroke="#fff" stroke-width="7"/>`;
     ov += `<text x="${cx}" y="${cy + 17}" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="48" font-weight="700" fill="#fff">${i + 1}</text>`;

@@ -130,3 +130,11 @@ export const ProfilesContext = createContext<ProfilesState>({
 export function useProfiles(): ProfilesState {
   return useContext(ProfilesContext)
 }
+
+/** The child shown now's Kindle and reader addresses, for the device setup cards on More. */
+export function useChildAddresses() {
+  const { profiles, current, root, kindle } = useProfiles()
+  const base = kindle ?? guessKindleBase(window.location.hostname)
+  const isRoot = root ? root === current.id : !current.prefixed
+  return { ...childAddresses(base.url, current.id, isRoot), derived: base.derived, several: profiles.length > 1, id: current.id }
+}

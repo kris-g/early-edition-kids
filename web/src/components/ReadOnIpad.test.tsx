@@ -24,10 +24,10 @@ const card = (s: ProfilesState) =>
   )
 
 describe('Read on an iPad', () => {
-  it('gives one child the plain addresses, a QR code and the steps', async () => {
+  it('gives one child the plain reader address, a QR code and the steps', async () => {
     const { container } = card(state({}))
     expect(screen.getByText('http://192.168.1.50:8080/read/')).toBeInTheDocument()
-    expect(screen.getByText('http://192.168.1.50:8080')).toBeInTheDocument()
+    expect(screen.queryByText('http://192.168.1.50:8080')).toBeNull() // the Kindle has its own card
     expect(screen.getByText(/Add to Home Screen/)).toBeInTheDocument()
     expect(screen.getByText(/home Wi-Fi/)).toBeInTheDocument()
     expect(screen.queryByText(/KINDLE_BASE_URL/)).toBeNull()
@@ -48,7 +48,6 @@ describe('Read on an iPad', () => {
     )
     expect(screen.getByText('Reader address for younger')).toBeInTheDocument()
     expect(screen.getByText('http://nas.local:8080/p/younger/read/')).toBeInTheDocument()
-    expect(screen.getByText('http://nas.local:8080/p/younger')).toBeInTheDocument()
     expect(screen.getByText('KINDLE_BASE_URL')).toBeInTheDocument()
   })
 

@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from '../components/Icons'
 import { ReadOnIpad } from '../components/ReadOnIpad'
+import { SetUpKindle } from '../components/SetUpKindle'
 import { Button, Card, PageHeader, SectionTitle } from '../components/ui'
 import { APP_NAME } from '../config'
 import { useProfiles } from '../lib/profile'
@@ -35,6 +36,7 @@ export function More() {
         ))}
       </nav>
 
+      <SetUpKindle />
       <ReadOnIpad />
 
       <SectionTitle className="mt-2">Add this dashboard to your home screen</SectionTitle>
