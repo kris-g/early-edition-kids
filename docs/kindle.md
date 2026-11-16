@@ -10,7 +10,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 
 ## Front page
 
-<img src="images/kindle/front-page.png" width="360" alt="The Early Edition front page">
+<img src="images/kindle/front-page.png" width="360" alt="The Early Edition front page, with the First up story's photo beside its headline">
 
 - **Masthead:** the date, the issue number and the title.
 - **Today's paper:** how many stories and minutes, how many are read, a topic icon per story, and the first unread story with **Start reading**. When that story has a photo, it sits beside the headline instead of the teaser, and tapping either opens the story.
@@ -23,7 +23,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/todays-paper.png" width="360" alt="Today's paper, six headlines">
 
 - One large row per story: topic, headline, a one-line teaser and the reading time.
-- A story he has finished turns grey and gets a tick. The dots at the top right fill in as he reads.
+- A finished story turns grey and gets a tick. The dots at the top right fill in as the reader goes.
 - Rows are tall on purpose, for a child's finger.
 
 ## A story
@@ -31,7 +31,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/story-page.png" width="360" alt="The first page of a story: topic and reading time, the headline, a grey photo of a stadium with its credit, and the start of the text">
 
 - Stories open in KOReader's normal reader: swipe or tap to turn the page.
-- **Leaving early:** turning back from the first page (a left tap or a swipe right) closes the story and goes back to the headlines or front page it was opened from. What he read still counts; the story isn't marked read.
+- **Leaving early:** turning back from the first page (a left tap or a swipe right) closes the story and goes back to the headlines or front page it was opened from. What was read still counts; the story isn't marked read.
 - **The photo:** most stories have the source's main photo under the headline, in grey and cropped to the page's width, with a credit. A story without one starts with its text. The photo makes a story about a page longer.
 - The photo and the page are downloaded together, so a story never shows a missing picture.
 
@@ -40,7 +40,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/story-finished.png" width="360" alt="The last page of a story with the Story finished panel">
 
 - Every story ends with a **Word to know**, a **Think about it** question and the source.
-- The **Story finished!** panel appears when he turns forward from the last page, so it never covers text he hasn't read.
+- The **Story finished!** panel appears on turning forward from the last page, so it never covers unread text.
 - **Next story** names the next unread story and opens it in one tap.
 
 ## Back issues
@@ -48,7 +48,7 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 <img src="images/kindle/back-issues.png" width="360" alt="Back issues, the last five papers">
 
 - The last 7 papers are kept on the Kindle, so this screen needs no network.
-- Each row shows the day, the lead headline and how much of that paper he read.
+- Each row shows the day, the lead headline and how much of that paper was read.
 
 ## With Simple UI
 
