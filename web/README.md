@@ -78,6 +78,8 @@ theme switch).
   rewritten and checked by the server; the page polls the job every 2 seconds and shows the new story or
   the reasons it was refused. Polling carries on while you move between pages.
 - **Topics**: base and effective weight, shown, opened and engaged counts, and None, Pin or Block.
+- **Devices**: the child's Kindle server address and the plugin's install steps, and the iPad reader's address
+  with a QR code. Today and the Overview point here until a Kindle or an iPad has asked for a paper.
 - **Back issues**, **Recent runs** and **More** (links, home-screen help, and "Signed in through Authelia" or, with the server's own sign-in, "Sign out").
 
 ## Develop with the mock API

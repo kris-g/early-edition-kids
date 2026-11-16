@@ -82,7 +82,7 @@ export function resolveLocation(
 }
 
 /** Top-level sections keep their place when switching child; anything deeper (a story, a day) goes to Today. */
-const SECTIONS = ['/reading', '/calendar', '/find', '/topics', '/share', '/ai', '/issues', '/runs', '/more']
+const SECTIONS = ['/reading', '/calendar', '/find', '/topics', '/share', '/ai', '/issues', '/runs', '/devices', '/more']
 
 export function pathForSwitch(id: string, pathname: string): string {
   const { rest } = splitPath(pathname)

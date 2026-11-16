@@ -6,7 +6,7 @@ import { CalendarGrid } from '../components/CalendarGrid'
 import { CostBars, Meter } from '../components/charts/Bars'
 import { DayStrip } from '../components/charts/DayStrip'
 import { ChartLegend, StoriesBarChart } from '../components/charts/StoriesBarChart'
-import { AiRunRow, IssueBadges, KindlePill } from '../components/home'
+import { AiRunRow, IssueBadges, KindlePill, NoDeviceYet } from '../components/home'
 import { EyeIcon, EyeOffIcon } from '../components/Icons'
 import { RangePills } from '../components/RangePills'
 import type { RangeDays } from '../lib/ranges'
@@ -79,6 +79,7 @@ export function Overview() {
       {regen.status}
       {summary.error && <ErrorNote onRetry={reload}>{summary.error.message}</ErrorNote>}
       {!summary.data && summary.loading && <Loading />}
+      {summary.data && <NoDeviceYet seenAt={summary.data.kindle_seen_at} />}
 
       <div className="flex flex-wrap gap-5">
         <section aria-label="Streak" className={cx(CARD, 'flex-[1_1_300px] gap-[18px]')}>

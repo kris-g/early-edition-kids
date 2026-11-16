@@ -105,7 +105,7 @@ profiles:
 - **A list replaces, it doesn't add.** A profile that sets `topics`, `feeds` or `blocklist` must list all of its own. Copy the full list from the top of the file and change it.
 - **List the child who already reads it first.** The first profile listed the first time keeps the existing paper, reading history and Kindle address. The server records which one in `profiles.json` in its data folder, so reordering the list later moves nothing. If that profile is removed, its data is left alone and the log says so.
 - **Each other child's Kindle** uses the same server address with `/p/<id>` added, such as `http://192.168.1.50:8080/p/younger`.
-- **Each child's iPad reader** is that address with `/read/` added, such as `http://192.168.1.50:8080/p/younger/read/`. The dashboard's More page has it, with a QR code.
+- **Each child's iPad reader** is that address with `/read/` added, such as `http://192.168.1.50:8080/p/younger/read/`. The dashboard's Devices page has it, with a QR code.
 - **The dashboard** gets a switcher at the top. Each child has their own pages, and nothing adds them together.
 - **Each child costs the same again.** Every profile makes its own paper each morning, with its own calls to the AI, so two children cost about twice as much. The monthly limit on the dashboard is set per child.
 

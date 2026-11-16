@@ -12,6 +12,26 @@ import { ChevronRight, FlameIcon, SparkleIcon } from './Icons'
 import { Badge, BigNumber, Eyebrow } from './ui'
 
 /**
+ * Until a Kindle or an iPad has asked for a paper (both do, so kindle_seen_at covers either),
+ * point the parent at the Devices page. Shows nothing while the summary is loading.
+ */
+export function NoDeviceYet({ seenAt }: { seenAt: string | null | undefined }) {
+  if (seenAt !== null) return null
+  return (
+    <Link
+      to="/devices"
+      className="flex min-h-16 items-center gap-3 rounded-2xl border border-accent/30 bg-accent-soft px-[18px] py-3 hover:border-accent/60"
+    >
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="text-[15px] font-semibold text-ink">No Kindle or iPad has picked up a paper yet</span>
+        <span className="text-[13px] text-muted">Set one up: the steps and the address are on the Devices page.</span>
+      </span>
+      <ChevronRight className="size-[18px] shrink-0 text-accent" />
+    </Link>
+  )
+}
+
+/**
  * "Kindle synced 19:22" from the Kindle's last check-in, so a parent can tell
  * whether the latest reading has arrived; "On the Kindle 06:42" (the first
  * download of the current version) when there is no later check-in to show.

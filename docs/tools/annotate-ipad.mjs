@@ -2,7 +2,7 @@
 // The explanations for each number are in the page's text, not in the image.
 //
 // Captures (2x, as the Simulator and a 2x browser save them):
-//   card.png      the dashboard's More page, 1440 px wide (headless Chrome, light theme)
+//   card.png      the dashboard's Devices page, 1440 px wide (headless Chrome, light theme)
 //   1-safari.png  the reader open in Safari            (xcrun simctl io booted screenshot)
 //   2-share.png   the Share menu
 //   3-more.png    the Share menu after View More
@@ -27,8 +27,8 @@ const ACCENT = "#C2410C";
 // notes: [left, top, width, height, place?], where place "right" puts the badge top-right.
 const shots = [
   {
-    in: "card", out: "dashboard-card", crop: [270, 786, 1140, 302], width: 1600,
-    notes: [[301, 861, 184, 184], [507, 879, 874, 48, "right"], [507, 933, 874, 96, "right"]],
+    in: "card", out: "dashboard-card", crop: [270, 463, 1140, 302], width: 1600,
+    notes: [[301, 538, 184, 184], [507, 556, 874, 48, "right"], [507, 610, 874, 96, "right"]],
   },
   {
     in: "1-safari", out: "1-open-in-safari", crop: [0, 0, 820, 640], width: 1100,

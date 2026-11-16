@@ -12,9 +12,9 @@ The screenshots are from the iPad simulator, showing the sample paper made by [`
 
 ## 1. Find the reader's address
 
-On the dashboard, open **More** and find **Read on an iPad**.
+On the dashboard, open **Devices** (on a phone, it's under **More**) and find **Read on an iPad**.
 
-<img src="images/ipad/dashboard-card.jpg" alt="The Read on an iPad card on the dashboard's More page, with a QR code, the reader's address and three steps">
+<img src="images/ipad/dashboard-card.jpg" alt="The Read on an iPad card on the dashboard's Devices page, with a QR code, the reader's address and three steps">
 
 1. **QR code.** Point the iPad's Camera at it and tap the link that appears. It opens the reader in Safari.
 2. **Reader address.** Or type this into Safari on the iPad yourself. **Copy** puts it on the clipboard, to send it to the iPad another way.

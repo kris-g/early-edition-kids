@@ -6,6 +6,7 @@ import { SignedOutNotice } from './components/SignedOutNotice'
 import { TooltipProvider } from './components/tooltip/TooltipProvider'
 import { Find } from './pages/Find'
 import { Day, IssueRedirect } from './pages/Day'
+import { Devices } from './pages/Devices'
 import { Issues } from './pages/Issues'
 import { Ai } from './pages/Ai'
 import { Calendar } from './pages/Calendar'
@@ -40,6 +41,7 @@ export function AppRoutes() {
             <Route path="ai" element={<Ai />} />
             <Route path="share" element={<Share />} />
             <Route path="runs" element={<Runs />} />
+            <Route path="devices" element={<Devices />} />
             <Route path="more" element={<More />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

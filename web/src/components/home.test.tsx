@@ -1,7 +1,33 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { IssueView } from '../api/types'
-import { KindlePill } from './home'
+import { KindlePill, NoDeviceYet } from './home'
+
+describe('NoDeviceYet', () => {
+  const prompt = (seenAt: string | null | undefined) =>
+    render(
+      <MemoryRouter>
+        <NoDeviceYet seenAt={seenAt} />
+      </MemoryRouter>,
+    )
+
+  it('points at the Devices page until a Kindle or an iPad has asked for a paper', () => {
+    prompt(null)
+    expect(screen.getByRole('link', { name: /No Kindle or iPad has picked up a paper yet/ })).toHaveAttribute('href', '/devices')
+  })
+
+  it('goes once one has, and while the summary is still loading', () => {
+    const { container, rerender } = prompt('2026-11-15T19:22:21.000Z')
+    expect(container).toBeEmptyDOMElement()
+    rerender(
+      <MemoryRouter>
+        <NoDeviceYet seenAt={undefined} />
+      </MemoryRouter>,
+    )
+    expect(container).toBeEmptyDOMElement()
+  })
+})
 
 const issue = (downloadedAt?: string): IssueView => ({
   date: '2026-11-15',

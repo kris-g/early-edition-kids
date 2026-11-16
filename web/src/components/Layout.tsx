@@ -9,7 +9,7 @@ import { ThemeButton, ThemeSwitch } from './ThemeToggle'
 
 type Tab = { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }
 
-/** Phone: bottom tabs. "More" holds Share, Find articles, Topics, Back issues and Recent runs. */
+/** Phone: bottom tabs. "More" holds Devices, Share, Find articles, Topics, Back issues and Recent runs. */
 const TABS: Tab[] = [
   { to: '/', label: 'Today', icon: PaperIcon },
   { to: '/reading', label: 'Reading', icon: ReadingIcon },
@@ -32,6 +32,7 @@ const SIDE: { to: string; label: string }[] = [
 const SIDE_EXTRA: { to: string; label: string }[] = [
   { to: '/issues', label: 'Back issues' },
   { to: '/runs', label: 'Recent runs' },
+  { to: '/devices', label: 'Devices' },
   { to: '/more', label: 'More' },
 ]
 
@@ -48,7 +49,7 @@ function Brand() {
 }
 
 /** Pages reached from "More" on a phone keep that tab lit. */
-const UNDER_MORE = ['/share', '/find', '/topics', '/issues', '/runs', '/more']
+const UNDER_MORE = ['/devices', '/share', '/find', '/topics', '/issues', '/runs', '/more']
 
 export function Layout() {
   // A day or a story lights the section it was opened from (lib/origin.ts).

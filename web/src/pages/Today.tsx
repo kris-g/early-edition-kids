@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { api } from '../api/endpoints'
 import type { StoryCard } from '../api/types'
-import { AiRunRow, IssueBadges, KindlePill, StreakCard } from '../components/home'
+import { AiRunRow, IssueBadges, KindlePill, NoDeviceYet, StreakCard } from '../components/home'
 import { CatchUpLink } from '../components/CatchUpLink'
 import { RefreshIcon } from '../components/Icons'
 import { ProgressSegments } from '../components/charts/Bars'
@@ -68,6 +68,7 @@ function PhoneToday() {
 
       {data && (
         <>
+          <NoDeviceYet seenAt={data.kindle_seen_at} />
           <StreakCard streak={data.streak_detail} days={reading.data?.days} today={today} weekRead={data.week_read} />
 
           <section aria-label="Today's paper" className="flex flex-col gap-3.5 rounded-2xl border border-line bg-card p-[18px]">

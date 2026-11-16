@@ -1,13 +1,12 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from '../components/Icons'
-import { ReadOnIpad } from '../components/ReadOnIpad'
-import { SetUpKindle } from '../components/SetUpKindle'
 import { Button, Card, PageHeader, SectionTitle } from '../components/ui'
 import { APP_NAME } from '../config'
 import { useProfiles } from '../lib/profile'
 
 const LINKS: { to: string; label: string; hint: string }[] = [
+  { to: '/devices', label: 'Devices', hint: 'Put the paper on a Kindle or an iPad' },
   { to: '/share', label: 'Share', hint: 'A picture of the streak, the week or a milestone, to send to family' },
   { to: '/find', label: 'Find articles', hint: 'Search the news or paste a link, for today or tomorrow' },
   { to: '/topics', label: 'Topics', hint: 'What the paper leans towards; pin or block' },
@@ -35,9 +34,6 @@ export function More() {
           </Link>
         ))}
       </nav>
-
-      <SetUpKindle />
-      <ReadOnIpad />
 
       <SectionTitle className="mt-2">Add this dashboard to your home screen</SectionTitle>
       <Card className="flex flex-col gap-2 text-sm">

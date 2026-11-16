@@ -14,6 +14,15 @@ const page = (login: boolean) =>
   )
 
 describe('More', () => {
+  it('links to Devices first instead of holding the setup cards itself', () => {
+    page(false)
+    const links = screen.getAllByRole('link')
+    expect(links[0]).toHaveAttribute('href', '/devices')
+    expect(links[0]).toHaveTextContent('Devices')
+    expect(screen.queryByRole('region', { name: 'Set up a Kindle' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Read on an iPad' })).toBeNull()
+  })
+
   it('has no sign-out without the built-in sign-in', () => {
     page(false)
     expect(screen.queryByRole('button', { name: 'Sign out' })).toBeNull()
