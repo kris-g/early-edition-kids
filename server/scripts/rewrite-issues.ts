@@ -70,6 +70,7 @@ const rowFrom = (ctx: Context, s: Row): StoryRow => ({
   reused_from: s.reused_from ?? null,
   added_by: s.added_by ?? null,
   image: rowImageOf(ctx.settings, s),
+  checks: s.checks ?? null,
 });
 
 function candidateFor(ctx: Context, s: Row, date: string): Candidate {

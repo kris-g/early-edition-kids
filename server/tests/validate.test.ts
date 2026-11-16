@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TOPIC_NAMES } from "../src/config.js";
-import { countWords, numberTokens, parseVerdict, unsupportedNumbers, validateStory } from "../src/validate.js";
+import { checkNumbers, countWords, numberTokens, parseChecks, parseVerdict, unsupportedNumbers, validateStory } from "../src/validate.js";
 
 const SOURCE_URL = "https://www.bbc.co.uk/newsround/articles/abc";
 const SOURCE =
@@ -64,6 +64,30 @@ describe("validation", () => {
     expect(unsupportedNumbers("about 3.6 goals", SOURCE)).toEqual(["3.6"]);
   });
 
+  it("reports the numbers it matched as well as the ones it could not", () => {
+    expect(checkNumbers("In 2026, 81,500 fans saw 3.6 goals. 81500 again.", SOURCE)).toEqual([
+      { value: "2026", in_source: false },
+      { value: "81500", in_source: true },
+      { value: "3.6", in_source: false },
+    ]);
+    // A passing story: the numbers of its title, teaser and body, in order of first use, all matched.
+    const good = run(goodStory({ title: "Kane wins 126th cap" }));
+    expect(good.ok).toBe(true);
+    expect(good.numbers).toEqual([
+      { value: "126", in_source: true },
+      { value: "12", in_source: true },
+      { value: "81500", in_source: true },
+      { value: "2", in_source: true },
+      { value: "0", in_source: true },
+    ]);
+    // A failing one still lists what matched; the boxes stay exempt.
+    const bad = run(goodStory({ teaser: "He played 200 games." }));
+    expect(bad.numbers).toContainEqual({ value: "200", in_source: false });
+    expect(bad.numbers).toContainEqual({ value: "81500", in_source: true });
+    expect(bad.numbers.map((n) => n.value)).not.toContain("100");
+    expect(run("not a story").numbers).toEqual([]);
+  });
+
   it("rejects a blocked word anywhere", () => {
     let body = [...PARAS];
     body[0] += " It was not a war.";
@@ -113,5 +137,27 @@ describe("validation", () => {
     expect(v.reasons).toEqual(["scary"]);
     const e = parseVerdict({});
     expect(e.safe || e.supported).toBe(false);
+  });
+
+  it("reads stored checks back, and treats anything else as none", () => {
+    const checks = {
+      numbers: [{ value: "126", in_source: true }],
+      verdict: { safe: true, supported: true, reasons: [] },
+      attempts: 2,
+      writer_model: "anthropic:claude-opus-5-5",
+      checker_model: "anthropic:claude-sonnet-5-5",
+    };
+    expect(parseChecks(JSON.stringify(checks))).toEqual(checks);
+    for (const none of [null, undefined, "", "not json", "[]", "{}", '{"numbers": "x", "verdict": {}}']) {
+      expect(parseChecks(none)).toBeNull();
+    }
+    // Odd values inside a stored object are tidied rather than trusted.
+    expect(parseChecks({ numbers: [{ value: "7" }, { value: 7 }, null], verdict: { safe: "yes" }, attempts: "3" })).toEqual({
+      numbers: [{ value: "7", in_source: false }],
+      verdict: { safe: true, supported: false, reasons: [] },
+      attempts: 1,
+      writer_model: null,
+      checker_model: null,
+    });
   });
 });

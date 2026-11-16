@@ -22,6 +22,7 @@ describe("database", () => {
     const story = db.getStory(1)!;
     expect(story.title).toBe("t");
     expect(story.added_by).toBeNull();
+    expect(story.checks).toBeNull(); // stories from before migration 5 have no checks
     expect(db.query("SELECT * FROM articles")).toEqual([]);
     db.init(); // idempotent
     expect(db.queryOne("PRAGMA user_version")!.user_version).toBe(MIGRATIONS.length);

@@ -2,9 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { issuesDir } from "../src/config.js";
-import { LLMUnavailable, StubLLM, type ChatMessage } from "../src/llm.js";
+import { LLMUnavailable, StubLLM, type ChatMessage, type ChatOptions } from "../src/llm.js";
 import { fallbackCandidates, generate, minStories, type Context } from "../src/pipeline.js";
 import { addDays } from "../src/timeutil.js";
+import { parseChecks } from "../src/validate.js";
 import { NOW, TODAY, fixturePageFetcher, makeCtx } from "./helpers.js";
 
 class RecordingStub extends StubLLM {
@@ -43,6 +44,32 @@ class BadNumbers extends StubLLM {
     return story;
   }
 }
+
+/** Every article page also says how many pupils and schools; the writer repeats both figures. */
+const FIGURES = "More than 1,300 pupils from 40 schools took part.";
+const pagesWithFigures = async (url: string) => (await fixturePageFetcher(url)).replace("</article>", `<p>${FIGURES}</p></article>`);
+class WithFigures extends StubLLM {
+  override rewrite(ctx: Record<string, any>) {
+    const story = super.rewrite(ctx);
+    story.body[0] += " In all, 1,300 pupils from 40 schools came.";
+    return story;
+  }
+}
+
+/** A stub that reports its calls under another model id, and can give reasons with a pass. */
+class NamedStub extends StubLLM {
+  constructor(private model: string, private reasons: string[] = []) {
+    super();
+  }
+  override chat(messages: ChatMessage[], opts: ChatOptions) {
+    return super.chat(messages, { ...opts, onUsage: (u) => opts.onUsage?.({ ...u, model: this.model }) });
+  }
+  override check() {
+    return { safe: true, supported: true, reasons: this.reasons };
+  }
+}
+
+const checksOf = (row: Record<string, any>) => parseChecks(row.checks);
 
 let ctx: ReturnType<typeof makeCtx>;
 afterEach(() => ctx?.cleanup());
@@ -134,6 +161,41 @@ describe("pipeline", () => {
     for (const r of ctx.db.storiesFor(TODAY, 1)) expect(r.body_html).not.toContain("4321");
   });
 
+  it("keeps each story's checks: its numbers, the verdict, the attempts and the models", async () => {
+    ctx = makeCtx();
+    ctx.pageFetcher = pagesWithFigures;
+    ctx.writer = new WithFigures();
+    ctx.checker = new NamedStub("stub-checker", ["nothing to add"]);
+    const result = await generate(ctx, TODAY, NOW);
+    expect(result.story_count).toBe(6);
+    for (const r of ctx.db.storiesFor(TODAY, 1)) {
+      const checks = checksOf(r)!;
+      // The two figures the writer used, matched in the source, after any number in the headline.
+      expect(checks.numbers.slice(-2)).toEqual([
+        { value: "1300", in_source: true },
+        { value: "40", in_source: true },
+      ]);
+      expect(checks.numbers.every((n) => n.in_source)).toBe(true);
+      expect(checks.verdict).toEqual({ safe: true, supported: true, reasons: ["nothing to add"] });
+      expect(checks.attempts).toBe(1);
+      expect(checks.writer_model).toBe("stub");
+      expect(checks.checker_model).toBe("stub-checker");
+    }
+  });
+
+  it("stores the second attempt's checks when the first was sent back", async () => {
+    ctx = makeCtx();
+    ctx.writer = new BadNumbers();
+    ctx.checker = ctx.writer;
+    await generate(ctx, TODAY, NOW);
+    for (const r of ctx.db.storiesFor(TODAY, 1)) {
+      const checks = checksOf(r)!;
+      expect(checks.attempts).toBe(2);
+      expect(checks.numbers.map((n) => n.value)).not.toContain("4321");
+      expect(checks.verdict).toEqual({ safe: true, supported: true, reasons: [] });
+    }
+  });
+
   it("takes a reserve when the article is too short", async () => {
     ctx = makeCtx();
     ctx.pageFetcher = async (url) =>
@@ -175,6 +237,9 @@ describe("pipeline", () => {
     expect(copies.some((c) => rows.map((r) => r.id).includes(c.id))).toBe(false);
     expect(ctx.db.getIssue(TODAY)!.fallback).toBe(1);
     expect(existsSync(path.join(versionDir(ctx, TODAY, 1), "1.html"))).toBe(true);
+    // A catch-up story is the same text, so it carries the checks of the story it copies.
+    expect(copies.every((c) => typeof c.checks === "string")).toBe(true);
+    expect(copies.map((c) => c.checks)).toEqual(rows.slice(2).map((r) => r.checks));
   });
 
   it("publishes nothing with fewer than three unopened stories", async () => {

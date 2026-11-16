@@ -31,10 +31,19 @@ export interface Story {
   source_url: string;
 }
 
+/** One number found in a story's title, teaser or body, and whether the source text has it too. */
+export interface NumberCheck {
+  /** Digits with thousands commas stripped, as compared: '1300', '3.8'. */
+  value: string;
+  in_source: boolean;
+}
+
 export interface ValidationResult {
   story: Story | null;
   errors: string[];
   ok: boolean;
+  /** Every number in the title, teaser and body, in order of first use (empty when there is no story). */
+  numbers: NumberCheck[];
 }
 
 export function countWords(text: string): number {
@@ -50,10 +59,21 @@ export function numberTokens(text: string): Set<string> {
   return out;
 }
 
-export function unsupportedNumbers(storyText: string, sourceText: string): string[] {
+/** Every number in the story text, in order of first use, with whether the source text has it. */
+export function checkNumbers(storyText: string, sourceText: string): NumberCheck[] {
   const source = numberTokens(sourceText);
-  return [...numberTokens(storyText)].filter((t) => !source.has(t)).sort();
+  return [...numberTokens(storyText)].map((value) => ({ value, in_source: source.has(value) }));
 }
+
+export function unsupportedNumbers(storyText: string, sourceText: string): string[] {
+  return checkNumbers(storyText, sourceText)
+    .filter((n) => !n.in_source)
+    .map((n) => n.value)
+    .sort();
+}
+
+/** The text the number check reads: title, teaser and body (DESIGN 4.3; the boxes are exempt). */
+export const checkedText = (story: Pick<Story, "title" | "teaser" | "body">) => [story.title, story.teaser, ...story.body].join(" ");
 
 const clean = (v: unknown) => (v === null || v === undefined ? "" : String(v).replace(/\s+/g, " ").trim());
 const isObj = (v: unknown): v is Record<string, any> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -113,7 +133,7 @@ export function validateStory(
   const wordsMin = opts.words?.min ?? WORDS_MIN;
   const wordsMax = opts.words?.max ?? WORDS_MAX;
   const { story, errors } = coerceStory(data);
-  if (!story) return { story: null, errors, ok: false };
+  if (!story) return { story: null, errors, ok: false, numbers: [] };
 
   if (story.title.length > TITLE_MAX) errors.push(`title is ${story.title.length} characters; the limit is ${TITLE_MAX}`);
   if (story.teaser.length > TEASER_MAX) errors.push(`teaser is ${story.teaser.length} characters; the limit is ${TEASER_MAX}`);
@@ -136,8 +156,9 @@ export function validateStory(
     errors.push(`source_url must be exactly ${opts.sourceUrl}`);
   }
 
-  const checkedText = [story.title, story.teaser, ...story.body].join(" ");
-  const missing = unsupportedNumbers(checkedText, opts.sourceText);
+  const text = checkedText(story);
+  const numbers = checkNumbers(text, opts.sourceText);
+  const missing = numbers.filter((n) => !n.in_source).map((n) => n.value).sort();
   if (missing.length) {
     errors.push(`these numbers are not in the source text: ${missing.join(", ")}. Use only numbers from the source`);
   }
@@ -145,17 +166,55 @@ export function validateStory(
   const pattern = compileBlocklist(opts.blocklist);
   if (pattern) {
     const wtkText = story.word_to_know ? `${story.word_to_know.word} ${story.word_to_know.definition}` : "";
-    const hits = [...new Set(blocklistHits(pattern, [checkedText, wtkText, story.think_about_it].join(" ")).map((h) => h.toLowerCase()))].sort();
+    const hits = [...new Set(blocklistHits(pattern, [text, wtkText, story.think_about_it].join(" ")).map((h) => h.toLowerCase()))].sort();
     if (hits.length) errors.push(`uses blocked words: ${hits.join(", ")}`);
   }
 
-  return { story, errors, ok: errors.length === 0 };
+  return { story, errors, ok: errors.length === 0, numbers };
 }
 
 export interface Verdict {
   safe: boolean;
   supported: boolean;
   reasons: string[];
+}
+
+/**
+ * What the pipeline found when it checked a story, kept with the story (stories.checks, as JSON)
+ * so the dashboard can show it. Stories made before migration 5 have none.
+ */
+export interface StoryChecks {
+  numbers: NumberCheck[];
+  /** The checker's verdict on the version that was published. */
+  verdict: Verdict;
+  /** How many rewrites it took: 1, or 2 when the first was sent back. */
+  attempts: number;
+  /** The models that answered, namespaced as in llm_calls ("anthropic:claude-opus-5-5", "stub"). */
+  writer_model: string | null;
+  checker_model: string | null;
+}
+
+/** Stored checks read back defensively: anything that is not the shape above is null. */
+export function parseChecks(value: unknown): StoryChecks | null {
+  let v: unknown = value;
+  if (typeof v === "string") {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return null;
+    }
+  }
+  if (!isObj(v) || !Array.isArray(v.numbers) || !isObj(v.verdict)) return null;
+  const model = (m: unknown) => (typeof m === "string" && m ? m : null);
+  return {
+    numbers: v.numbers
+      .filter((n): n is Record<string, any> => isObj(n) && typeof n.value === "string" && n.value !== "")
+      .map((n) => ({ value: n.value, in_source: n.in_source === true })),
+    verdict: parseVerdict(v.verdict),
+    attempts: Number.isInteger(v.attempts) && v.attempts > 0 ? v.attempts : 1,
+    writer_model: model(v.writer_model),
+    checker_model: model(v.checker_model),
+  };
 }
 
 const truthy = (v: unknown) =>
