@@ -165,8 +165,9 @@ function Api:postEvents(device_id, wire_events, paper)
 end
 
 --- Downloads a story file from a server-relative path.
-function Api:download(path)
-    local r = call(self, "GET", path, nil, "text/html")
+--- Downloads a story page (or, with accept = "image/jpeg", its photo).
+function Api:download(path, accept)
+    local r = call(self, "GET", path, nil, accept or "text/html")
     if r.kind == "ok" and (r.body == nil or r.body == "") then
         r.kind = "server"
         r.message = "empty body"

@@ -146,6 +146,9 @@ partial refreshes. Today's back-issue card uses a light grey highlight.
   changes nothing.
 - Stories are stored in `koreader/earlyeditionkids/<date>/`, 7 days are kept. KOReader's
   reading-position files for them are removed with them.
+- A story with a photo is stored as `<id>.html` and `<id>.jpg` side by side: the
+  server's grey Kindle copy, shown under the headline (CONTRACT.md "Story photos").
+  If the photo can't be had, the story is stored without it.
 - If a parent adds a story to today's issue, it appears after the next check
   (within 30 minutes of waking, or at once with "Check for news").
 - Reading opens a normal KOReader page. Turning forward from the last page
@@ -214,8 +217,9 @@ The runner compiles every `.lua` file, then runs `spec/*_spec.lua`:
 ## Screenshot tour (development only)
 
 Starting KOReader with `EEK_SCREENSHOT_TOUR=1` skips syncing, shows the front
-page, today's paper, a story's last page with the finished panel, back
-issues and my week in turn, saves `1-front-page.png` ... `5-my-week.png` into
+page, today's paper, a story's first page (`3-story-page.png`, with its photo if it
+has one) and last page with the finished panel, back issues and my week in turn,
+saves `1-front-page.png` ... `5-my-week.png` into
 `$KO_HOME/screenshots/`, and quits. With Simple UI installed it first saves
 `0-simpleui-home.png` (Simple UI's home screen at start) and logs whether our
 front page opened by itself, then opens the front page through our Quick

@@ -43,7 +43,7 @@ describe("Kindle API", () => {
     expect(issue.hidden).toEqual([]);
     expect(issue.stories.length).toBe(6);
     for (const [i, s] of issue.stories.entries()) {
-      expect(Object.keys(s).sort()).toEqual(["id", "image", "minutes", "path", "position", "teaser", "title", "topic", "word_to_know"]);
+      expect(Object.keys(s).sort()).toEqual(["id", "image", "kindle_image", "minutes", "path", "position", "teaser", "title", "topic", "word_to_know"]);
       expect(s.position).toBe(i + 1);
       expect(s.minutes).toBeGreaterThanOrEqual(1);
       expect(s.path).toBe(`/issues/2026-11-14/v1/${i + 1}.html`);

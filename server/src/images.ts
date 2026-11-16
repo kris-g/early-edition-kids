@@ -1,13 +1,15 @@
 /**
- * Story photos for the iPad reader (CONTRACT.md "Story photos"). When a story is made, the source
- * article's main image is found (the page's og:image, then twitter:image, then the feed item's
- * media), downloaded once and stored beside the story file. Pure JS: the bytes are checked by their
- * magic numbers, never decoded, so the image stays the same on every architecture.
+ * Story photos (CONTRACT.md "Story photos"). When a story is made, the source article's main image
+ * is found (the page's og:image, then twitter:image, then the feed item's media), downloaded once
+ * and stored beside the story file as it came: the bytes are checked by their magic numbers, never
+ * decoded. The iPad shows that file. The Kindle gets its own copy (kindlePhoto), made with sharp:
+ * the one place an image is decoded.
  *
  * A missing or failed image is never an error: the story simply has no photo.
  */
 
 import * as cheerio from "cheerio";
+import sharp from "sharp";
 import { USER_AGENT, blocklistHits, compileBlocklist } from "./feeds.js";
 
 export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
@@ -188,4 +190,35 @@ export async function downloadFirstImage(
     }
   }
   return null;
+}
+
+/** The Kindle copy of a story photo: a greyscale JPEG cropped to this size (16:9, about the e-ink page's width). */
+export const KINDLE_PHOTO = { width: 1000, height: 563 } as const;
+/** A photo smaller than this is not worth showing on the Kindle: it would be blown up. */
+export const KINDLE_PHOTO_MIN = { width: 400, height: 225 } as const;
+
+/**
+ * Turn a stored photo (JPEG, PNG or WebP, any size) into the Kindle's copy: turned upright, cropped
+ * to KINDLE_PHOTO around its busiest part, grey, with its levels stretched and a little sharpening
+ * for e-ink, as a baseline (not progressive) JPEG, which KOReader decodes quickly.
+ * Throws when the image cannot be read or is too small.
+ */
+export async function kindlePhoto(bytes: Buffer): Promise<Buffer> {
+  const meta = await sharp(bytes, { failOn: "error" }).metadata();
+  const turned = (meta.orientation ?? 1) >= 5;
+  const width = (turned ? meta.height : meta.width) ?? 0;
+  const height = (turned ? meta.width : meta.height) ?? 0;
+  if (width < KINDLE_PHOTO_MIN.width || height < KINDLE_PHOTO_MIN.height) {
+    throw new Error(`too small for the Kindle (${width} x ${height})`);
+  }
+  return sharp(bytes, { failOn: "error" })
+    .rotate()
+    .flatten({ background: "#ffffff" })
+    .resize(KINDLE_PHOTO.width, KINDLE_PHOTO.height, { fit: "cover", position: sharp.strategy.attention })
+    .grayscale()
+    .toColourspace("b-w")
+    .normalise({ lower: 1, upper: 99 })
+    .sharpen({ sigma: 0.7 })
+    .jpeg({ quality: 82, progressive: false })
+    .toBuffer();
 }

@@ -54,7 +54,8 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
      "teaser": "The first English winner for 25 years.", "minutes": 2,
      "path": "/issues/2026-11-13/v1/1.html",
      "word_to_know": {"word": "ceremony", "definition": "a special event held to celebrate something."},
-     "image": {"path": "/issues/2026-11-13/v1/1.jpg", "alt": "Harry Kane holds the trophy"}}
+     "image": {"path": "/issues/2026-11-13/v1/1.jpg", "alt": "Harry Kane holds the trophy"},
+     "kindle_image": {"path": "/issues/2026-11-13/v1/1.kindle.jpg"}}
   ],
   "hidden": [43],
   "reading_since": "2026-11-14",
@@ -71,7 +72,8 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
 - `number` is the edition number: how many distinct issue dates exist up to and including this date (1 for the first issue ever). It does not change when a date is regenerated.
 - `created_at` is when this version was made, ISO 8601 in UTC.
 - `word_to_know` per story is `{word, definition}` or `null`, the same as the box at the end of the story page.
-- `image` per story (added 16 November 2026) is the story's photo, `{path, alt}` or `null` (see "Story photos"). `path` is server-relative like the story's `path`; `alt` is the source's description or `null`. The Kindle ignores it.
+- `image` per story (added 16 November 2026) is the story's photo, `{path, alt}` or `null` (see "Story photos"). `path` is server-relative like the story's `path`; `alt` is the source's description or `null`. The iPad shows it.
+- `kindle_image` per story (added 16 November 2026) is `{path}` for the Kindle's copy of that photo, or `null` when the story has no photo (see "Story photos"). Its path can still answer 404 when the photo cannot be made into a Kindle copy.
 - `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
 - `profile` is the id of the profile this paper is for (`default` without a profiles list); `profile_root` is true when that profile owns the root data. Story ids restart at 1 in each profile's database, so a client treats a change of paper as a fresh start. The paper differs when exactly one side has `profile_root`, or neither has and the ids differ. The root data stays the same paper when its owner's id changes, which happens once: from `default` to the first listed profile.
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
@@ -89,9 +91,15 @@ Reading is recorded in two places: events on the server (the dashboard and topic
 
 `text/html; charset=utf-8`, standalone story page (DESIGN 4.8). Served for hidden stories too (a device may already have it), but clients should not show them.
 
+With `?photo=1`, and when the story has a photo, the page shows it under the headline as `<img src="<story id>.jpg">`: a file the Kindle keeps beside the page (see "Story photos"). Without the query, or without a photo, the page is the plain one.
+
 ### `GET /issues/{date}/v{version}/{position}.{jpg|png|webp}`
 
 The story's photo, with its type as `Content-Type`, when the issue payload names it (404 otherwise). Served for hidden stories too. See "Story photos".
+
+### `GET /issues/{date}/v{version}/{position}.kindle.jpg`
+
+The Kindle's copy of the story's photo, `image/jpeg`, made on the first request. 404 when the story has no photo or it cannot be made into one. See "Story photos".
 
 ### `POST /api/events`
 
@@ -302,10 +310,12 @@ type ShareView = { today: string; streak: Streak;
 
 ## Story photos (added 16 November 2026)
 
-The iPad reader shows each story's source photo; the Kindle shows none and its story pages are unchanged.
+Both readers show each story's source photo: the iPad as it came, the Kindle (from 16 November 2026) a grey copy under the headline of the story page.
 
 - **Where it comes from.** When a story is made (the pipeline's extract step, a parent-added article, or a rewrite), after it passes its checks, the source article's main image is chosen: the article page's `og:image` (with `og:image:alt`), then `twitter:image`, then the feed item's own image (`media:content`, the widest `media:thumbnail`, or an image `enclosure`). The page is fetched for this only when extraction did not already fetch it.
-- **Downloaded once** to the server and stored beside the story file as `issues/<date>/v<version>/<position>.<ext>`. Only `image/jpeg`, `image/png` and `image/webp` are kept, checked by the response type and by the bytes themselves; at most 5 MB, with the same 20-second timeout as page fetches. An image whose alt text has a blocklisted word is skipped. Nothing is decoded or resized, so there are no image libraries.
+- **Downloaded once** to the server and stored beside the story file as `issues/<date>/v<version>/<position>.<ext>`. Only `image/jpeg`, `image/png` and `image/webp` are kept, checked by the response type and by the bytes themselves; at most 5 MB, with the same 20-second timeout as page fetches. An image whose alt text has a blocklisted word is skipped. The stored file is never decoded or changed: it is what the iPad shows.
+- **The Kindle's copy** is `<position>.kindle.jpg` beside the photo, made with `sharp` (the server's one image library) the first time the Kindle asks for it, and made again if the photo is newer. It is turned upright, cropped to 1000 × 563 around its busiest part, grey, levels stretched and lightly sharpened for e-ink, as a baseline JPEG of about 100 to 200 KB. A photo smaller than 400 × 225, or one that cannot be read, has no Kindle copy (404).
+- **On the Kindle.** For a story with `kindle_image`, the plugin downloads that first and saves it as `<story id>.jpg` beside `<story id>.html`, then downloads the story page with `?photo=1`. If the photo answers 404 or anything but a JPEG, it downloads the plain page, so a page never names a file the Kindle does not have. A network failure fails that sync, as a story page's would. Hiding a story deletes its photo too. An older plugin never asks for `?photo=1` and keeps the plain pages.
 - **No photo is normal.** A missing or failed image is never an error; the story has `image: null` and every layout holds without it.
 - **Stored** in `stories.image_ext`, `image_alt` and `image_url` (migration 4). A catch-up story carries a copy of its source story's photo; a regenerated version downloads its own; a rewritten story keeps its photo unless a new one is found.
 
@@ -332,6 +342,6 @@ On start and on resume, the plugin syncs if any of:
 
 After a story closes, the plugin also uploads queued events on their own, with no issue fetch: one minute after the last story closed, only if Wi-Fi is already on, and not while another story is open (it waits until that one closes). Going to sleep cancels it; the wake-up sync sends them instead. This keeps the dashboard current within a minute or two of his reading.
 
-A sync uploads events, then fetches `/api/issue/today`. If the date and version match what it has, it applies `hidden` (removes those stories from the headline list and deletes their files). A higher version replaces the stored issue only if no story from it has been opened.
+A sync uploads events, then fetches `/api/issue/today`. If the date and version match what it has, it applies `hidden` (removes those stories from the headline list and deletes their files, photos included). A higher version replaces the stored issue only if no story from it has been opened.
 
 The plugin stores `profile` and `profile_root` from issue responses (today's and back issues) and sends them with its events. When an issue arrives from a different paper (the rule under the issue fields), it first clears its issues, reading log and queued events, then applies the issue as new. An absent `profile` on either side (an older server, or nothing stored yet) changes nothing.
