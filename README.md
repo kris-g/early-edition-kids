@@ -11,6 +11,8 @@
 
 Early Edition Kids is a daily news brief for a child's jailbroken Kindle: a small server picks about six stories each morning from kids' and UK news feeds, rewrites them at an 8 year old's reading level with an LLM, and checks them for safety. A KOReader plugin downloads the issue when the Kindle is woken, shows a headline list, and reports what was read so a parent can see it and tomorrow's selection can follow it.
 
+See it in action on [the project's website](https://kris-g.github.io/early-edition-kids/), with a short film of the paper on an iPad.
+
 | Front page | Today's paper | End of a story | Back issues |
 |:---:|:---:|:---:|:---:|
 | <img src="docs/images/kindle/front-page.png" width="200" alt="Kindle front page"> | <img src="docs/images/kindle/todays-paper.png" width="200" alt="Today's paper"> | <img src="docs/images/kindle/story-finished.png" width="200" alt="End of a story"> | <img src="docs/images/kindle/back-issues.png" width="200" alt="Back issues"> |
@@ -35,7 +37,7 @@ More in the docs: [the Kindle screens](docs/kindle.md), [reading on an iPad](doc
 | `reader/` | The child's iPad reader: a home-screen web app served on the Kindle port at `/read/`. |
 | `plugin/` | `earlyeditionkids.koplugin`, the KOReader plugin for the Kindle. |
 | `deploy/` | Example Kubernetes manifests (`deploy/k8s/`) and a local multi-arch build script. |
-| `site/` | The promo site: plain HTML, published to GitHub Pages by `.github/workflows/site.yml`. |
+| `site/` | The [promo site](https://kris-g.github.io/early-edition-kids/): plain HTML, published to GitHub Pages by `.github/workflows/site.yml`. |
 | `.github/workflows/image.yml` | Builds the multi-arch image and publishes it to `ghcr.io/kris-g/early-edition-kids`. |
 | `.gitlab-ci.yml` | The same build for the author's private GitLab mirror. |
 | `docs/` | Tours with screenshots, architecture diagrams and the model comparison. Start at [`docs/README.md`](docs/README.md). |
