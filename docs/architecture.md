@@ -4,11 +4,11 @@ Three pictures: what runs where, how the paper is made each morning, and how it 
 
 ## What runs where
 
-One server process does everything: a single Docker container, or one pod on Kubernetes. It listens on two ports so the Kindle and the dashboard never share a route: the Kindle's port is on the LAN only, and the dashboard's should only be reachable through a login, such as Authelia. The picture shows the Kubernetes setup; with Docker, the server's own `GENERATE_AT` schedule takes the CronJob's place.
+One server process does everything: a single Docker container, or one pod on Kubernetes. It listens on two ports so the Kindle and the dashboard never share a route: the readers' port (Kindle and iPad) is on the LAN only, and the dashboard's should only be reachable through a login: its own sign-in (`DASHBOARD_PASSWORD`) or one in front of it, such as Authelia. The picture shows the Kubernetes setup; with Docker, the server's own `GENERATE_AT` schedule takes the CronJob's place.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/architecture/system-dark.svg">
-  <img src="images/architecture/system-light.svg" alt="How Early Edition Kids fits together: feeds and AI models into the server on the home cluster, out to the Kindle and the parent's phone">
+  <img src="images/architecture/system-light.svg" alt="How Early Edition Kids fits together: feeds and AI models into the server on a home machine, out to a Kindle or an iPad and the parent's phone">
 </picture>
 
 The picture is drawn by [`tools/system-diagram.mjs`](tools/system-diagram.mjs), which writes a light and a dark version. To change it, edit the script and run `node docs/tools/system-diagram.mjs`.

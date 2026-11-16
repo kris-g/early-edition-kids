@@ -25,7 +25,7 @@ More in the docs: [the Kindle screens](docs/kindle.md), [reading on an iPad](doc
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture/system-dark.svg">
-  <img src="docs/images/architecture/system-light.svg" alt="How Early Edition Kids fits together: feeds and AI models into the server on the home cluster, out to the Kindle and the parent's phone">
+  <img src="docs/images/architecture/system-light.svg" alt="How Early Edition Kids fits together: feeds and AI models into the server on a home machine, out to a Kindle or an iPad and the parent's phone">
 </picture>
 
 ## Layout

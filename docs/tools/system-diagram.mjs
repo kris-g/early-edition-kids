@@ -51,7 +51,7 @@ function draw(c) {
   path("M58,42 V46 M39,53 L42,56 M77,53 L74,56 M47,45 L49,49 M69,45 L67,49", { sw: 1.8 });
   text(92, 67, "Early Edition Kids", { font: SERIF, size: 32, weight: 700 });
   text(1204, 47, "HOW IT FITS TOGETHER", { size: 12, weight: 700, fill: c.muted, anchor: "end", ls: 2 });
-  text(1204, 69, "From the news feeds to the Kindle, every morning", { font: SERIF, size: 15.5, italic: true, anchor: "end" });
+  text(1204, 69, "From the news feeds to a Kindle or an iPad, every morning", { font: SERIF, size: 15.5, italic: true, anchor: "end" });
   path("M36,82 H1204", { sw: 3 });
   path("M36,88 H1204", { sw: 1 });
 
@@ -68,10 +68,10 @@ function draw(c) {
   text(388, 172, "05:30 every morning", { size: 14.5, weight: 700 });
   text(388, 189, "GENERATE_AT or a CronJob", { size: 12.5, fill: c.muted });
   path("M423,200 V274", { end: "ink" });
-  text(434, 225, "make today's paper", { size: 13.5, fill: c.muted });
+  text(434, 225, "make each reader's paper", { size: 13.5, fill: c.muted });
 
   // The pipeline's four steps.
-  const steps = ["Fetch the feeds", "Select stories", "Rewrite for age 8", "Check each one"];
+  const steps = ["Fetch the feeds", "Select stories", "Rewrite for their age", "Check each one"];
   steps.forEach((label, i) => {
     const y = 282 + i * 56;
     rect(340, y, 166, 42, { rx: 6 });
@@ -85,13 +85,13 @@ function draw(c) {
   path("M548,358 A45,10 0 0 1 638,358 V434 A45,10 0 0 1 548,434 Z", { fill: c.card, sw: 1.5 });
   path("M548,358 A45,10 0 0 0 638,358", { sw: 1.5 });
   text(593, 399, "SQLite", { size: 14, weight: 700, anchor: "middle" });
-  text(593, 417, "story files", { size: 12.5, fill: c.muted, anchor: "middle" });
+  text(593, 417, "stories, photos", { size: 12.5, fill: c.muted, anchor: "middle" });
 
   // The two ports.
   path("M638,382 C656,382 648,301 664,301", { end: "ink" });
   path("M638,410 C656,410 648,470 664,470", { end: "ink" });
   rect(668, 268, 88, 66, { rx: 6 });
-  text(712, 297, "Kindle API", { size: 14, weight: 700, anchor: "middle" });
+  text(712, 297, "Reader API", { size: 14, weight: 700, anchor: "middle" });
   text(712, 316, "port 8080", { font: MONO, size: 12.5, fill: c.muted, anchor: "middle" });
   rect(668, 437, 88, 66, { rx: 6 });
   text(712, 466, "Dashboard", { size: 14, weight: 700, anchor: "middle" });
@@ -121,12 +121,32 @@ function draw(c) {
   text(52, 601, "NAS", { size: 15, weight: 700 });
   text(52, 620, "30 days of backups", { size: 13.5, fill: c.muted });
 
-  // ---- Right column: the Kindle ----
-  path("M756,288 H1005", { end: "ink" });
-  path("M1010,314 H761", { end: "ink" });
-  text(905, 279, "today's paper", { size: 13.5, anchor: "middle" });
-  text(885, 334, "what he read", { size: 13.5, anchor: "middle" });
+  // ---- Right column: the readers, a Kindle and an iPad, one outline round both ----
+  path("M756,288 H901", { end: "ink" });
+  path("M906,314 H761", { end: "ink" });
+  text(838, 279, "today's paper", { size: 13.5, anchor: "middle" });
+  text(836, 337, "what was read", { size: 13.5, anchor: "middle" });
+  rect(906, 112, 298, 244, { fill: "none", stroke: c.panelStroke, rx: 14 });
 
+  // The iPad: the reader's front page, a lead photo and the headlines.
+  rect(1062, 128, 128, 171, { fill: c.device, stroke: c.deviceStroke, rx: 12 });
+  rect(1069, 135, 114, 157, { fill: c.screen, stroke: c.screen, rx: 4, sw: 0 });
+  text(1126, 153, "Early Edition", { font: SERIF, size: 12.5, weight: 700, fill: c.screenInk, anchor: "middle" });
+  path("M1076,158 H1176", { stroke: c.screenInk, sw: 1.2 });
+  path("M1076,161 H1176", { stroke: c.screenInk, sw: 0.5 });
+  add(`<rect x="1076" y="167" width="100" height="44" rx="2" fill="${c.screenSoft}"/>`);
+  add(`<rect x="1076" y="218" width="94" height="5" rx="1" fill="${c.screenInk}"/>`);
+  add(`<rect x="1076" y="227" width="68" height="5" rx="1" fill="${c.screenInk}"/>`);
+  [244, 260, 276].forEach((y, i) => {
+    path(`M1076,${y - 6} H1176`, { stroke: c.screenSoft, sw: 0.5 });
+    add(`<rect x="1076" y="${y}" width="${[86, 74, 80][i]}" height="4" rx="1" fill="${c.screenInk}"/>`);
+    add(`<rect x="1076" y="${y + 7}" width="${[54, 62, 48][i]}" height="3" rx="1" fill="${c.screenSoft}"/>`);
+  });
+  text(1126, 322, "iPad", { size: 15, weight: 700, anchor: "middle" });
+  text(1126, 340, "home-screen app", { size: 13, fill: c.muted, anchor: "middle" });
+
+  // The Kindle, drawn at full size and scaled into the outline.
+  add(`<g transform="translate(237.2,50.4) scale(0.68)">`);
   rect(1010, 120, 180, 240, { fill: c.device, stroke: c.deviceStroke, rx: 14 });
   rect(1022, 132, 156, 196, { fill: c.screen, stroke: c.screen, rx: 3, sw: 0 });
   path("M1032,146 H1168", { stroke: c.screenInk, sw: 0.8 });
@@ -146,16 +166,17 @@ function draw(c) {
     }
     if (i < 3) path(`M1032,${y + 32} H1168`, { stroke: c.screenSoft, sw: 0.5 });
   }
-  text(1100, 384, "Kindle", { size: 15, weight: 700, anchor: "middle" });
-  text(1100, 402, "KOReader plugin", { size: 13, fill: c.muted, anchor: "middle" });
+  add(`</g>`);
+  text(985, 322, "Kindle", { size: 15, weight: 700, anchor: "middle" });
+  text(985, 340, "KOReader plugin", { size: 13, fill: c.muted, anchor: "middle" });
 
-  // ---- Right column: Authelia and the parent's phone ----
+  // ---- Right column: the sign-in and the parent's phone ----
   path("M756,470 H794", { end: "ink" });
   path("M902,470 H1045", { end: "ink", start: "ink" });
   rect(798, 448, 104, 44, { rx: 22 });
   rect(817, 468, 13, 11, { rx: 2, fill: c.ink, sw: 0 });
   path("M819.5,468 V464 A4,4 0 0 1 827.5,464 V468", { sw: 1.6 });
-  text(838, 475, "Authelia", { size: 13.5, weight: 700 });
+  text(838, 475, "Sign-in", { size: 13.5, weight: 700 });
   text(975, 461, "HTTPS", { size: 13.5, anchor: "middle" });
 
   rect(1050, 425, 100, 175, { fill: c.device, stroke: c.deviceStroke, rx: 16 });
@@ -176,16 +197,16 @@ function draw(c) {
 
   // ---- Numbered callouts, and their key along the bottom ----
   badge(344, 153, 1);
-  badge(800, 288, 2);
-  badge(966, 314, 3);
+  badge(774, 288, 2);
+  badge(886, 314, 3);
   badge(806, 449, 4);
 
   path("M36,668 H1204", { sw: 1 });
   const key = [
-    ["The paper is made at 05:30", "Feeds in, about six stories out:", "picked, rewritten and checked by AI."],
-    ["The Kindle fetches it on waking", "It can't wake itself, so the paper", "arrives seconds after pick-up."],
-    ["His reading comes back", "What he opens and finishes", "shapes tomorrow's picks."],
-    ["A parent looks in", "See what was read, hide or add", "stories, and choose the AI model."],
+    ["The paper is made at 05:30", "About six stories for each reader,", "picked, rewritten and checked by AI."],
+    ["The reader fetches it", "A Kindle when it wakes, an iPad", "from its home-screen app."],
+    ["Reading comes back", "What is opened and finished", "shapes tomorrow's picks."],
+    ["A parent looks in", "See what was read and what the", "checker found; hide or add stories."],
   ];
   key.forEach(([title, a, b], i) => {
     const x = 36 + i * 302;
@@ -200,7 +221,7 @@ function draw(c) {
     `refX="${start ? 1 : 10}" refY="5" orient="auto"><path d="${start ? "M11,0 L0,5 L11,10 Z" : "M0,0 L11,5 L0,10 Z"}" fill="${fill}"/></marker>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t d">
 <title id="t">Early Edition Kids: how it fits together</title>
-<desc id="d">Every morning at 05:30, the server on a home machine (Docker or Kubernetes) starts the day's run. The server fetches news feeds, uses an AI model to select, rewrite and check about six stories, and stores them in SQLite. The Kindle downloads the paper over the LAN from port 8080 and sends back what was read. A parent reaches the dashboard on port 8081 over HTTPS through Authelia. A nightly job backs the database up to a NAS.</desc>
+<desc id="d">Every morning at 05:30, the server on a home machine (Docker or Kubernetes) starts the day's run. For each reader it fetches news feeds and their photos, uses an AI model to select, rewrite for the reader's age and check about six stories, and stores them in SQLite. A Kindle (through a KOReader plugin) or an iPad (as a home-screen web app) downloads the paper from port 8080 and sends back what was read. A parent reaches the dashboard on port 8081 over HTTPS, through its built-in sign-in or the home network's own. A nightly job backs the database up to a NAS.</desc>
 <defs>${marker("ink", c.ink)}${marker("ink", c.ink, true)}${marker("muted", c.muted)}<marker id="end-small" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="${c.ink}"/></marker></defs>
 <rect width="${W}" height="${H}" fill="${c.bg}"/>
 ${out.join("\n")}
