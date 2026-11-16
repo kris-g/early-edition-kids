@@ -111,9 +111,10 @@ describe('AI page', () => {
     expect(await screen.findByText('no monthly limit')).toBeInTheDocument()
   })
 
-  it('lists each provider with its state', async () => {
+  it('lists each provider with what it is and its state', async () => {
     renderAi()
-    expect(await screen.findByText(/Connected · last used/)).toBeInTheDocument()
-    expect(screen.getByText('Not set up: add the key on the server')).toBeInTheDocument()
+    const providers = await screen.findByRole('region', { name: 'Providers' })
+    expect(providers).toHaveTextContent(/AnthropicClaude models, with your Anthropic keyConnected · last used/)
+    expect(providers).toHaveTextContent('OpenRouterMany models with one keyNot set up: add the key on the server')
   })
 })

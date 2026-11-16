@@ -157,6 +157,9 @@ describe("pipeline", () => {
     expect(text).toContain("8 year old");
     expect(text).toContain("Football");
     expect(text).toContain("Harry Kane");
+    // A topic's notes are written for the AI; its description is for the parent's dashboard only.
+    expect(text).toContain("UK weather only when notable");
+    expect(text).not.toContain("Snow, storms and other big UK weather.");
   });
 
   it("publishes a catch-up issue from unopened stories when the LLM is down", async () => {

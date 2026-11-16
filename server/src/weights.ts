@@ -48,6 +48,7 @@ export interface TopicStat {
   name: string;
   baseWeight: number;
   notes: string;
+  description: string | null;
   mode: string | null;
   shown: number;
   opened: number;
@@ -164,6 +165,7 @@ export function topicStats(config: Config, overrides: Record<string, string>, st
       name: t.name,
       baseWeight: t.baseWeight,
       notes: t.notes,
+      description: t.description,
       mode: overrides[t.name] ?? null,
       shown: 0,
       opened: 0,

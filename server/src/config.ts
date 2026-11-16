@@ -188,7 +188,10 @@ export type ReaderMode = (typeof READER_MODES)[number];
 export interface Topic {
   name: string;
   baseWeight: number;
+  /** For the AI that picks the stories. Never shown on the dashboard. */
   notes: string;
+  /** One short line for a parent, shown on the dashboard's Topics page. Never sent to the AI. */
+  description: string | null;
 }
 
 export interface Feed {
@@ -245,6 +248,7 @@ const topicSchema = z.object({
   name: z.union([z.string(), z.number()]).transform(String).pipe(z.string().min(1)),
   base_weight: z.union([z.number(), z.string()]).nullish().transform((v) => (v === null || v === undefined ? 1 : Number(v))),
   notes: z.string().nullish().transform((v) => v ?? ""),
+  description: z.string().nullish().transform((v) => v?.trim() || null),
 });
 
 const feedSchema = z.object({
@@ -305,8 +309,8 @@ export function parseConfig(data: unknown): Config {
     throw new ConfigError(`config: ${first?.path.join(".") || "(root)"}: ${first?.message}`);
   }
   const c = parsed.data;
-  let topics: Topic[] = (c.topics ?? []).map((t) => ({ name: t.name, baseWeight: t.base_weight, notes: t.notes }));
-  if (topics.length === 0) topics = TOPIC_NAMES.map((name) => ({ name, baseWeight: 1, notes: "" }));
+  let topics: Topic[] = (c.topics ?? []).map((t) => ({ name: t.name, baseWeight: t.base_weight, notes: t.notes, description: t.description }));
+  if (topics.length === 0) topics = TOPIC_NAMES.map((name) => ({ name, baseWeight: 1, notes: "", description: null }));
   const feeds: Feed[] = (c.feeds ?? []).map((f) => ({
     name: f.name,
     url: f.url,

@@ -71,6 +71,7 @@ All under `/api/dashboard` on the dashboard port (see CONTRACT.md for the shapes
 - With `DASHBOARD_PASSWORD` set, everything on the dashboard port but `/healthz`, `/login` and `/logout` needs the session cookie from `/login`: the API answers 401 `{error}` without it, and pages redirect to `/login?next=...` (CONTRACT.md "Built-in sign-in").
 - `GET /api/dashboard/profiles` lists the profiles. With several, every route below is also at `/api/dashboard/p/<id>/...` for each one, and `/api/dashboard/...` is the root profile's.
 - Every non-GET route needs the header `X-Early-Edition: 1` (403 without it), a cheap CSRF guard.
+- `GET /api/dashboard/about` (the server's version, what it runs on and its uptime; only at the root, not per profile).
 - `GET /summary`, `/issues`, `/issues/:date`, `/stories/:id`, `/topics`, `/articles/search?q=`, `/jobs/:id`, `/runs`; `POST /stories/:id/hide|unhide`, `/regenerate`, `/topics/:name`, `/articles/add`.
 - Errors are `{error}` with a plain sentence a parent can read.
 - Dashboard v2 (CONTRACT.md): `GET /reading?days=14`, `GET /calendar?month=YYYY-MM`, `GET /ai`, `PUT /ai`, and `streak_detail` / `last_run_cost` on `/summary`.

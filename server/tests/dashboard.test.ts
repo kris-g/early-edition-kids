@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import request from "supertest";
 import { afterEach, describe, expect, it } from "vitest";
+import { parseConfig } from "../src/config.js";
 import { StubLLM } from "../src/llm.js";
 import { generateReq, makeApp, postEvents, tmpDir, waitJob, type TestApp } from "./helpers.js";
 
@@ -229,8 +230,12 @@ describe("dashboard routes", () => {
     expect(topics.length).toBe(9);
     expect(topics.map((x: { name: string }) => x.name)).toEqual(expect.arrayContaining(["Liverpool FC", "England"]));
     expect(Object.keys(topics[0]).sort()).toEqual(
-      ["base_weight", "effective_weight", "engaged", "engagement_rate", "mode", "name", "open_rate", "opened", "shown"].sort(),
+      ["base_weight", "description", "effective_weight", "engaged", "engagement_rate", "mode", "name", "open_rate", "opened", "shown"].sort(),
     );
+    // The parent's line comes from the config's description, never from the notes written for the AI.
+    const weather = topics.find((x: { name: string }) => x.name === "Weather");
+    expect(weather.description).toBe("Snow, storms and other big UK weather.");
+    expect(JSON.stringify(topics)).not.toContain("UK weather only when notable");
     const blocked = (await t.agent.post("/api/dashboard/topics/Weather").set(H).send({ mode: "block" })).body;
     expect(blocked.mode).toBe("block");
     expect(blocked.effective_weight).toBe(0);
@@ -240,6 +245,12 @@ describe("dashboard routes", () => {
     expect((await t.agent.post("/api/dashboard/topics/Weather").set(H).send({ mode: null })).body.mode).toBeNull();
     expect((await t.agent.post("/api/dashboard/topics/Politics").set(H).send({ mode: "pin" })).status).toBe(404);
     expect((await t.agent.post("/api/dashboard/topics/Space").set(H).send({ mode: "maybe" })).status).toBe(422);
+  });
+
+  it("has a null description for a topic whose config gives none", async () => {
+    t = makeApp({ config: parseConfig({ topics: [{ name: "Space" }, { name: "Science", description: "  " }, { name: "Weather", description: " Big weather. " }] }) });
+    const topics = (await t.agent.get("/api/dashboard/topics")).body;
+    expect(topics.map((x: { description: string | null }) => x.description)).toEqual([null, null, "Big weather."]);
   });
 
   it("lists runs", async () => {

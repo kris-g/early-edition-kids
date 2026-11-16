@@ -6,14 +6,18 @@ import { addDays, at, londonToday, rand } from './data.ts'
 
 type Price = { id: string; provider: 'anthropic' | 'openrouter'; name: string; note: string; input: number; output: number }
 
+// The same models, names, notes and prices as the server offers: ANTHROPIC_MODELS in
+// server/src/providers.ts (prices from DEFAULT_LLM_PRICES) and DEFAULT_OPENROUTER_MODELS in server/src/config.ts.
 const PRICES: Price[] = [
-  { id: 'anthropic:claude-opus-5-5', provider: 'anthropic', name: 'Claude Opus 5.5', note: 'The most careful writer.', input: 4, output: 20 },
-  { id: 'anthropic:claude-sonnet-5-5', provider: 'anthropic', name: 'Claude Sonnet 5.5', note: 'Nearly as good at about half the cost.', input: 2, output: 10 },
-  { id: 'anthropic:claude-haiku-5-5', provider: 'anthropic', name: 'Claude Haiku 5.5', note: 'Fastest and cheapest; plainer writing.', input: 0.1, output: 0.5 },
-  { id: 'openrouter:anthropic/claude-opus-5.5', provider: 'openrouter', name: 'Claude Opus 5.5 via OpenRouter', note: 'Same model, billed through OpenRouter.', input: 4, output: 20 },
-  { id: 'openrouter:anthropic/claude-sonnet-5.5', provider: 'openrouter', name: 'Claude Sonnet 5.5 via OpenRouter', note: 'Same model, billed through OpenRouter.', input: 2, output: 10 },
-  { id: 'openrouter:moonshotai/kimi-k3.1-pro', provider: 'openrouter', name: 'Kimi K3.1 Pro', note: 'Strong writer from Moonshot AI.', input: 2, output: 10 },
-  { id: 'openrouter:x-ai/grok-4.7', provider: 'openrouter', name: 'Grok 4.7', note: 'Quick, with cheaper output.', input: 2, output: 6 },
+  { id: 'anthropic:claude-opus-5-5', provider: 'anthropic', name: 'Claude Opus 5.5', note: 'The most careful writer and checker. Costs the most.', input: 4, output: 20 },
+  { id: 'anthropic:claude-sonnet-5-5', provider: 'anthropic', name: 'Claude Sonnet 5.5', note: 'Nearly as good as Opus, at about half the cost.', input: 2, output: 10 },
+  { id: 'anthropic:claude-haiku-5-5', provider: 'anthropic', name: 'Claude Haiku 5.5', note: 'The fastest and cheapest. Its writing is plainer.', input: 0.1, output: 0.5 },
+  { id: 'openrouter:anthropic/claude-opus-5.5', provider: 'openrouter', name: 'Claude Opus 5.5 (OpenRouter)', note: 'The same careful Claude Opus, billed through OpenRouter.', input: 4, output: 20 },
+  { id: 'openrouter:anthropic/claude-sonnet-5.5', provider: 'openrouter', name: 'Claude Sonnet 5.5 (OpenRouter)', note: 'Nearly as good as Opus at about half the cost, through OpenRouter.', input: 2, output: 10 },
+  { id: 'openrouter:moonshotai/kimi-k3.1-pro', provider: 'openrouter', name: 'Kimi K3.1 Pro (OpenRouter)', note: 'A strong model from another company; worth trying as a second opinion.', input: 2, output: 10 },
+  { id: 'openrouter:x-ai/grok-4.7', provider: 'openrouter', name: 'Grok 4.7 (OpenRouter)', note: 'Another company’s model; cheaper to write with, so check its stories closely.', input: 2, output: 6 },
+  { id: 'openrouter:z-ai/glm-5.3', provider: 'openrouter', name: 'GLM 5.3 (OpenRouter)', note: 'Very low cost; untested for children’s writing', input: 0.08, output: 3.6 },
+  { id: 'openrouter:deepseek/deepseek-v4-pro-0813', provider: 'openrouter', name: 'DeepSeek V4 Pro (OpenRouter)', note: 'Very low cost; untested for children’s writing', input: 0.11, output: 4.44 },
 ]
 
 // Average tokens a day over the last 14 days (made up, but plausible).
@@ -34,8 +38,8 @@ const settings = {
 }
 
 const providers: ProviderInfo[] = [
-  { id: 'anthropic', name: 'Anthropic API', configured: true, last_used: null },
-  { id: 'openrouter', name: 'OpenRouter', configured: true, last_used: null },
+  { id: 'anthropic', name: 'Anthropic', description: 'Claude models, with your Anthropic key', configured: true, last_used: null },
+  { id: 'openrouter', name: 'OpenRouter', description: 'Many models with one key', configured: true, last_used: null },
 ]
 
 const monthCosts = new Map<string, number>()

@@ -31,7 +31,7 @@ Early Edition Kids is set up in three places:
 
 | Setting | Default | What it does |
 |---|---|---|
-| `topics` | Nine starting topics, all weight 1 | The topics the paper is chosen from. Each has a `name`, a `base_weight` (default 1) and optional `notes`. |
+| `topics` | Nine starting topics, all weight 1 | The topics the paper is chosen from. Each has a `name`, a `base_weight` (default 1), and optional `description` and `notes`. |
 | `favourite_players` | none | Stories about these players are preferred, and the writer may mention them when the article does. |
 | `favourite_team` | none | The child's team. It only does something together with `rival_clubs`. |
 | `rival_clubs` | none | With `favourite_team`, a story about a rival club may carry one friendly line from a fan's point of view, such as "Not the best night for them!" |
@@ -40,8 +40,9 @@ Early Edition Kids is set up in three places:
 **Topics in more detail:**
 
 - **Names are free text.** The nine starting topics are Liverpool FC, England, Football, Science, Space, Animals and nature, Games and tech, Weather and Weird but true. The Kindle has an icon for each of these; any other name gets a plain one.
-- **Weights shift with reading.** A topic's weight moves between half and one and a half times its `base_weight`, depending on how much of it the child read properly in the last 14 days. Pinning or blocking a topic on the dashboard overrides this.
-- **Notes go to the AI that picks the stories.** Use them to say what a topic covers or how often it should appear, such as "One a day at most".
+- **Weights shift with reading.** A topic's weight moves between half and one and a half times its `base_weight`, depending on how much of it the child read properly in the last 14 days. Pinning a topic or turning it off on the dashboard overrides this.
+- **The description is for you.** One short line, shown under the topic's name on the dashboard's Topics page. The AI never sees it.
+- **Notes go to the AI that picks the stories.** The dashboard never shows them. Use them to say what a topic covers or how often it should appear, such as "One a day at most".
 - **Renaming a topic starts it afresh.** Reading history is matched by name, so a renamed topic loses its past weighting.
 
 ## Sources and safety
