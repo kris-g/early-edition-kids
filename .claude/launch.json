@@ -35,6 +35,12 @@
       "port": 8081
     },
     {
+      "name": "promo-site",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["docs/tools/serve-site.mjs", "4321"],
+      "port": 4321
+    },
+    {
       "name": "early-edition-kids-reader-dev",
       "runtimeExecutable": "sh",
       "runtimeArgs": [

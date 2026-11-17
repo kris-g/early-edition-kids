@@ -29,7 +29,7 @@ flowchart TD
     reserve["Drop it and take a reserve"]
     enough{"At least 3 stories passed?<br/>(all of them if story_count is under 3)"}
     store["Store the issue<br/>one HTML file per story"]
-    fallback["Publish a catch-up issue<br/>from stories he hasn't opened"]
+    fallback["Publish a catch-up issue<br/>from stories not yet opened"]
 
     fetch --> filter --> select --> extract --> rewrite --> check
     check -- "passes" --> enough
@@ -65,7 +65,7 @@ sequenceDiagram
     Kindle->>Server: GET each story's HTML file
     Note over Kindle: Front page shows today's paper
 
-    Note over Kindle: He reads, and events are queued on the device
+    Note over Kindle: The child reads, and events are queued on the device
     Kindle->>Server: POST /api/events at the next sync
 
     Parent->>Server: opens the dashboard
@@ -81,4 +81,4 @@ The plugin syncs on start and on wake when any of these is true ([CONTRACT.md, p
 2. It has events queued.
 3. It has today's issue and last checked more than 30 minutes ago. This is how hidden stories and new versions reach it.
 
-What he reads also feeds back: tomorrow's selection is weighted toward the topics he opens and finishes ([DESIGN.md, section 4.4](DESIGN.md#44-topic-weighting-and-the-catch-up-fallback)).
+What is read also feeds back: tomorrow's selection is weighted toward the topics that get opened and finished ([DESIGN.md, section 4.4](DESIGN.md#44-topic-weighting-and-the-catch-up-fallback)).
