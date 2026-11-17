@@ -15,7 +15,7 @@ export function AboutServer() {
     : []
   return (
     <>
-      <SectionTitle className="mt-2">About this server</SectionTitle>
+      <SectionTitle>About this server</SectionTitle>
       <Card label="About this server" className="p-0!">
         {about.data ? (
           <dl className="m-0">

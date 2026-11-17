@@ -4,11 +4,13 @@ A React PWA served by the server at `/dashboard/`, behind Authelia. It shows wha
 
 Each screenshot below has numbered callouts with a key on its right. They show sample data at laptop width in the light theme. Click an image to see it full size.
 
-## Overview
+On a laptop the sidebar has Today, then three groups: **Reading** (Reading, Calendar, Share), **The paper** (Add a story, Topics, AI) and **Set-up** (Devices, Server). On a phone, Today, Reading and Calendar are tabs along the bottom, and the rest are under **More**, in the same groups.
 
-Everything at a glance: the reading streak, stories per day, this month's calendar, AI cost and today's paper.
+## Today
 
-![Overview page with numbered callouts](images/dashboard/overview.png)
+Everything at a glance: the reading streak, stories per day, this month's calendar, AI cost and today's paper. On a phone, Today is a shorter page with the streak, today's paper and its stories.
+
+![Today page with numbered callouts](images/dashboard/overview.png)
 
 ## Reading
 
@@ -18,15 +20,15 @@ How much gets read and which topics, over 14 days, 30 days or 12 weeks.
 
 ## Calendar
 
-A month of reading, day by day. Tap a day to see its stories.
+A month of reading, day by day. Tap a day to see its stories. **Back issues**, linked under the month, lists the same papers newest first.
 
 ![Calendar page with numbered callouts](images/dashboard/calendar.png)
 
-## Find articles
+## Add a story
 
 Search the last 30 days of news from the paper's sources, or paste a link, and add the story to today's paper or tomorrow's. It is rewritten and safety-checked first.
 
-![Find articles page with numbered callouts](images/dashboard/find.png)
+![Add a story page with numbered callouts](images/dashboard/find.png)
 
 ## Topics
 
@@ -48,7 +50,8 @@ Which model writes and which checks, what each costs, and how the month's spend 
 
 ## Pages without a screenshot here
 
-- **Devices:** the addresses and steps for putting the paper on a Kindle or an iPad, and the server's version, what it runs on and how long it has been running.
+- **Devices:** the addresses and steps for putting the paper on a Kindle or an iPad.
+- **Server:** the server's version, what it runs on and how long it has been running, then the daily runs that made the recent papers.
 - **Share:** six picture cards (streak, today, the week, milestone, words learned, ask me about) to send to family. They are drawn in the browser; [CONTRACT.md](CONTRACT.md#share-cards-added-14-november-2026) has the rules.
 
 ## Remaking the screenshots

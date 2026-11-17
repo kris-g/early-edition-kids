@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { api } from '../api/endpoints'
+import { BackLink } from '../components/BackLink'
 import { ChevronRight } from '../components/Icons'
 import { Badge, ErrorNote, Loading, PageHeader } from '../components/ui'
 import { londonToday, longDate } from '../lib/format'
@@ -14,6 +15,7 @@ export function Issues() {
 
   return (
     <div>
+      <BackLink fallback={{ to: '/calendar', label: 'Calendar' }} />
       <PageHeader title="Back issues" subtitle="The last 30 issues, newest first" />
       {issues.error && <ErrorNote onRetry={issues.reload}>{issues.error.message}</ErrorNote>}
       {!issues.data && issues.loading && <Loading />}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { ProfilesContext, SINGLE } from '../lib/profile'
@@ -14,13 +14,24 @@ const page = (login: boolean) =>
   )
 
 describe('More', () => {
-  it('links to Devices first instead of holding the setup cards itself', () => {
+  it('groups its links like the sidebar, without the pages that are phone tabs', () => {
     page(false)
-    const links = screen.getAllByRole('link')
-    expect(links[0]).toHaveAttribute('href', '/devices')
-    expect(links[0]).toHaveTextContent('Devices')
+    const group = (name: string) =>
+      within(screen.getByRole('navigation', { name }))
+        .getAllByRole('link')
+        .map((l) => [l.getAttribute('href'), l.querySelector('span > span')?.textContent])
+    expect(group('The paper')).toEqual([
+      ['/find', 'Add a story'],
+      ['/topics', 'Topics'],
+      ['/ai', 'AI'],
+    ])
+    expect(group('Reading')).toEqual([['/share', 'Share']])
+    expect(group('Set-up')).toEqual([
+      ['/devices', 'Devices'],
+      ['/runs', 'Server'],
+    ])
+    expect(screen.queryByRole('link', { name: /Back issues|Calendar|Today/ })).toBeNull()
     expect(screen.queryByRole('region', { name: 'Set up a Kindle' })).toBeNull()
-    expect(screen.queryByRole('region', { name: 'Read on an iPad' })).toBeNull()
   })
 
   it('has no sign-out without the built-in sign-in', () => {

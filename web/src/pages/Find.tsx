@@ -37,7 +37,7 @@ export function Find() {
 
   return (
     <div>
-      <PageHeader title="Find articles" subtitle="Add a story to today’s issue or tomorrow’s" />
+      <PageHeader title="Add a story" subtitle="Search the news or paste a link, for today’s paper or tomorrow’s" />
 
       {showIntro && (
         <div className="mb-4 flex items-start gap-3 rounded-2xl border border-line bg-chip p-4 text-sm text-ink">

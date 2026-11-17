@@ -5,7 +5,7 @@
 //   MOCK_NO_ISSUE=1 npm run mock   # no issue today (empty state)
 //   MOCK_PROFILES=older,younger npm run dev:mock
 //                                  # two children: /dashboard/p/<id>/, a switcher in the header
-//   MOCK_LOGIN=1 npm run dev:mock  # as if DASHBOARD_PASSWORD were set: "Sign out" on More
+//   MOCK_LOGIN=1 npm run dev:mock  # as if DASHBOARD_PASSWORD were set: "Sign out" in the sidebar and on More
 //
 // To see what happens when the Authelia session expires, open
 // http://localhost:8090/__mock/signed-out?on=1 (and ?on=0 to undo): every
