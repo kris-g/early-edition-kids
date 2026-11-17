@@ -36,6 +36,7 @@ export function Calendar() {
         ? defaultDay(view, today)
         : null
 
+  const origin = useOrigin()
   const go = (m: string) => setParams({ month: m }, { replace: true })
   const dayView = params.get('view') === 'paper' ? 'paper' : 'read'
   const select = (date: string) => setParams({ month, day: date, ...(dayView === 'paper' ? { view: 'paper' } : {}) }, { replace: true })
@@ -85,6 +86,14 @@ export function Calendar() {
               <Total value={view.reading_days} label={`of ${view.elapsed_days} days read`} />
               <Total value={view.all_read_days} label={view.all_read_days === 1 ? 'all-read day' : 'all-read days'} />
             </div>
+            <Link
+              to="/issues"
+              state={origin}
+              className="inline-flex min-h-11 items-center gap-1 self-start text-[13px] font-bold text-accent hover:underline"
+            >
+              Back issues: every paper as a list
+              <ChevronRight className="size-4" />
+            </Link>
           </div>
           {picked && <DayPanel key={picked} date={picked} today={today} mode={dayView} onMode={setView} />}
         </div>

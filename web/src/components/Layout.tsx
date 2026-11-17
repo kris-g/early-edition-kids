@@ -3,38 +3,55 @@ import { Link, Outlet } from 'react-router-dom'
 import { APP_SHORT_NAME } from '../config'
 import { cx } from '../lib/cx'
 import { useSection } from '../lib/origin'
-import { CalendarIcon, DotsIcon, LogoMark, PaperIcon, ReadingIcon, SparkleIcon } from './Icons'
+import { useProfiles } from '../lib/profile'
+import { CalendarIcon, DotsIcon, LogoMark, PaperIcon, ReadingIcon } from './Icons'
 import { ProfileSwitcher } from './ProfileSwitcher'
+import { SideSignOut } from './SignOut'
 import { ThemeButton, ThemeSwitch } from './ThemeToggle'
 
 type Tab = { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }
+type NavLink = { to: string; label: string }
 
-/** Phone: bottom tabs. "More" holds Devices, Share, Find articles, Topics, Back issues and Recent runs. */
+/** Phone: bottom tabs for the pages looked at most. "More" holds the rest, in the sidebar's groups. */
 const TABS: Tab[] = [
   { to: '/', label: 'Today', icon: PaperIcon },
   { to: '/reading', label: 'Reading', icon: ReadingIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarIcon },
-  { to: '/ai', label: 'AI', icon: SparkleIcon },
   { to: '/more', label: 'More', icon: DotsIcon },
 ]
 
-/** Desktop and tablet (900px and wider): sidebar. */
-const SIDE: { to: string; label: string }[] = [
-  { to: '/', label: 'Overview' },
-  { to: '/reading', label: 'Reading' },
-  { to: '/calendar', label: 'Calendar' },
-  { to: '/find', label: 'Find articles' },
-  { to: '/topics', label: 'Topics' },
-  { to: '/share', label: 'Share' },
-  { to: '/ai', label: 'AI' },
+/**
+ * Desktop and tablet (900px and wider): Today, then the sidebar's groups. Back issues has no entry of
+ * its own: it is a list of the same papers the Calendar shows, and Calendar links to it.
+ */
+const NAV_GROUPS: { label: string; links: NavLink[] }[] = [
+  {
+    label: 'Reading',
+    links: [
+      { to: '/reading', label: 'Reading' },
+      { to: '/calendar', label: 'Calendar' },
+      { to: '/share', label: 'Share' },
+    ],
+  },
+  {
+    label: 'The paper',
+    links: [
+      { to: '/find', label: 'Add a story' },
+      { to: '/topics', label: 'Topics' },
+      { to: '/ai', label: 'AI' },
+    ],
+  },
+  {
+    label: 'Set-up',
+    links: [
+      { to: '/devices', label: 'Devices' },
+      { to: '/runs', label: 'Server' },
+    ],
+  },
 ]
 
-const SIDE_EXTRA: { to: string; label: string }[] = [
-  { to: '/issues', label: 'Back issues' },
-  { to: '/runs', label: 'Recent runs' },
-  { to: '/devices', label: 'Devices' },
-  { to: '/more', label: 'More' },
-]
+/** Pages reached from "More" on a phone keep that tab lit. */
+const UNDER_MORE = ['/share', '/find', '/topics', '/ai', '/devices', '/runs', '/more']
 
 function Brand() {
   return (
@@ -48,12 +65,25 @@ function Brand() {
   )
 }
 
-/** Pages reached from "More" on a phone keep that tab lit. */
-const UNDER_MORE = ['/devices', '/share', '/find', '/topics', '/issues', '/runs', '/more']
+function SideLink({ to, label, on }: NavLink & { on: boolean }) {
+  return (
+    <Link
+      to={to}
+      aria-current={on ? 'page' : undefined}
+      className={cx(
+        'flex min-h-10 items-center rounded-[10px] px-3 text-[15px]',
+        on ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-ink hover:bg-chip',
+      )}
+    >
+      {label}
+    </Link>
+  )
+}
 
 export function Layout() {
   // A day or a story lights the section it was opened from (lib/origin.ts).
   const section = useSection()
+  const { login } = useProfiles()
   const tabOn = (to: string) => (to === '/more' ? UNDER_MORE.includes(section) : section === to)
   return (
     <div className="flex min-h-dvh desk:flex-row">
@@ -62,42 +92,25 @@ export function Layout() {
           <Brand />
         </div>
         <ProfileSwitcher wide />
-        <nav aria-label="Sections" className="flex flex-col gap-1">
-          {SIDE.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              aria-current={section === t.to ? 'page' : undefined}
-              className={
-                cx(
-                  'flex min-h-11 items-center rounded-[10px] px-3 text-[15px]',
-                  section === t.to ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-ink hover:bg-chip',
-                )
-              }
-            >
-              {t.label}
-            </Link>
+        <nav aria-label="Sections" className="flex flex-col gap-5">
+          <SideLink to="/" label="Today" on={section === '/'} />
+          {NAV_GROUPS.map((g) => (
+            <div key={g.label} role="group" aria-labelledby={`nav-group-${g.label}`} className="flex flex-col gap-0.5">
+              <span
+                id={`nav-group-${g.label}`}
+                className="px-3 pb-1 text-[11px] font-bold tracking-[0.12em] text-muted uppercase"
+              >
+                {g.label}
+              </span>
+              {g.links.map((l) => (
+                <SideLink key={l.to} {...l} on={section === l.to} />
+              ))}
+            </div>
           ))}
         </nav>
-        <nav aria-label="More" className="flex flex-col gap-0.5 border-t border-line pt-4">
-          {SIDE_EXTRA.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              aria-current={section === t.to ? 'page' : undefined}
-              className={
-                cx(
-                  'flex min-h-11 items-center rounded-[10px] px-3 text-sm',
-                  section === t.to ? 'bg-accent-soft font-bold text-accent' : 'font-medium text-muted hover:bg-chip hover:text-ink',
-                )
-              }
-            >
-              {t.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col gap-2">
           <ThemeSwitch />
+          {login && <SideSignOut />}
         </div>
       </aside>
 
@@ -119,7 +132,7 @@ export function Layout() {
         aria-label="Sections"
         className="tab-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-card px-2 desk:hidden"
       >
-        <ul className="mx-auto grid max-w-md grid-cols-5">
+        <ul className="mx-auto grid max-w-md grid-cols-4">
           {TABS.map((t) => (
             <li key={t.to}>
               <Link

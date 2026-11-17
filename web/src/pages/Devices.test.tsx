@@ -8,13 +8,8 @@ import { Devices } from './Devices'
 afterEach(() => vi.unstubAllGlobals())
 
 describe('Devices', () => {
-  it('has the Kindle and the iPad setup, with the addresses for the child shown now, and the server', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn<typeof fetch>(async () =>
-        jsonResponse({ version: '0.2.0', arch: 'arm64', platform: 'linux', container: 'kubernetes', uptime_seconds: 7500 }),
-      ),
-    )
+  it('has the Kindle and the iPad setup, with the addresses for the child shown now, and not the server', () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>(async () => jsonResponse({})))
     render(
       <ProfilesContext.Provider
         value={{
@@ -36,8 +31,6 @@ describe('Devices', () => {
     expect(screen.getByRole('region', { name: 'Read on an iPad' })).toBeInTheDocument()
     expect(screen.getByText('http://192.168.1.50:8080')).toBeInTheDocument()
     expect(screen.getByText('http://192.168.1.50:8080/read/')).toBeInTheDocument()
-    const about = screen.getByRole('region', { name: 'About this server' })
-    expect(await screen.findByText('Kubernetes, arm64')).toBeInTheDocument()
-    expect(about).toHaveTextContent('Running for2 hours 5 minutes')
+    expect(screen.queryByRole('region', { name: 'About this server' })).toBeNull()
   })
 })

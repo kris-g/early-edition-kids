@@ -58,7 +58,7 @@ function renderFind() {
   )
 }
 
-describe('Find articles', () => {
+describe('Add a story (Find)', () => {
   it('adds an article: pending, then the new story card', async () => {
     finalJob = job({ status: 'done', story: card({ id: 500, title: 'A frog that glows', added_by_parent: true }) })
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })

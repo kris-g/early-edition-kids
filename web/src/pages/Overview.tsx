@@ -64,7 +64,7 @@ export function Overview() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm text-muted">{fullDate}</span>
-          <h1 className="m-0 font-display text-[40px] leading-[1.1] font-black">Overview</h1>
+          <h1 className="m-0 font-display text-[40px] leading-[1.1] font-black">Today</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <KindlePill issue={issue} seenAt={summary.data?.kindle_seen_at} large />
@@ -72,7 +72,7 @@ export function Overview() {
             {issue ? 'Make it again' : 'Make today’s paper'}
           </Button>
           <LinkButton to="/find" variant="primary" className="px-[18px]">
-            Add an article
+            Add a story
           </LinkButton>
         </div>
       </div>

@@ -128,7 +128,7 @@ Request:
 ## Parent-added articles
 
 - **Archive:** every article fetched from a configured feed is kept for 30 days (`articles(url PK, source_name, title, summary, published_at, fetched_at)`), whether or not it was picked. Items matching the feed's exclude patterns (videos, podcasts, quizzes) are not archived.
-- **Find:** the dashboard's "Find articles" page searches that archive by keyword (title and summary, newest first) and also accepts a pasted article URL from any site.
+- **Find:** the dashboard's "Add a story" page (`/find`) searches that archive by keyword (title and summary, newest first) and also accepts a pasted article URL from any site.
 - **Add:** each result has "Add to today" and "Add for tomorrow". Adding runs the same extract, rewrite and check steps as the pipeline (DESIGN 4.1 steps 4 to 6); a story that fails is not added and the dashboard shows the reasons. The parent cannot bypass the checks.
   - **Today:** appended to today's issue as a new story with the next free `position`, in the **same** `version`. It appears in `/api/issue/today` at once.
   - **Tomorrow:** stored as a request; the next generation includes it as one of its `story_count` picks and skips it in selection.

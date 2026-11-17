@@ -99,7 +99,7 @@ function PhoneToday() {
             )}
             <div className="flex gap-2.5">
               <LinkButton to="/find" variant="primary" className="min-h-[46px] flex-1">
-                Add an article
+                Add a story
               </LinkButton>
               <Button onClick={regen.start} busy={regen.running} className="min-h-[46px] flex-1">
                 {issue ? 'Make it again' : 'Make it now'}

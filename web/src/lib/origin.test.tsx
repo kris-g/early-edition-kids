@@ -7,18 +7,18 @@ import { jsonResponse } from '../test/fixtures'
 import { labelOf, sectionOf, type Origin } from './origin'
 
 describe('sectionOf and labelOf', () => {
-  it('puts a day under Calendar and a story under Today when nothing says otherwise', () => {
+  it('puts a day and Back issues under Calendar, and a story under Today, when nothing says otherwise', () => {
     expect(sectionOf('/day/2026-11-13')).toBe('/calendar')
     expect(sectionOf('/story/53')).toBe('/')
-    expect(sectionOf('/issues')).toBe('/issues')
+    expect(sectionOf('/issues')).toBe('/calendar')
     expect(sectionOf('/calendar')).toBe('/calendar')
   })
 
   it('names the page a back link returns to', () => {
-    expect(labelOf('/day/2026-11-15', false)).toBe('Sun 15 Nov')
-    expect(labelOf('/', false)).toBe('Today')
-    expect(labelOf('/', true)).toBe('Overview')
-    expect(labelOf('/issues', false)).toBe('Back issues')
+    expect(labelOf('/day/2026-11-15')).toBe('Sun 15 Nov')
+    expect(labelOf('/')).toBe('Today')
+    expect(labelOf('/issues')).toBe('Back issues')
+    expect(labelOf('/runs')).toBe('Server')
   })
 })
 
@@ -44,9 +44,9 @@ function openDay(origin?: Origin) {
 
 describe('a day opened from somewhere', () => {
   it('keeps the tab it came from lit and offers a way back', async () => {
-    const tabs = openDay({ section: '/issues', back: { to: '/issues', label: 'Back issues' } })
-    expect(await within(screen.getByRole('main')).findByRole('link', { name: 'Back issues' })).toHaveAttribute('href', '/issues')
-    expect(tabs.getByRole('link', { name: 'More' })).toHaveAttribute('aria-current', 'page')
+    const tabs = openDay({ section: '/reading', back: { to: '/reading', label: 'Reading' } })
+    expect(await within(screen.getByRole('main')).findByRole('link', { name: 'Reading' })).toHaveAttribute('href', '/reading')
+    expect(tabs.getByRole('link', { name: 'Reading' })).toHaveAttribute('aria-current', 'page')
     expect(tabs.getByRole('link', { name: 'Calendar' })).not.toHaveAttribute('aria-current')
   })
 

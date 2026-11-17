@@ -17,11 +17,11 @@ const ACCENT = "#C2410C";
 
 const pages = [
   {
-    file: "overview", title: "Overview", sub: "The laptop home page: everything at a glance", crop: 1189,
+    file: "overview", title: "Today", sub: "The laptop home page: everything at a glance", crop: 1189,
     notes: [
-      [[16, 90, 207, 555], "Pages", "Overview, Reading, Calendar, Find articles, Topics, Share and AI, then Back issues, Recent runs, Devices and More. On a phone the main ones become tabs along the bottom."],
+      [[16, 90, 207, 498], "Pages", "Today, then three groups: Reading (Reading, Calendar, Share), The paper (Add a story, Topics, AI) and Set-up (Devices, Server). On a phone, Today, Reading and Calendar are tabs along the bottom and the rest are under More."],
       [[16, 1116, 207, 48], "Light or dark", "Follows your device until you flip it, then remembers your choice."],
-      [[967, 50, 431, 44], "Today's actions", "When the paper reached the Kindle, Make it again to redo today's paper, and Add an article."],
+      [[983, 50, 415, 44], "Today's actions", "When the paper reached the Kindle, Make it again to redo today's paper, and Add a story."],
       [[282, 114, 405, 351], "Reading streak", "Days in a row with at least one story read to the end, and the last 14 days. An outlined square is a missed day."],
       [[707, 114, 691, 351], "Stories per day", "Stories read each day with the average line. Switch between 14 days, 30 days and 12 weeks. Hover a bar for the exact numbers."],
       [[282, 485, 365, 578], "This month", "Each day's number is stories read; darker means more. A tick means that day's paper was all read. Today is outlined."],
@@ -41,12 +41,13 @@ const pages = [
     ],
   },
   {
-    file: "calendar", title: "Calendar", sub: "A month of reading, day by day", crop: 680,
+    file: "calendar", title: "Calendar", sub: "A month of reading, day by day", crop: 720,
     notes: [
       [[1302, 28, 96, 44], "Change month", "Step back through earlier months."],
       [[282, 104, 600, 432], "The month", "Each day shows stories read, shaded for 0, 1 to 2, 3 to 4 and 5 or more. A tick means that day's paper was all read. Future days are dashed and today is outlined. Tap a day to see it."],
       [[898, 104, 500, 433], "The chosen day", "What was read that day, or that day's paper, story by story. Open day shows the whole day.", "tr"],
       [[282, 552, 600, 74], "Month totals", "Stories read this month, how many days had reading, and days the whole paper was read."],
+      [[278, 642, 236, 44], "Back issues", "The same papers as a list, newest first, each opening its day."],
     ],
   },
   {
@@ -63,7 +64,7 @@ const pages = [
     ],
   },
   {
-    file: "find", title: "Find articles", sub: "Add a story to the paper yourself", crop: 900,
+    file: "find", title: "Add a story", sub: "Search the news or paste a link", crop: 900,
     notes: [
       [[282, 110, 1116, 74], "Checked first", "An added article is rewritten for the reader's age and safety-checked like the daily picks. If it doesn't pass, it isn't added and you see why."],
       [[282, 200, 1116, 48], "Search or paste", "Search the last 30 days of news from the paper's sources, or paste a link to any article."],

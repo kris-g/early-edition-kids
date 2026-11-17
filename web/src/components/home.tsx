@@ -1,4 +1,4 @@
-// Building blocks of the Today page (phone) and the Overview (desktop).
+// Building blocks of the Today page: the phone's (Today.tsx) and the wider screen's (Overview.tsx).
 import { useId } from 'react'
 import { Link } from 'react-router-dom'
 import type { IssueView, ReadingDay, RunCost, Streak } from '../api/types'
