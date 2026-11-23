@@ -370,7 +370,7 @@ describe("the server", () => {
     expect((await generateReq(t)).status).toBe(200);
     await request(t.app).post("/admin/sports").set(ADMIN); // waits for the background fetch
     const issue = (await request(t.app).get("/api/issue/today")).body;
-    expect(issue.sports).toEqual({ path: "/api/sports", label: "Premier League", matchday: 10 });
+    expect(issue.sports).toEqual({ path: "/api/sports", label: "Premier League", matchday: 10, unlock: { needed: 3, min_seconds: expect.any(Object) } });
     const page = (await request(t.app).get("/api/sports")).body;
     expect(page.matchday.days.flatMap((d: any) => d.matches).every((m: any) => m.state === "finished" && m.detail === null)).toBe(true);
     expect(page.next.number).toBe(11);
@@ -439,5 +439,122 @@ describe("the server", () => {
     expect(reading.total_read).toBe(0);
     expect(reading.reading_days).toBe(0);
     expect(reading.days.every((d: any) => d.minutes === 0)).toBe(true);
+  });
+});
+
+describe("Sport opens after reading", () => {
+  let t: TestApp;
+  afterEach(() => t?.cleanup());
+
+  const DASH = { "X-Early-Edition": "1" };
+  /** A paper on the fixture feeds' own morning, with the Sport data fetched for it. */
+  async function paperWithSport(config = sportsConfig()) {
+    t = makeApp({ config, sportsFetcher: feeds() });
+    await generateReq(t);
+    await request(t.app).post("/admin/sports").set(ADMIN); // waits for the morning's background fetch
+    return (await request(t.app).get("/api/issue/today")).body;
+  }
+  const at = (iso: string) => Math.floor(Date.parse(iso) / 1000);
+  const closed = (id: number, ceid: string, seconds: number, finished: boolean, ts: number) => ({
+    client_event_id: ceid,
+    story_id: id,
+    type: "story_closed",
+    ts,
+    payload: { active_seconds: seconds, pages_total: 2, max_page: finished ? 2 : 1, finished },
+  });
+
+  it("puts the rule in the issue: half the stories, each read for at least half its time", async () => {
+    const issue = await paperWithSport();
+    expect(issue.stories).toHaveLength(6);
+    expect(issue.sports.unlock.needed).toBe(3);
+    const words = new Map(t.ctx.db.query("SELECT id, word_count FROM stories").map((r) => [Number(r.id), Number(r.word_count)]));
+    for (const s of issue.stories) {
+      expect(issue.sports.unlock.min_seconds[String(s.id)]).toBe(Math.ceil(((words.get(s.id)! / 90) * 60) / 2));
+    }
+  });
+
+  it("counts stories read properly, not ones read too fast, and adds up several sittings", async () => {
+    const issue = await paperWithSport();
+    const [a, b, c, d] = issue.stories.map((s: any) => s.id);
+    const min = (id: number) => issue.sports.unlock.min_seconds[String(id)] as number;
+    await postEvents(t, [
+      closed(a, "a", min(a) + 5, true, at("2026-11-14T07:00:00Z")), // counts
+      closed(b, "b", 4, true, at("2026-11-14T07:01:00Z")), // paged through: too fast
+      closed(c, "c1", min(c) - 10, false, at("2026-11-14T07:05:00Z")), // stopped part way
+      closed(d, "d", min(d), true, at("2026-11-14T07:08:00Z")), // just enough: counts
+    ]);
+    let sport = (await request(t.app).get("/api/sports")).body;
+    expect(sport.unlock).toEqual({ needed: 3, counted: 2, unlocked: false });
+
+    await postEvents(t, [closed(c, "c2", 10, true, at("2026-11-14T07:20:00Z"))]); // came back and finished
+    sport = (await request(t.app).get("/api/sports")).body;
+    expect(sport.unlock).toEqual({ needed: 3, counted: 3, unlocked: true });
+
+    const day = (await t.agent.get("/api/dashboard/day/2026-11-14")).body;
+    expect(day.sport_unlock).toMatchObject({ needed: 3, total: 6, counted: 3, unlocked: true, unlocked_at: "2026-11-14T07:20:00.000Z" });
+    const byId = new Map(day.sport_unlock.stories.map((s: any) => [s.id, s]));
+    expect(byId.get(b)).toMatchObject({ finished: true, active_seconds: 4, counts: false, rushed: true });
+    expect(byId.get(c)).toMatchObject({ finished: true, active_seconds: min(c), counts: true, rushed: false });
+    expect(day.sport_unlock.stories.filter((s: any) => s.rushed)).toHaveLength(1);
+    // Reading figures are as they always were: the rushed story was still read to the end.
+    expect(day.read).toBe(4);
+  });
+
+  it("leaves hidden stories out of the count", async () => {
+    const issue = await paperWithSport();
+    await t.agent.post(`/api/dashboard/stories/${issue.stories[0].id}/hide`).set(DASH);
+    const again = (await request(t.app).get("/api/issue/today")).body;
+    expect(again.sports.unlock.needed).toBe(3); // half of five, rounded up
+    expect(Object.keys(again.sports.unlock.min_seconds)).toHaveLength(5);
+  });
+
+  it("is set per child on the dashboard, over the config", async () => {
+    await paperWithSport();
+    let r = await t.agent.get("/api/dashboard/sport/settings");
+    expect(r.body.settings).toEqual({ enabled: true, read_first: 0.5, min_reading: 0.5 });
+    expect(r.body.today).toMatchObject({ needed: 3, total: 6, counted: 0, unlocked: false, unlocked_at: null });
+
+    expect((await t.agent.put("/api/dashboard/sport/settings").send({ read_first: 1 })).status).toBe(403); // no X-Early-Edition
+    for (const bad of [{ read_first: 2 }, { min_reading: -0.1 }, { enabled: "yes" }, [1]]) {
+      const res = await t.agent.put("/api/dashboard/sport/settings").set(DASH).send(bad);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBeTruthy();
+    }
+
+    r = await t.agent.put("/api/dashboard/sport/settings").set(DASH).send({ read_first: 1, min_reading: 0 });
+    expect(r.status).toBe(200);
+    expect(r.body.settings).toEqual({ enabled: true, read_first: 1, min_reading: 0 });
+    let issue = (await request(t.app).get("/api/issue/today")).body;
+    expect(issue.sports.unlock.needed).toBe(6);
+    expect(Object.values(issue.sports.unlock.min_seconds).every((s) => s === 0)).toBe(true);
+
+    // No lock: Sport is open from the start.
+    await t.agent.put("/api/dashboard/sport/settings").set(DASH).send({ read_first: 0 });
+    issue = (await request(t.app).get("/api/issue/today")).body;
+    expect(issue.sports.unlock).toBeNull();
+    expect((await request(t.app).get("/api/sports")).body.unlock).toBeNull();
+    expect((await t.agent.get("/api/dashboard/sport/settings")).body.today).toBeNull();
+
+    // Off: no Sport page at all.
+    await t.agent.put("/api/dashboard/sport/settings").set(DASH).send({ enabled: false });
+    expect((await request(t.app).get("/api/sports")).status).toBe(404);
+    expect((await request(t.app).get("/api/issue/today")).body.sports).toBeNull();
+    expect((await t.agent.get("/api/dashboard/about")).body.sport).toBeNull();
+  });
+
+  it("can be turned on from the dashboard when the config leaves it off", async () => {
+    t = makeApp({ sportsFetcher: feeds(), clock: new Clock(MONDAY) });
+    expect((await t.agent.get("/api/dashboard/sport/settings")).body.settings.enabled).toBe(false);
+    await t.agent.put("/api/dashboard/sport/settings").set({ "X-Early-Edition": "1" }).send({ enabled: true });
+    await request(t.app).post("/admin/sports").set(ADMIN);
+    expect((await request(t.app).get("/api/sports")).status).toBe(200);
+    expect((await t.agent.get("/api/dashboard/about")).body.sport).not.toBeNull();
+  });
+
+  it("takes its starting values from the config", () => {
+    expect(sportsConfig().sports).toEqual({ enabled: true, readFirst: 0.5, minReading: 0.5 });
+    const c = parseConfig({ ...exampleConfigData(), sports: { enabled: true, read_first: 0.75, min_reading: 0.25 } });
+    expect(c.sports).toEqual({ enabled: true, readFirst: 0.75, minReading: 0.25 });
+    expect(() => parseConfig({ ...exampleConfigData(), sports: { read_first: 3 } })).toThrow(/sports\.read_first/);
   });
 });

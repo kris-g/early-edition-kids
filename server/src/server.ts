@@ -23,7 +23,7 @@ try {
   if (at !== null) {
     // Every profile in turn; a failure in any is retried (the others then return "exists").
     const run = async (date: string, now: Date) => {
-      if (earlyEditionKids.sportsWanted) earlyEditionKids.sports.refreshInBackground(now);
+      if (earlyEditionKids.sportsWanted()) earlyEditionKids.sports.refreshInBackground(now);
       const results = await generateAll(earlyEditionKids.profiles, date, now);
       const statuses = [...results.values()].map((r) => r.status);
       return { status: statuses.includes("failed") ? "failed" : statuses.includes("created") ? "created" : "exists" };
@@ -37,7 +37,7 @@ try {
 }
 
 // The Sport page: fetch on start when there is nothing from today (docs/sports-page.md section 3).
-if (earlyEditionKids.sportsWanted) earlyEditionKids.sports.refreshInBackground(new Date());
+if (earlyEditionKids.sportsWanted()) earlyEditionKids.sports.refreshInBackground(new Date());
 
 for (const s of servers) {
   s.on("error", (err) => {

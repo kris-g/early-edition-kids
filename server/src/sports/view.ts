@@ -90,12 +90,13 @@ export function sportsView(state: SportsState, config: Config, now: Date): Sport
     matchday: matchday(state.latest, state, pattern, true),
     next: matchday(state.next, state, pattern, false),
     table: state.latest ? state.table : null,
+    unlock: null,
   };
 }
 
 export function issueSports(state: SportsState, now: Date): IssueSports | null {
   if (!isFresh(state, now) || (!state.latest && !state.next)) return null;
-  return { path: "/api/sports", label: "Premier League", matchday: state.latest?.number ?? state.next?.number ?? null };
+  return { path: "/api/sports", label: "Premier League", matchday: state.latest?.number ?? state.next?.number ?? null, unlock: null };
 }
 
 /** "Liverpool 4–0 Man Utd", or "Brentford v Everton" before it is played; null for a match not in the state. */

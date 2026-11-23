@@ -232,8 +232,20 @@ export interface Config {
   llmPrices: Record<string, ModelPrice>;
   /** Models offered through OpenRouter (CONTRACT.md "Two providers side by side"). */
   openrouterModels: OpenRouterModel[];
-  /** The Sport page (docs/sports-page.md): config `sports.enabled`, off by default. */
-  sportsEnabled: boolean;
+  /**
+   * The Sport page (docs/sports-page.md): the starting values for its settings. A parent changes
+   * them on the dashboard, which overrides these (sports/settings.ts).
+   */
+  sports: SportDefaults;
+}
+
+export interface SportDefaults {
+  /** Whether the page is shown. Off by default. */
+  enabled: boolean;
+  /** Share of today's stories to read before Sport opens, 0 to 1; 0 means no lock. */
+  readFirst: number;
+  /** A story counts only after this share of its expected reading time, 0 to 1. */
+  minReading: number;
 }
 
 const strList = z
@@ -302,7 +314,13 @@ const configSchema = z.object({
   llm_prices: z
     .record(z.string(), z.object({ input_per_mtok: z.number().min(0), output_per_mtok: z.number().min(0) }))
     .nullish(),
-  sports: z.object({ enabled: z.boolean().nullish() }).nullish(),
+  sports: z
+    .object({
+      enabled: z.boolean().nullish(),
+      read_first: z.number().min(0).max(1).nullish(),
+      min_reading: z.number().min(0).max(1).nullish(),
+    })
+    .nullish(),
 });
 
 export function parseConfig(data: unknown): Config {
@@ -352,7 +370,11 @@ export function parseConfig(data: unknown): Config {
     readerMode: c.reader_mode ?? "pages",
     llmPrices: { ...DEFAULT_LLM_PRICES, ...(c.llm_prices ?? {}) },
     openrouterModels: c.openrouter_models ?? DEFAULT_OPENROUTER_MODELS,
-    sportsEnabled: c.sports?.enabled === true,
+    sports: {
+      enabled: c.sports?.enabled === true,
+      readFirst: c.sports?.read_first ?? 0.5,
+      minReading: c.sports?.min_reading ?? 0.5,
+    },
   };
 }
 

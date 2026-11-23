@@ -227,6 +227,8 @@ app.get('/api/dashboard/day/:date', (req, res) => {
     minutes: Math.round(reads.reduce((n, r) => n + r.active_seconds, 0) / 6) / 10,
     reads,
     paper,
+    sport: null,
+    sport_unlock: null,
   })
 })
 
@@ -282,6 +284,49 @@ app.post('/api/dashboard/regenerate', async (req, res) => {
 app.get('/api/dashboard/runs', (req, res) => {
   const limit = Math.min(50, Number(req.query.limit ?? 10) || 10)
   res.json(db.runs.slice(0, limit))
+})
+
+// --- sport ---------------------------------------------------------------------
+let sportSettings = { enabled: true, read_first: 0.5, min_reading: 0.5 }
+const sportToday = () => {
+  const rec = db.issues.get(new Date().toISOString().slice(0, 10))
+  const stories = rec ? toIssueView(rec).stories.filter((s) => !s.hidden) : []
+  if (!sportSettings.enabled || sportSettings.read_first <= 0 || !stories.length) return null
+  const needed = Math.min(stories.length, Math.max(1, Math.ceil(stories.length * sportSettings.read_first)))
+  const list = stories.map((s, i) => {
+    const min = Math.ceil(s.stats.expected_seconds * sportSettings.min_reading)
+    const finished = s.stats.reached_end
+    // The second finished story is made a quick one, to show a story read too fast.
+    const active = finished && i === 1 ? Math.min(s.stats.active_seconds, 9) : s.stats.active_seconds
+    return { id: s.id, title: s.title, finished, active_seconds: active, min_seconds: min, counts: finished && active >= min, rushed: finished && active < min }
+  })
+  const counted = list.filter((x) => x.counts).length
+  return { needed, total: list.length, counted, unlocked: counted >= needed, unlocked_at: counted >= needed ? new Date().toISOString() : null, stories: list }
+}
+app.get('/api/dashboard/sport/settings', (_req, res) => {
+  res.json({ settings: sportSettings, today: sportToday() })
+})
+app.put('/api/dashboard/sport/settings', (req, res) => {
+  const b = req.body ?? {}
+  for (const k of ['read_first', 'min_reading'] as const) {
+    if (k in b && (typeof b[k] !== 'number' || b[k] < 0 || b[k] > 1)) return fail(res, 400, 'Choose a value between 0 and 1.')
+  }
+  sportSettings = { ...sportSettings, ...b }
+  res.json({ settings: sportSettings, today: sportToday() })
+})
+app.get('/api/dashboard/sport', (_req, res) => {
+  const pages = [
+    { page: 'table', match_id: null, match: null, views: 5, seconds: 410 },
+    { page: 'match', match_id: '2645301', match: 'Liverpool 4–0 Man Utd', views: 3, seconds: 260 },
+    { page: 'matches', match_id: null, match: null, views: 6, seconds: 190 },
+    { page: 'next', match_id: null, match: null, views: 2, seconds: 45 },
+  ]
+  const to = new Date().toISOString().slice(0, 10)
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.parse(to) - (6 - i) * 86_400_000).toISOString().slice(0, 10)
+    return { date: d, views: i % 2 ? 2 : 0, seconds: i % 2 ? 180 : 0, pages: [] }
+  })
+  res.json({ from: days[0].date, to, days, views: 16, seconds: 905, pages })
 })
 
 // --- topics -------------------------------------------------------------------

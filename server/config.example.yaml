@@ -60,8 +60,12 @@ favourite_players:
 favourite_team: Liverpool
 # The Sport page (docs/sports-page.md): the Premier League table, the latest results and the next
 # fixtures, fetched once a day with the paper. favourite_team marks his club on it. Off unless set.
+# It opens after read_first of today's stories, each read for at least min_reading of its expected
+# time. These are starting values: the dashboard's Sport page changes them for each child.
 # sports:
 #   enabled: true
+#   read_first: 0.5
+#   min_reading: 0.5
 # Only men's football: the prompts skip women's and girls' football. The feeds' exclude_title_patterns
 # below drop the obvious headlines before selection. Leave out or set false for all football.
 mens_football_only: true

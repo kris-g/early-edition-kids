@@ -1,12 +1,12 @@
 # The Sport page: spec and design
 
-The server part is built (`server/src/sports/`); the readers and the dashboard screens are not yet. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. The parent dashboard records which Sport pages were looked at and for how long.
+The server part and the dashboard's Sport page are built (`server/src/sports/`, `web/src/pages/Sport.tsx`); the readers are not yet. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. Sport opens only after the child has read some of today's paper properly (section 2.7), and the parent dashboard sets that rule, shows stories read too fast, and records which Sport pages were looked at and for how long.
 
 Mockups: [`mockups/sports-page/index.html`](mockups/sports-page/index.html) (open it in a browser). They are drawn from the real matchday of 21 to 23 November 2026, as the server would have fetched it on the morning of Monday 23 November.
 
-| Kindle: matches | Kindle: table, 1 to 10 | Kindle: a match | Kindle: line-ups |
-|:---:|:---:|:---:|:---:|
-| <img src="images/mockups/sport-kindle-matchday.png" width="190" alt="Mockup: the Kindle Sport page with results by day"> | <img src="images/mockups/sport-kindle-table.png" width="190" alt="Mockup: the top half of the league table on the Kindle"> | <img src="images/mockups/sport-kindle-match.png" width="190" alt="Mockup: a match on the Kindle, with goals, cards, substitutions and injuries"> | <img src="images/mockups/sport-kindle-lineups.png" width="190" alt="Mockup: both line-ups side by side on the Kindle"> |
+| Kindle: matches | Kindle: table, 1 to 10 | Kindle: a match | Kindle: line-ups | Kindle: closed |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="images/mockups/sport-kindle-matchday.png" width="190" alt="Mockup: the Kindle Sport page with results by day"> | <img src="images/mockups/sport-kindle-table.png" width="190" alt="Mockup: the top half of the league table on the Kindle"> | <img src="images/mockups/sport-kindle-match.png" width="190" alt="Mockup: a match on the Kindle, with goals, cards, substitutions and injuries"> | <img src="images/mockups/sport-kindle-lineups.png" width="190" alt="Mockup: both line-ups side by side on the Kindle"> | <img src="images/mockups/sport-kindle-closed.png" width="190" alt="Mockup: Sport closed until three of today's stories are read"> |
 
 | iPad: matches | iPad: a match |
 |:---:|:---:|
@@ -24,6 +24,7 @@ It has to fit the paper's rules ([PRODUCT.md](../PRODUCT.md)):
 - **Nothing unchecked is written.** The page is numbers, names and a fixed set of labels. No sentence from a data provider ever reaches the child (section 6), so there is nothing for the checker to check.
 - **No AI.** The page costs no tokens.
 - **It isn't a story.** It never counts toward "N of 6 read", the streak, reading minutes or topic weights. Time on it is recorded separately (section 5.4).
+- **The news comes first.** Sport opens after some of today's paper has been read properly (section 2.7).
 
 ## 2. What the child sees
 
@@ -76,6 +77,7 @@ Opened by tapping a played match. It is one page that scrolls on the iPad and tw
 ### 2.5 Getting there
 
 - **Front page.** One full-width strip under Today's paper, on both devices: `Sport`, `Premier League · Matchday 11`, and on the right `Table, results, fixtures →`. It never shows a score, so a child waiting to watch the highlights isn't told the result by the front page.
+- **While Sport is closed** (section 2.7) the strip shows a padlock and says `Opens after 3 of today's stories · 1 more to go` on its second line, with `Today's paper →` on the right, which opens the next unread story. Tapping it never shows the Sport page.
 - **From Sport,** a **Front page** button goes back, as on the other screens.
 - There is no route to Sport from inside a story and no "next" from Sport into a story. It sits beside the paper, like Back issues and My week.
 
@@ -88,6 +90,17 @@ Opened by tapping a played match. It is one page that scrolls on the iPad and tw
 | The device can't reach the server | the last page it loaded |
 | Between seasons (no round has started) | the Next part only, headed with the opening day; Matches and Table are left out |
 | The season has ended | the final table and the last matchday, `Final table` |
+
+### 2.7 Read first
+
+Sport opens only after some of today's paper has been read properly. A parent sets how much on the dashboard (section 5.4).
+
+- **How many.** `read_first` of today's stories, rounded up and at least one: half of six is three, half of five is three. Today's paper only: its current version, without stories a parent has hidden. Back issues and stories caught up from other days don't count. With no paper today, or `read_first` at 0, Sport is open all day.
+- **Read properly.** A story counts when it was read to the end (the reader's `finished`) **and** its active reading time reached `min_reading` of the time it should take: `word_count / reading_wpm` minutes, the figure behind the "2 min" on the story. With the default half, a two-minute story needs at least a minute. Several sittings add up. Active time is measured as for reading: it stops while the device sleeps or the app is hidden, and at most 300 seconds count between two interactions, so leaving a story open doesn't fill it up.
+- **Too fast doesn't count.** A story finished in less than its least time was paged through or skimmed. It still counts as read everywhere else (the tick, "N of 6 read", the streak), as it always has; it only doesn't open Sport. The child isn't told off: the strip simply still says how many more to go, and the parent sees the story marked "too fast" on the dashboard.
+- **Who decides.** Each reader decides from its own reading, so it works offline: the issue payload carries the rule, with each story's least time (section 5.3). The Sport page's payload also carries the server's count from every device, so reading on the Kindle opens Sport on the iPad too. Either one opening it is enough. Once open, Sport stays open for the rest of the day.
+- **Closed screen.** If Sport is opened while closed (from a bookmark, or the strip's old state), it shows `Sport opens after 3 of today's stories`, a dot for each story needed, filled for each that counts, `1 more to go`, and a `Today's paper` button. No scores show behind it.
+- **What it guards against.** An eight-year-old tapping through stories to get to the football. The readers enforce it and nothing in them leads round it. A grown-up with the server's address could ask the API for the page directly; that isn't something it tries to stop.
 
 ## 3. Updates: once a day
 
@@ -128,10 +141,12 @@ Things the build must know about these feeds:
 
 ```yaml
 sports:
-  enabled: true     # per profile; off when the key is missing
+  enabled: true     # off when the key is missing
+  read_first: 0.5   # share of today's stories to read first; 0 means no lock
+  min_reading: 0.5  # a story counts after this share of its expected reading time; 0 means any speed
 ```
 
-A profile may set `sports` like any other key. The page uses the existing `favourite_team` to mark his club; it matches a club's full or short name without regard to case, and no match is a warning in the log, not an error.
+These are only the starting values: a parent changes all three on the dashboard, for each child (section 5.4), and the dashboard's values win. A profile may set `sports` like any other key. The page uses the existing `favourite_team` to mark his club; it matches a club's full or short name without regard to case, and no match is a warning in the log, not an error.
 
 ### 5.2 Storage
 
@@ -153,6 +168,7 @@ type SportsView = {
   matchday: Matchday | null;          // the latest round; null between seasons
   next: Matchday | null;              // the round after it; its matches carry no detail
   table: { final: boolean; rows: TableRow[]; lines: { after: number; label: string }[] } | null;
+  unlock: { needed: number; counted: number; unlocked: boolean } | null;   // today, from every device; null with no lock
 };
 type Team = { id: string; name: string; short: string };           // "Manchester City", "Man City"
 type Matchday = { number: number; days: { date: string; matches: Match[] }[] };   // London dates, oldest first
@@ -185,11 +201,37 @@ type TableRow = { position: number; team: string; played: number; won: number; d
 
 - `side` on a goal is the team it counted for. `subs[].injury` is the "went off injured" mark.
 - `lines[].after` is the position after which a rule is drawn: `{after: 4, label: "Champions League"}` and `{after: 17, label: "Relegation"}`.
-- The issue payload gains `"sports": {"path": "/api/sports", "label": "Premier League", "matchday": 11} | null`, null when the page would 404. This is how both readers learn the page exists and what to print on the front page strip; older clients ignore it.
+- The issue payload gains `"sports": {"path": "/api/sports", "label": "Premier League", "matchday": 11, "unlock": {"needed": 3, "min_seconds": {"41": 47, ...}} | null} | null`, null when the page would 404. This is how both readers learn the page exists, what to print on the front page strip, and what must be read first: `min_seconds` is each of that paper's stories' least active time, by story id. `unlock` is null when there is no lock. Older clients ignore it.
 
 ### 5.4 What the dashboard sees
 
-The dashboard records which Sport pages were looked at and for how long, as it does for stories, but kept apart from reading.
+**Settings.** The dashboard has a Sport page (under The paper, and under More on a phone) for each child:
+
+- **Sport page**: on or off.
+- **Read the news first**: No, ¼, ½, ¾ or All of today's stories, with the number it comes to today ("Sport opens after 3 stories of today's 6").
+- **Not too fast**: a story counts after Any, ¼, ½ or ¾ of its reading time.
+- **Today**: whether Sport has opened and when, and each of today's stories as Counts, Too fast (with its time against the least time), Not finished or Not read yet.
+- **Time on Sport**: the last 7 days' minutes, and the most-looked-at pages and matches.
+
+They are stored in the child's database (the `settings` table, key `sport`) and apply from the next request: a change of rule mid-morning applies to the reading already done.
+
+| Method and path | Returns |
+|---|---|
+| `GET /sport/settings` | `{settings: {enabled, read_first, min_reading}, today: UnlockStatus \| null}` |
+| `PUT /sport/settings` | any of `enabled` (boolean), `read_first`, `min_reading` (0 to 1); the same shape back, or 400 `{error}` |
+
+```ts
+type UnlockStory = { id: number; title: string; finished: boolean; active_seconds: number; min_seconds: number;
+                     counts: boolean;    // read to the end, not too fast
+                     rushed: boolean };  // read to the end, too fast
+type UnlockStatus = { needed: number; total: number; counted: number; unlocked: boolean;
+                      unlocked_at: string | null;   // when the story that opened it was closed
+                      stories: UnlockStory[] };
+```
+
+`DayView` gains `sport_unlock: UnlockStatus | null` for that day's paper, so the Day screen can show stories read too fast on any day.
+
+**Time on Sport.** The dashboard records which Sport pages were looked at and for how long, as it does for stories, but kept apart from reading.
 
 - **Event.** A new type, `sport_viewed` (`story_id` null), sent when the child leaves a Sport page: for another tab, back to the front page, into a match or out of one, or when the device sleeps or the app is hidden. Payload `{page, match_id, matchday, active_seconds}`:
   - `page` is `"matches"`, `"table"`, `"next"` or `"match"`; the Kindle table's two halves are both `"table"`, and a match's two Kindle screens are one `"match"` view.
@@ -217,7 +259,7 @@ type SportUsageView = { from: string; to: string;
 | `GET /day/YYYY-MM-DD` | `DayView` gains `sport: SportDay \| null` (null with no Sport views that day) |
 
   A day is the London date of the event's `ts`, as for reading.
-- **On the dashboard** (the `web/` part, later): the Day screen shows a Sport line, such as "Sport · 6 min: Table 3 min, Liverpool 4–0 Man Utd 2 min, Matches 1 min"; the Reading page gets a Sport panel with minutes a day and the most-viewed pages. The Server page shows the last fetch and its error, if any (from `GET /api/dashboard/about`, which gains `sport: {updated_at, error} | null`).
+- **On the dashboard:** the Sport page shows the last 7 days (built). Still to do: a Sport line on the Day screen, such as "Sport · 6 min: Table 3 min, Liverpool 4–0 Man Utd 2 min, Matches 1 min", with that day's stories read too fast; and the last fetch on the Server page, from `GET /api/dashboard/about`, which has `sport: {updated_at, attempted_at, error} | null`.
 
 ## 6. Safety
 
@@ -250,9 +292,9 @@ The page is the paper's, in the paper's faces and rules: Playfair Display for th
 | Part | Change |
 |---|---|
 | `server/` | `src/sports/` with the ESPN and Fantasy adapters, the daily fetch and the state file; the `sports` config key; `GET /api/sports` on each mount; `sports` in the issue payload; `POST /admin/sports`; the `sport_viewed` event type and its match label; `GET /api/dashboard/sport`, `sport` in `DayView` and in `AboutView`; recorded responses from both feeds under `tests/fixtures/sports/` |
-| `reader/` | the front page strip; a Sport view (three pages or one scroll) and a match view; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
-| `plugin/` | the front page strip; `ui/sport.lua` and `ui/match.lua` built from the existing row, header and button widgets; fetch in the sync; `sport_viewed` events; the payload kept in the settings directory |
-| `web/` | the Sport line on the Day screen, a Sport panel on the Reading page, the last fetch on the Server page |
+| `reader/` | the front page strip, open or closed; a Sport view (three pages or one scroll), a match view and the closed screen; deciding the lock from its own reading and the server's count; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
+| `plugin/` | the front page strip, open or closed; `ui/sport.lua` and `ui/match.lua` built from the existing row, header and button widgets, and the closed screen; deciding the lock from the reading log and the server's count; fetch in the sync; `sport_viewed` events; the payload kept in the settings directory |
+| `web/` | the Sport page: settings, today's progress and time on Sport (built); still to do, the Sport line on the Day screen and the last fetch on the Server page |
 | `docs/` | CONTRACT.md gains the shapes above; settings.md the config key; kindle.md and ipad.md a section each |
 
 Order: the server first (it can be judged with `curl`), then the iPad, then the Kindle, then the dashboard.
@@ -263,6 +305,7 @@ Order: the server first (it can be judged with `curl`), then the iPad, then the 
 - **Rules:** which round is "latest" at each point of a week, including a midweek round and the gap between seasons; grouping by London day across the clock change; the morning injury snapshot.
 - **Safety:** a response with markup in a name, an absurd score and an unknown club is dropped or cleaned as section 6 says; no provider sentence appears anywhere in the payload (a test that searches the output for words from the fixtures' commentary).
 - **Usage:** `sport_viewed` events add up per day and per page in the dashboard API and leave every reading figure unchanged.
+- **Read first:** half of six and of five stories; a story read too fast, one stopped part way, one finished over two sittings; a hidden story; the lock off, Sport off, and both turned on from the dashboard.
 - **Readers:** the views against fixture payloads at every age band and page colour; ten matches on one Kindle screen and ten table rows a page in the emulator, and the table's type judged on the device itself.
 
 ## 11. Decisions
@@ -273,6 +316,7 @@ Order: the server first (it can be judged with `curl`), then the iPad, then the 
 | How often it updates | Once a day, with the morning paper. Decided 23 November 2026. |
 | Tracking | Which Sport pages were looked at and for how long, on the dashboard, apart from reading. Decided 23 November 2026. |
 | Kindle table | Two pages of ten. Decided 23 November 2026. |
+| Read first | Sport opens after half of today's stories, each read for at least half its expected time; set per child on the dashboard. Decided 23 November 2026. |
 | Scores on the front page | Never: the strip says only that Sport is there (default; the alternative is his team's latest score on the strip) |
 | Who was "out injured" | Players listed as injured on the morning of the match (default; the alternative is "went off injured" only, which needs one feed fewer) |
 | Other competitions (England, Champions League, FA Cup) | Not in v1 (default) |

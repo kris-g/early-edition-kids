@@ -159,6 +159,8 @@ export interface SportsView {
   matchday: Matchday | null;
   next: Matchday | null;
   table: Table | null;
+  /** Today's lock as the server sees it, from every device's reading; null when Sport isn't locked. */
+  unlock: { needed: number; counted: number; unlocked: boolean } | null;
 }
 
 /** The issue payload's `sports` field: how the readers know the page is there. */
@@ -166,4 +168,6 @@ export interface IssueSports {
   path: "/api/sports";
   label: "Premier League";
   matchday: number | null;
+  /** What the reader must read first, so it can decide offline; null when there is no lock. */
+  unlock: { needed: number; min_seconds: Record<string, number> } | null;
 }

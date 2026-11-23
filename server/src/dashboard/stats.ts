@@ -8,6 +8,8 @@ import { LONDON, addDays, londonDate } from "../timeutil.js";
 import { callsInMonth } from "../usage.js";
 import { storyStats } from "../weights.js";
 import { sportDay } from "./sport.js";
+import { sportSettings } from "../sports/settings.js";
+import { unlockStatus } from "../sports/unlock.js";
 import { cardsFor, issueView } from "./views.js";
 import type {
   AiView,
@@ -411,6 +413,7 @@ export function dayView(ctx: Context, date: string, today: string): DayView {
     reads,
     paper: issueView(ctx, date, today),
     sport: sportDay(ctx, date),
+    sport_unlock: unlockStatus(ctx, date, sportSettings(ctx.db, ctx.config)),
   };
 }
 

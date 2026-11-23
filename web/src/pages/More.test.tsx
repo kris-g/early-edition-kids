@@ -23,6 +23,7 @@ describe('More', () => {
     expect(group('The paper')).toEqual([
       ['/find', 'Add a story'],
       ['/topics', 'Topics'],
+      ['/sport', 'Sport'],
       ['/ai', 'AI'],
     ])
     expect(group('Reading')).toEqual([['/share', 'Share']])

@@ -22,7 +22,7 @@ describe('sectionOf and labelOf', () => {
   })
 })
 
-const friday: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: null, sport: null }
+const friday: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: null, sport: null, sport_unlock: null }
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-15T20:00:00Z') })

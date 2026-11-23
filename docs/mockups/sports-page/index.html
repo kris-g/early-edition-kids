@@ -159,6 +159,16 @@ table.lg tr.fav td:nth-child(2) { font-weight: 700; }
 .istrip .ico { width: 84px; background: var(--football); } .istrip .ico svg { width: 38px; height: 38px; }
 .crop { padding: 20px; background: var(--paper); display: grid; gap: 12px; }
 .crop.kc { background: #fff; }
+/* Closed until today's stories are read (docs/sports-page.md 2.7). */
+.closed { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 0 30px; }
+.closed .padlock { width: 64px; height: 64px; }
+.closed h2 { font: 700 26px/1.2 var(--serif); }
+.closed p { font: 400 15px/1.45 var(--sans); color: var(--soft); max-width: 34ch; }
+.closed .dots { display: flex; gap: 8px; }
+.closed .dots i { width: 24px; height: 24px; border: 2px solid var(--ink); border-radius: 50%; }
+.closed .dots i.on { background: var(--ink); }
+.closed .togo { font: 700 16px/1 var(--sans); }
+.closed .btn { width: 260px; background: var(--ink); color: var(--paper); }
 </style>
 </head>
 <body>
@@ -188,6 +198,7 @@ table.lg tr.fav td:nth-child(2) { font-weight: 700; }
 <script>
 const D = window.SPORT, FAV = 'Liverpool';
 const ball = '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M24 15l7 5-3 8h-8l-3-8z" fill="currentColor"/><path d="M24 15V6M31 20l8-4M28 28l5 8M20 28l-5 8M17 20l-8-4" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>';
+const lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 const dayName = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
 const dayDate = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -260,8 +271,11 @@ const frames = {
     `<div class="screen i fixed">${iHead('Results to Sunday 22 November')}<div class="pad">${iTitle('The table')}${tabs('Table')}<div style="margin-top:26px">${table()}</div></div></div>`],
   'i-match': ['ipad', 'i', 'A match', 'One page that scrolls: score and goals, cards, substitutions, injuries, then the line-ups side by side.',
     `<div class="screen i">${iHead('').replace('← Front page', '← Matches')}<div class="pad" style="padding-top:34px">${scoreHead()}${pair('Cards', cards)}${pair('Substitutions', subs)}${pair('Injuries', inj)}${pair('Line-ups', (s) => xi(s, false))}</div></div>`],
-  'k-strip': ['strips', 'k', 'Kindle front page strip', 'Sits between Today\'s paper and the Back issues and My week tiles. It never shows a score.',
-    `<div class="crop kc"><div class="strip kstrip"><span class="ico">${ball}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Premier League · Matchday 11</p></span><span class="go">Table, results, fixtures →</span></div></div>`],
+  'k-closed': ['kindle', 'k', 'Closed until the news is read', 'Sport opens after half of today\'s stories, each read properly; one read too fast doesn\'t count. Today\'s paper opens the next unread story. No scores show behind it.',
+    `<div class="screen k">${kTop('Premier League', '')}<div class="closed"><span class="padlock">${lock}</span><h2>Sport opens after 3 of today's stories</h2><div class="dots">${[1, 1, 0].map((x) => `<i class="${x ? 'on' : ''}"></i>`).join('')}</div><p class="togo">1 more to go</p><span class="btn">Today's paper →</span></div>${kFoot}</div>`],
+  'k-strip': ['strips', 'k', 'Kindle front page strip', 'Sits between Today\'s paper and the Back issues and My week tiles. It never shows a score. While Sport is closed it shows a padlock and how many stories to go.',
+    `<div class="crop kc"><div class="strip kstrip"><span class="ico">${ball}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Premier League · Matchday 11</p></span><span class="go">Table, results, fixtures →</span></div>
+     <div class="strip kstrip"><span class="ico">${lock}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Opens after 3 of today's stories · 1 more to go</p></span><span class="go">Today's paper →</span></div></div>`],
   'i-strip': ['strips', 'i', 'iPad front page strip', 'The same strip in the Football green, under the story list.',
     `<div class="crop"><div class="strip istrip"><span class="ico">${ball}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Premier League · Matchday 11</p></span><span class="go">Table, results, fixtures →</span></div></div>`],
 };

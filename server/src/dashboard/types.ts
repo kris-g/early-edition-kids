@@ -106,9 +106,50 @@ export type DayView = {
   paper: IssueView | null;
   /** Time on the Sport page that day, or null when it wasn't opened (docs/sports-page.md 5.4). */
   sport: SportDay | null;
+  /** How that day's paper went toward opening Sport, with stories read too fast; null with no lock. */
+  sport_unlock: UnlockStatus | null;
 };
 
-// ---- the Sport page (docs/sports-page.md 5.4): kept apart from reading ----
+// ---- the Sport page (docs/sports-page.md 2.7, 5.4): kept apart from reading ----
+
+/** Set on the dashboard per child; config.yaml's `sports` block gives the starting values. */
+export type SportSettings = {
+  /** Whether this child has the Sport page. */
+  enabled: boolean;
+  /** Share of today's stories to read before Sport opens, 0 to 1. 0 turns the lock off. */
+  read_first: number;
+  /** A story counts only after this share of its expected reading time; 0 counts any read to the end. */
+  min_reading: number;
+};
+
+export type UnlockStory = {
+  id: number;
+  title: string;
+  finished: boolean;
+  active_seconds: number;
+  min_seconds: number;
+  /** Read to the end, and not too fast. */
+  counts: boolean;
+  /** Read to the end, but faster than `min_seconds`. */
+  rushed: boolean;
+};
+
+/** How far a paper's reading got toward opening Sport. */
+export type UnlockStatus = {
+  needed: number;
+  total: number;
+  counted: number;
+  unlocked: boolean;
+  /** When the story that opened it was closed, UTC ISO. */
+  unlocked_at: string | null;
+  stories: UnlockStory[];
+};
+
+export type SportSettingsView = {
+  settings: SportSettings;
+  /** Today's progress, or null when there is no lock today. */
+  today: UnlockStatus | null;
+};
 
 export type SportPage = "matches" | "table" | "next" | "match";
 

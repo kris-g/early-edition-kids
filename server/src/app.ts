@@ -53,6 +53,8 @@ import { parseWordToKnow, renderStory } from "./render.js";
 import { isIsoDate, londonDate } from "./timeutil.js";
 import { Sports, sportsFile, type JsonFetcher } from "./sports/index.js";
 import { SPORT_VIEWED, sportViewedPayload } from "./dashboard/sport.js";
+import { sportSettings } from "./sports/settings.js";
+import { unlockRule, unlockStatus } from "./sports/unlock.js";
 import { minutesFor } from "./weights.js";
 
 export const EVENT_TYPES = new Set(["issue_downloaded", "list_shown", "story_opened", "story_closed", SPORT_VIEWED]);
@@ -93,8 +95,8 @@ export interface EarlyEditionKidsApp {
   jobs: Jobs;
   /** The Sport page's data, one for the server (docs/sports-page.md). */
   sports: Sports;
-  /** Whether any profile shows the Sport page, so it is worth fetching. */
-  sportsWanted: boolean;
+  /** Whether any profile shows the Sport page now (a parent can turn it on), so it is worth fetching. */
+  sportsWanted: () => boolean;
   close(): void;
 }
 
@@ -178,9 +180,9 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
   const login = settings.dashboardPassword
     ? new DashboardLogin({ password: settings.dashboardPassword, user: settings.dashboardUser, secret: settings.sessionSecret, clock })
     : null;
-  const sportsWanted = profiles.some((p) => p.ctx.config.sportsEnabled);
+  const sportsWanted = () => profiles.some((p) => sportSettings(p.ctx.db, p.ctx.config).enabled);
   const kindleApp = finish(kindleRoutes(baseApp(clock), profiles, settings, sports, sportsWanted));
-  const dashboardApp = finish(dashboardRoutes(baseApp(clock), profiles, clock, settings, login, sportsWanted ? sports : null));
+  const dashboardApp = finish(dashboardRoutes(baseApp(clock), profiles, clock, settings, login, sports, sportsWanted));
   const llm = isStub(settings) ? "stub" : `${settings.llmProvider || "openai"}${settings.llmProvider === "anthropic" ? "" : `@${settings.llmBaseUrl || "unset"}`}`;
   const where = parsed.explicit ? ` profiles=${profiles.map((p) => (p.root ? `${p.id} (root)` : p.id)).join(",")}` : "";
   console.log(
@@ -270,8 +272,13 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
 
   // The Sport page (docs/sports-page.md 5.3): the same data for every profile that shows it.
   app.get("/api/sports", (req, res) => {
-    const view = ctx.config.sportsEnabled && ctx.sports ? ctx.sports.view(ctx.config, req.app.locals.clock()) : null;
-    if (!view) throw new HttpError(404, ctx.config.sportsEnabled ? "the Sport page isn't ready" : "the Sport page is off for this paper");
+    const now: Date = req.app.locals.clock();
+    const s = sportSettings(ctx.db, ctx.config);
+    const view = s.enabled && ctx.sports ? ctx.sports.view(ctx.config, now) : null;
+    if (!view) throw new HttpError(404, s.enabled ? "the Sport page isn't ready" : "the Sport page is off for this paper");
+    // Today's lock from every device's reading, so reading on the Kindle opens Sport on the iPad too.
+    const status = unlockStatus(ctx, londonDate(now), s);
+    view.unlock = status ? { needed: status.needed, counted: status.counted, unlocked: status.unlocked } : null;
     res.set("Cache-Control", "no-store").json(view);
   });
 
@@ -289,7 +296,7 @@ function requireAdmin(req: Request, settings: Settings) {
   if (!token || !safeEqual(token, settings.adminToken)) throw new HttpError(403, "bad admin token");
 }
 
-function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings, sports: Sports, sportsWanted: boolean): express.Express {
+function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings, sports: Sports, sportsWanted: () => boolean): express.Express {
   for (const p of profiles) app.use(`/p/${p.id}`, kindleRouter(p.ctx, settings));
   const root = profiles.find((p) => p.root);
   if (root) app.use(kindleRouter(root.ctx, settings));
@@ -298,7 +305,7 @@ function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Se
     requireAdmin(req, settings);
     const now = req.app.locals.clock();
     // The Sport page is fetched with the morning paper, alongside it: it never holds the paper up.
-    if (sportsWanted) sports.refreshInBackground(now);
+    if (sportsWanted()) sports.refreshInBackground(now);
     const date = typeof req.query.date === "string" && req.query.date ? req.query.date : null;
     if (date !== null && !isIsoDate(date)) throw new HttpError(422, "date must be YYYY-MM-DD");
     const only = typeof req.query.profile === "string" && req.query.profile ? req.query.profile : null;
@@ -350,7 +357,8 @@ function dashboardRoutes(
   clock: () => Date,
   settings: Settings,
   login: DashboardLogin | null,
-  sports: Sports | null,
+  sports: Sports,
+  sportsWanted: () => boolean,
 ): express.Express {
   if (login) {
     app.use(login.routes());
@@ -368,7 +376,7 @@ function dashboardRoutes(
   });
   // The server itself, not a child's paper, so only here and never under /p/<id>.
   app.get("/api/dashboard/about", (_req, res) => {
-    const body: AboutView = aboutView(undefined, sports ? sports.status() : null);
+    const body: AboutView = aboutView(undefined, sportsWanted() ? sports.status() : null);
     res.set("Cache-Control", "no-store").json(body);
   });
   for (const p of profiles) app.use(`/api/dashboard/p/${p.id}`, dashboardApi({ ctx: p.ctx, clock, jobs: p.jobs }));
@@ -447,8 +455,15 @@ export function issuePayload(ctx: Context, date: string, now: Date = new Date())
     profile: ctx.profileId,
     profile_root: ctx.profileRoot,
     // The Sport page, when this paper has one (docs/sports-page.md 5.3); null otherwise.
-    sports: ctx.config.sportsEnabled && ctx.sports ? ctx.sports.issueField(now) : null,
+    sports: sportsField(ctx, date, now),
   };
+}
+
+/** The issue's `sports` field: the page is there, with what must be read first (docs/sports-page.md 2.7). */
+function sportsField(ctx: Context, date: string, now: Date) {
+  const s = sportSettings(ctx.db, ctx.config);
+  const field = s.enabled && ctx.sports ? ctx.sports.issueField(now) : null;
+  return field ? { ...field, unlock: unlockRule(ctx, date, s) } : null;
 }
 
 function asInt(v: unknown): number | null {

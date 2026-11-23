@@ -8,7 +8,7 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - Timezone for "today" and the schedule: `Europe/London`.
 - Daily run: either a Kubernetes CronJob calls `POST /admin/generate`, or env `GENERATE_AT` (`HH:MM`, London time) makes the server run it itself, at that time or at start when later. Both are safe together: runs are serialised and a date that already has a paper returns `exists`.
 - Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`. With several profiles, see "Profiles" for where the others live.
-- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes, description}`; `notes` go to the AI that picks the stories, the optional `description` is one short line for a parent on the dashboard and is never sent to the AI), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), `sports` (`{enabled}`, default off; see "Sport page"), and optionally `profiles` (see "Profiles").
+- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes, description}`; `notes` go to the AI that picks the stories, the optional `description` is one short line for a parent on the dashboard and is never sent to the AI), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), `sports` (`{enabled, read_first, min_reading}`, default off, 0.5, 0.5: starting values a parent changes on the dashboard; see "Sport page"), and optionally `profiles` (see "Profiles").
 - Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `EARLY_EDITION_KIDS_READER_DIR` (where the built iPad reader is), `KINDLE_BASE_URL` (see "iPad reader"), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
 - Stub LLM: when `LLM_BASE_URL` is `stub`, the server uses canned responses and needs no key or network for the LLM (feeds may still be fetched; tests use fixture feeds).
 
@@ -75,7 +75,7 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
 - `image` per story (added 16 November 2026) is the story's photo, `{path, alt}` or `null` (see "Story photos"). `path` is server-relative like the story's `path`; `alt` is the source's description or `null`. The iPad shows it.
 - `kindle_image` per story (added 16 November 2026) is `{path}` for the Kindle's copy of that photo, or `null` when the story has no photo (see "Story photos"). Its path can still answer 404 when the photo cannot be made into a Kindle copy.
 - `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
-- `sports` (added 23 November 2026) is `{path: "/api/sports", label: "Premier League", matchday}` when this paper has a Sport page with something to show, else `null` (see "Sport page"). `path` is relative to the mount, like a story's.
+- `sports` (added 23 November 2026) is `{path: "/api/sports", label: "Premier League", matchday, unlock}` when this paper has a Sport page with something to show, else `null` (see "Sport page"). `path` is relative to the mount, like a story's. `unlock` is `{needed, min_seconds}` for this paper's lock, or `null` with none (see "Read first").
 - `profile` is the id of the profile this paper is for (`default` without a profiles list); `profile_root` is true when that profile owns the root data. Story ids restart at 1 in each profile's database, so a client treats a change of paper as a fresh start. The paper differs when exactly one side has `profile_root`, or neither has and the ids differ. The root data stays the same paper when its owner's id changes, which happens once: from `default` to the first listed profile.
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
 
@@ -211,6 +211,7 @@ type RunView = { started_at: string; finished_at: string | null; date: string; s
 | `GET /jobs/:id` | `Job`; the web app polls every 2 seconds until it is not `pending` |
 | `GET /runs?limit=10` | `RunView[]` |
 | `GET /sport?days=14` | `SportUsageView` for the last `days` days (7–120) ending today (see "Sport page") |
+| `GET /sport/settings`, `PUT /sport/settings` | `SportSettingsView` (see "Sport page") |
 
 ### Dashboard v2: reading stats, calendar and AI (added 13 November 2026)
 
@@ -394,7 +395,8 @@ type SportsView = { competition: "Premier League";
                     teams: Club[];
                     matchday: Matchday | null;          // the latest round: the one whose first match kicked off most recently
                     next: Matchday | null;              // the round after it; its matches never have detail
-                    table: { final: boolean; rows: TableRow[]; lines: { after: number; label: string }[] } | null };
+                    table: { final: boolean; rows: TableRow[]; lines: { after: number; label: string }[] } | null;
+                    unlock: { needed: number; counted: number; unlocked: boolean } | null };   // today, from every device (see "Read first")
 type Club = { id: string; name: string; short: string };   // "man-utd", "Manchester United", "Man Utd"
 type Matchday = { number: number; days: { date: string; matches: Match[] }[] };   // London dates, oldest first
 type Match = { id: string;                              // stable for the season
@@ -420,6 +422,14 @@ type TableRow = { position: number; team: string; played: number; won: number; d
 
 - `lines` are where rules are drawn: `{after: 4, label: "Champions League"}` and `{after: 17, label: "Relegation"}`, as the provider marks the places.
 - Every word in it is a name, a number or one of these fixed values. Provider text is never passed on; names are plain text of at most 40 characters, and a name the profile's `blocklist` catches is left out.
+
+### Read first
+
+Sport opens after part of today's paper is read properly ([sports-page.md](sports-page.md) 2.7). Set per profile on the dashboard; config.yaml's `sports.read_first` and `sports.min_reading` are the starting values.
+
+- **Needed:** `ceil(read_first × stories)`, at least 1, of today's paper's current version without hidden stories. No lock (`unlock: null`) when Sport is off, `read_first` is 0, or there is no paper.
+- **Counts:** a story read to the end (any `story_closed` with `finished`, or `max_page >= pages_total`) whose `active_seconds`, summed over all its closes, reach `min_seconds = ceil(word_count / reading_wpm × 60 × min_reading)`. One finished faster is `rushed` and doesn't count; it is still read for every other purpose.
+- **The issue's `sports.unlock`** is `{needed, min_seconds: {"<story id>": seconds}}` for that paper's stories, so a reader decides offline from its own reading. **`/api/sports`'s `unlock`** is `{needed, counted, unlocked}` for today from every device's events. A reader opens Sport when either says so, and keeps it open until the London date changes.
 
 ### `sport_viewed` events
 
@@ -448,6 +458,18 @@ type SportUsageView = { from: string; to: string; days: SportDay[];   // oldest 
 ```
 
 - `GET /sport?days=14` returns `SportUsageView`. `DayView` gains `sport: SportDay | null` (null on a day with no Sport views). A day is the London date of the event's `ts`, as for reading.
+- `GET /sport/settings` returns `SportSettingsView`; `PUT /sport/settings` takes any of `enabled` (boolean), `read_first` and `min_reading` (numbers from 0 to 1, kept to two places) and returns the same, or 400 `{error}`. Stored in the profile's `settings` table under `sport`; unset values come from the config.
+- `DayView` also gains `sport_unlock: UnlockStatus | null`: that day's paper against the current settings.
+
+```ts
+type SportSettings = { enabled: boolean; read_first: number; min_reading: number };
+type UnlockStory = { id: number; title: string; finished: boolean; active_seconds: number; min_seconds: number;
+                     counts: boolean; rushed: boolean };
+type UnlockStatus = { needed: number; total: number; counted: number; unlocked: boolean;
+                      unlocked_at: string | null;       // when the story that opened it was closed, UTC ISO
+                      stories: UnlockStory[] };         // the paper's stories, in order
+type SportSettingsView = { settings: SportSettings; today: UnlockStatus | null };
+```
 
 ## Plugin sync rules (so the server can rely on them)
 
