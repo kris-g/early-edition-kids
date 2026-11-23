@@ -259,7 +259,7 @@ type SportUsageView = { from: string; to: string;
 | `GET /day/YYYY-MM-DD` | `DayView` gains `sport: SportDay \| null` (null with no Sport views that day) |
 
   A day is the London date of the event's `ts`, as for reading.
-- **On the dashboard:** the Sport page shows the last 7 days (built). Still to do: a Sport line on the Day screen, such as "Sport · 6 min: Table 3 min, Liverpool 4–0 Man Utd 2 min, Matches 1 min", with that day's stories read too fast; and the last fetch on the Server page, from `GET /api/dashboard/about`, which has `sport: {updated_at, attempted_at, error} | null`.
+- **On the dashboard (built):** the Sport page shows the last 7 days. The Day screen has a Sport card under the day total with that day's time and looks, when Sport opened, and the time on each page or match, such as "Table 3 min, Liverpool 4–0 Man Utd 2 min 10 s, Matches 1 min 25 s". The Server page shows the last fetch, from `GET /api/dashboard/about`, which has `sport: {updated_at, attempted_at, error} | null`. Still to do: that day's stories read too fast on the Day screen.
 
 ## 6. Safety
 
@@ -294,7 +294,7 @@ The page is the paper's, in the paper's faces and rules: Playfair Display for th
 | `server/` | `src/sports/` with the ESPN and Fantasy adapters, the daily fetch and the state file; the `sports` config key; `GET /api/sports` on each mount; `sports` in the issue payload; `POST /admin/sports`; the `sport_viewed` event type and its match label; `GET /api/dashboard/sport`, `sport` in `DayView` and in `AboutView`; recorded responses from both feeds under `tests/fixtures/sports/` |
 | `reader/` | built: the front page strip, open or closed; the Sport screen with three tabs, a match and the closed screen; deciding the lock from its own reading log and the server's count; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
 | `plugin/` | built: the front page strip, open or closed; `ui/sport.lua` (the tabs, the table in halves, the closed screen) and `ui/sportmatch.lua` (two screens a match) from the existing widgets; deciding the lock from the reading log and the server's count; fetching with the paper in the sync; `sport_viewed` events; the page kept as `sport.json` in the plugin's data folder |
-| `web/` | the Sport page: settings, today's progress and time on Sport (built); still to do, the Sport line on the Day screen and the last fetch on the Server page |
+| `web/` | built: the Sport page (settings, today's progress, time on Sport), a Sport card on the Day screen and the last fetch on the Server page; still to do, that day's stories read too fast on the Day screen |
 | `docs/` | CONTRACT.md gains the shapes above; settings.md the config key; kindle.md and ipad.md a section each |
 
 Order: the server first (it can be judged with `curl`), then the iPad, then the Kindle, then the dashboard.

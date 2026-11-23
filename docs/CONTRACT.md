@@ -303,7 +303,7 @@ type AboutView = { version: string;                            // from server/pa
                             error: string | null } | null };   // null when no profile shows the Sport page
 ```
 
-The Devices page shows it as "About this server": Version, Runs on (the container and `arch`, such as "Docker, arm64"; the operating system instead when `container` is null, such as "macOS, arm64") and Running for.
+The Server page shows it as "About this server": Version, Runs on (the container and `arch`, such as "Docker, arm64"; the operating system instead when `container` is null, such as "macOS, arm64") and Running for. When `sport` is set it adds Sport fetched (`updated_at` in London time, or "Not yet") and, when `error` is set and `attempted_at` is not before `updated_at`, Last try: its time, "failed" or, when `attempted_at` equals `updated_at`, "some feeds failed", with the error beneath.
 
 ### Share cards (added 14 November 2026)
 
