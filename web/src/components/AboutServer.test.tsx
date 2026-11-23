@@ -11,6 +11,7 @@ const about = (over: Partial<AboutView> = {}): AboutView => ({
   platform: 'linux',
   container: 'docker',
   uptime_seconds: 3 * 86400 + 4 * 3600 + 12 * 60,
+  sport: null,
   ...over,
 })
 

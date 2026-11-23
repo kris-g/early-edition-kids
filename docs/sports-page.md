@@ -1,6 +1,6 @@
 # The Sport page: spec and design
 
-A proposal, being built. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. The parent dashboard records which Sport pages were looked at and for how long.
+The server part is built (`server/src/sports/`); the readers and the dashboard screens are not yet. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. The parent dashboard records which Sport pages were looked at and for how long.
 
 Mockups: [`mockups/sports-page/index.html`](mockups/sports-page/index.html) (open it in a browser). They are drawn from the real matchday of 21 to 23 November 2026, as the server would have fetched it on the morning of Monday 23 November.
 
@@ -31,7 +31,7 @@ The page has three parts. In `pages` mode on the iPad and always on the Kindle t
 
 ### 2.1 Matches: the latest matchday
 
-- **Which matchday.** The round whose first match kicked off most recently before the morning fetch. It stays until the next round has started, so on a Tuesday the page still shows the weekend. Rounds are the league's own numbered rounds, so a midweek round works the same way and a rearranged match appears with the round it belongs to.
+- **Which matchday.** The round whose first match kicked off most recently before the morning fetch. It stays until the next round has started, so on a Tuesday the page still shows the weekend. Rounds are the league's own numbered rounds, so a midweek round works the same way; a rearranged match appears in the round the Fantasy feed moves it to.
 - **Grouped by day**, in London time: Friday, Saturday, Sunday, Monday, each with its date. A day with no match isn't shown.
 - **One row per match:** home team, score, away team, and a state on the right.
 
@@ -167,6 +167,7 @@ type Match = {
 type Side = "home" | "away";
 type Goal = { side: Side; player: string; minute: string; kind: "goal" | "penalty" | "own_goal" };
 type Player = { name: string; number: string | null; on: string | null; off: string | null };   // minutes, "72'"
+// A goal's `player` is the surname under a result (Match.goals) and the full name in MatchDetail.goals.
 type MatchDetail = {
   goals: Goal[];
   penalties: { side: Side; player: string; minute: string; outcome: "missed" | "saved" }[];

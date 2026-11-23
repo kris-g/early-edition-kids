@@ -34,6 +34,7 @@ const day: DayView = {
     finished: true,
   })),
   paper: paper('2026-11-15', [sunday]),
+  sport: null,
 }
 
 const show = (ui: React.ReactNode) => render(<MemoryRouter>{ui}</MemoryRouter>)
@@ -52,13 +53,13 @@ describe('Day', () => {
   })
 
   it('on a day with nothing read, says its paper was read later', () => {
-    const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]) }
+    const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]), sport: null }
     show(<ReadThatDay day={fri} today="2026-11-15" onShowPaper={() => {}} />)
     expect(screen.getByText(/1 story from this day’s paper was read later/)).toBeInTheDocument()
   })
 
   it('shows a paper’s stories with the day they were read', () => {
-    const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]) }
+    const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]), sport: null }
     show(<PaperOfDay day={fri} onStoryChange={() => {}} />)
     expect(screen.getByText('Read on a later day')).toBeInTheDocument()
     expect(screen.getByText('Read on Sun 15 Nov · 3 min 20 s')).toBeInTheDocument()

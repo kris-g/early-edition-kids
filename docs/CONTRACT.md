@@ -8,7 +8,7 @@ The exact interfaces shared by `server/`, `plugin/earlyeditionkids.koplugin/` an
 - Timezone for "today" and the schedule: `Europe/London`.
 - Daily run: either a Kubernetes CronJob calls `POST /admin/generate`, or env `GENERATE_AT` (`HH:MM`, London time) makes the server run it itself, at that time or at start when later. Both are safe together: runs are serialised and a date that already has a paper returns `exists`.
 - Data directory: env `EARLY_EDITION_KIDS_DATA_DIR` (default `./data`; `/data` in the container). SQLite at `$EARLY_EDITION_KIDS_DATA_DIR/early-edition-kids.db`, story files under `$EARLY_EDITION_KIDS_DATA_DIR/issues/`. With several profiles, see "Profiles" for where the others live.
-- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes, description}`; `notes` go to the AI that picks the stories, the optional `description` is one short line for a parent on the dashboard and is never sent to the AI), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), and optionally `profiles` (see "Profiles").
+- Config file: env `EARLY_EDITION_KIDS_CONFIG` (default `./config.yaml`; `/config/config.yaml` in the container, from a ConfigMap). YAML with keys: `title` (default "Early Edition"), `child_age` (8), `story_count` (6), `reading_wpm` (90), `story_words` (`{min, max}` body length in words; 100 / 160 if unset, 120 / 200 in the deployed config), `topics` (list of `{name, base_weight, notes, description}`; `notes` go to the AI that picks the stories, the optional `description` is one short line for a parent on the dashboard and is never sent to the AI), `feeds` (list of `{name, url, kids_source, topic_hint, exclude_url_patterns, exclude_title_patterns}`), `blocklist` (list of words), `favourite_players` (list), `reader_mode` (`pages` or `scroll`, default `pages`; see "iPad reader"), `sports` (`{enabled}`, default off; see "Sport page"), and optionally `profiles` (see "Profiles").
 - Secrets as env: `LLM_PROVIDER` (`anthropic` or `openai`; defaults to `openai` when `LLM_BASE_URL` is a URL), `LLM_API_KEY`, `LLM_MODEL` (Anthropic default `claude-opus-5-5`), optional `CHECK_LLM_MODEL`, `LLM_BASE_URL` (OpenAI-compatible only, or `stub`), optional `LLM_EFFORT` / `CHECK_LLM_EFFORT` (Anthropic only; default `medium` / `high`), `ADMIN_TOKEN`. Optional `EARLY_EDITION_KIDS_WEB_DIR` (where the built web app is), `EARLY_EDITION_KIDS_READER_DIR` (where the built iPad reader is), `KINDLE_BASE_URL` (see "iPad reader"), `PORT` (8080), `DASHBOARD_PORT` (8081), `HOST` (`127.0.0.1` by default; `0.0.0.0` in the container), and `DASHBOARD_PASSWORD`, `DASHBOARD_USER`, `SESSION_SECRET` (see "Built-in sign-in").
 - Stub LLM: when `LLM_BASE_URL` is `stub`, the server uses canned responses and needs no key or network for the LLM (feeds may still be fetched; tests use fixture feeds).
 
@@ -75,6 +75,7 @@ type ProfilesView = { profiles: { id: string; title: string }[];   // config ord
 - `image` per story (added 16 November 2026) is the story's photo, `{path, alt}` or `null` (see "Story photos"). `path` is server-relative like the story's `path`; `alt` is the source's description or `null`. The iPad shows it.
 - `kindle_image` per story (added 16 November 2026) is `{path}` for the Kindle's copy of that photo, or `null` when the story has no photo (see "Story photos"). Its path can still answer 404 when the photo cannot be made into a Kindle copy.
 - `reading_since` is the date reading history was last reset, or `null` if it never was (see "Reading since").
+- `sports` (added 23 November 2026) is `{path: "/api/sports", label: "Premier League", matchday}` when this paper has a Sport page with something to show, else `null` (see "Sport page"). `path` is relative to the mount, like a story's.
 - `profile` is the id of the profile this paper is for (`default` without a profiles list); `profile_root` is true when that profile owns the root data. Story ids restart at 1 in each profile's database, so a client treats a change of paper as a fresh start. The paper differs when exactly one side has `profile_root`, or neither has and the ids differ. The root data stays the same paper when its owner's id changes, which happens once: from `default` to the first listed profile.
 - Clients must ignore fields they do not know; the server may add fields but will not remove or change these.
 
@@ -113,7 +114,7 @@ Request:
 ```
 
 - Optional `profile` and `profile_root`: the paper the client believes the events belong to (from its last issue response). When they name a different paper than this mount serves (the rule under the issue fields), the response is 409 and nothing is stored, so reading never lands in another child's paper. Without them (older clients), events are accepted as before.
-- `type` is one of `issue_downloaded`, `list_shown` (payload `{date, version}`, `story_id` null), `story_opened` (payload `{}`), `story_closed` (payload as above).
+- `type` is one of `issue_downloaded`, `list_shown` (payload `{date, version}`, `story_id` null), `story_opened` (payload `{}`), `story_closed` (payload as above), `sport_viewed` (`story_id` null; see "Sport page").
 - Response 200: `{"accepted": ["uuid", ...]}` listing every `client_event_id` now stored, including ones that were already stored from an earlier upload. The client deletes exactly those from its queue.
 - Unknown `story_id` or unknown `type`: the event is not stored and not in `accepted`; the response is still 200. The client keeps those for at most 7 days, then drops them.
 - Max 500 events per request.
@@ -122,6 +123,7 @@ Request:
 
 - `POST /admin/generate[?force=true][&date=YYYY-MM-DD][&profile=<id>]` with header `X-Admin-Token`, at the root of the Kindle port only. 200 `{"date","version","fallback","story_count","status": "created"|"exists"}`. 503 with `"status": "failed"` and a `detail` line when nothing could be published (the CronJob's `curl -f` then marks the job failed). A forced run that fails keeps the existing version.
   - It runs every profile in turn, never two at once. With one profile, or with `?profile=<id>` (which limits it to that one; an unknown id is 404), the response is exactly the shape above. With several, the top-level fields are the root owner's result (the first profile's when none owns the root), plus `"profiles": {"<id>": result, ...}` with each result in the shape above; the status is 503 if any failed, with `detail` naming them.
+- `POST /admin/sports` with `X-Admin-Token`, at the root of the Kindle port only, fetches the Sport page now (see "Sport page"): 200 `{status: "ok" | "partial", updated_at, errors}`, or 503 with `status: "failed"` when nothing new could be fetched.
 - `GET /healthz` returns 200 `ok`.
 - The dashboard and its API are on port 8081 only (see "Parent dashboard").
 
@@ -208,6 +210,7 @@ type RunView = { started_at: string; finished_at: string | null; date: string; s
 | `POST /articles/add` `{url, when: "today" \| "tomorrow"}` | 202 `Job` (rewriting takes tens of seconds) |
 | `GET /jobs/:id` | `Job`; the web app polls every 2 seconds until it is not `pending` |
 | `GET /runs?limit=10` | `RunView[]` |
+| `GET /sport?days=14` | `SportUsageView` for the last `days` days (7–120) ending today (see "Sport page") |
 
 ### Dashboard v2: reading stats, calendar and AI (added 13 November 2026)
 
@@ -294,7 +297,9 @@ type AboutView = { version: string;                            // from server/pa
                    arch: string;                               // Node's process.arch: "arm64", "x64", ...
                    platform: string;                           // Node's process.platform: "linux", "darwin", ...
                    container: "kubernetes" | "docker" | null;  // KUBERNETES_SERVICE_HOST is set; else /.dockerenv exists; else null
-                   uptime_seconds: number };                   // whole seconds since the process started
+                   uptime_seconds: number;                     // whole seconds since the process started
+                   sport: { updated_at: string | null; attempted_at: string | null;   // the Sport page's last fetch (added 23 November 2026);
+                            error: string | null } | null };   // null when no profile shows the Sport page
 ```
 
 The Devices page shows it as "About this server": Version, Runs on (the container and `arch`, such as "Docker, arm64"; the operating system instead when `container` is null, such as "macOS, arm64") and Running for.
@@ -367,6 +372,82 @@ A home-screen web app for the child (`reader/`, plain TypeScript and Vite), the 
 - **Text size and page colour.** An Aa button in a story's running head opens a panel with six text sizes (a scale on the age band's size, the age band's own in the middle) and three page colours: paper, sepia and night. The choice is kept on the iPad under the profile mount's namespace and applies to the whole reader; changing the size re-lays the pages and keeps the reader on the same words. It is not sent to the server.
 - **Checks.** Today's paper is fetched when the reader opens, with Check for news, and when it comes back to the front after 30 minutes or more (or on a new day). A 404 shows "isn't ready yet" with yesterday's paper; an unreachable server keeps showing the last paper loaded.
 - **The dashboard's card.** `ProfilesView` gains `kindle_base_url` (the Kindle port as the family's devices reach it, no trailing slash) and `kindle_base_url_derived`. It is `KINDLE_BASE_URL` when set, else `http://<this request's host name>:<PORT>` with `derived: true`. The Devices page shows each child's Kindle server address (`<base>` for the root owner, `<base>/p/<id>` for the others) with the plugin's install steps, and their reader address (that address with `/read/` added) as text and a QR code.
+
+## Sport page (added 23 November 2026)
+
+The Premier League table, the latest matchday's results and the next matchday's fixtures, for a profile with `sports: {enabled: true}`. Design and the reasons behind it: [sports-page.md](sports-page.md).
+
+- **Data.** One file for the server, `$EARLY_EDITION_KIDS_DATA_DIR/sports/premier-league.json`, shared by every profile that shows the page. It holds the last good state and is read at start.
+- **When it is fetched.** Once a day: at the start of every `POST /admin/generate` and `GENERATE_AT` run (in the background; it never holds up a paper), and on start when nothing from today has been fetched. A day's fetch that has worked isn't repeated; one with errors is. `POST /admin/sports` fetches at once. Nothing is fetched because a device asked.
+- **Sources.** ESPN's site JSON (scores, match summaries, table) and the Fantasy Premier League JSON (rounds, fixtures, the injury list), both free and unofficial. Each part is kept or dropped on its own; a broken part keeps its last good value and is named in the errors.
+- **Out of date.** Three days after the last fetch that got the rounds, the page is withdrawn: `/api/sports` answers 404 and the issue's `sports` is `null`.
+
+### `GET <mount>/api/sports`
+
+On the Kindle port, under every mount. 404 when the profile doesn't show the page, or there is nothing current to show. `Cache-Control: no-store`.
+
+```ts
+type SportsView = { competition: "Premier League";
+                    updated_at: string;                 // when the data was fetched, UTC ISO
+                    results_to: string | null;          // London date of the latest played match in `matchday`
+                    favourite_team: string | null;      // a Club id: the config's favourite_team, when it names one
+                    teams: Club[];
+                    matchday: Matchday | null;          // the latest round: the one whose first match kicked off most recently
+                    next: Matchday | null;              // the round after it; its matches never have detail
+                    table: { final: boolean; rows: TableRow[]; lines: { after: number; label: string }[] } | null };
+type Club = { id: string; name: string; short: string };   // "man-utd", "Manchester United", "Man Utd"
+type Matchday = { number: number; days: { date: string; matches: Match[] }[] };   // London dates, oldest first
+type Match = { id: string;                              // stable for the season
+               kickoff: string;                         // UTC ISO
+               home: string; away: string;              // Club ids
+               state: "scheduled" | "finished" | "postponed" | "abandoned";
+               score: { home: number; away: number } | null;   // finished only
+               goals: Goal[];                           // finished only; players by surname
+               detail: MatchDetail | null };            // finished, and its summary fetched
+type Side = "home" | "away";
+type Goal = { side: Side; player: string; minute: string; kind: "goal" | "penalty" | "own_goal" };   // side: the team it counted for
+type Player = { name: string; number: string | null; on: string | null; off: string | null };    // minutes, such as "72'"
+type MatchDetail = { goals: Goal[];                                                              // full names
+                     penalties: { side: Side; player: string; minute: string; outcome: "missed" | "saved" }[];
+                     cards: { side: Side; player: string; minute: string; card: "yellow" | "red" }[];
+                     lineups: Record<Side, { starting: { line: "goalkeeper" | "defenders" | "midfielders" | "forwards"; players: Player[] }[];
+                                            bench: Player[] }>;
+                     subs: { side: Side; minute: string; on: string; off: string; injury: boolean }[];   // injury: went off injured
+                     out_injured: Record<Side, string[]> };   // listed injured on the morning of the match, and not in its squad
+type TableRow = { position: number; team: string; played: number; won: number; drawn: number;
+                  lost: number; goal_difference: number; points: number };
+```
+
+- `lines` are where rules are drawn: `{after: 4, label: "Champions League"}` and `{after: 17, label: "Relegation"}`, as the provider marks the places.
+- Every word in it is a name, a number or one of these fixed values. Provider text is never passed on; names are plain text of at most 40 characters, and a name the profile's `blocklist` catches is left out.
+
+### `sport_viewed` events
+
+Sent by a reader when the child leaves a Sport page. `story_id` is null. Payload:
+
+```ts
+{ page: "matches" | "table" | "next" | "match";   // the Kindle table's two halves are both "table"
+  match_id: string | null;                        // the Match id for "match" (required), else null
+  matchday: number | null;
+  active_seconds: number }                        // the stories' rules: paused asleep or hidden, at most 300 s between interactions
+```
+
+- A page left within 2 seconds is not sent.
+- The server stores its own copy of the payload with `match` added: the match's name as it knows it then, such as `"Liverpool 4–0 Man Utd"` (`null` for an unknown match). An event with another page, no `match_id` for a match, a `story_id`, or seconds that are negative or over a day is not stored and not in `accepted`.
+- They never count toward read stories, reading days, the streak, minutes, share cards or topic weights. A reading reset deletes them like any other event.
+
+### On the dashboard
+
+```ts
+type SportPageUse = { page: "matches" | "table" | "next" | "match";
+                      match_id: string | null; match: string | null;   // for "match": which, and its name
+                      views: number; seconds: number };
+type SportDay = { date: string; views: number; seconds: number; pages: SportPageUse[] };   // per page, and per match; most time first
+type SportUsageView = { from: string; to: string; days: SportDay[];   // oldest first, gaps filled with zeros
+                        views: number; seconds: number; pages: SportPageUse[] };
+```
+
+- `GET /sport?days=14` returns `SportUsageView`. `DayView` gains `sport: SportDay | null` (null on a day with no Sport views). A day is the London date of the event's `ts`, as for reading.
 
 ## Plugin sync rules (so the server can rely on them)
 

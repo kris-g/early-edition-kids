@@ -128,6 +128,7 @@ app.get('/api/dashboard/about', (_req, res) => {
     platform: 'linux',
     container: 'docker',
     uptime_seconds: Math.floor((Date.now() - STARTED) / 1000),
+    sport: null,
   }
   res.json(body)
 })

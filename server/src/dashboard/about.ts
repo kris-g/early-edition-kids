@@ -40,12 +40,13 @@ export function containerKind(probe: Pick<AboutProbe, "env" | "exists">): AboutV
   return null;
 }
 
-export function aboutView(probe: AboutProbe = realProbe): AboutView {
+export function aboutView(probe: AboutProbe = realProbe, sport: AboutView["sport"] = null): AboutView {
   return {
     version: serverVersion(),
     arch: process.arch,
     platform: process.platform,
     container: containerKind(probe),
     uptime_seconds: Math.max(0, Math.floor(probe.uptime())),
+    sport,
   };
 }

@@ -232,6 +232,8 @@ export interface Config {
   llmPrices: Record<string, ModelPrice>;
   /** Models offered through OpenRouter (CONTRACT.md "Two providers side by side"). */
   openrouterModels: OpenRouterModel[];
+  /** The Sport page (docs/sports-page.md): config `sports.enabled`, off by default. */
+  sportsEnabled: boolean;
 }
 
 const strList = z
@@ -300,6 +302,7 @@ const configSchema = z.object({
   llm_prices: z
     .record(z.string(), z.object({ input_per_mtok: z.number().min(0), output_per_mtok: z.number().min(0) }))
     .nullish(),
+  sports: z.object({ enabled: z.boolean().nullish() }).nullish(),
 });
 
 export function parseConfig(data: unknown): Config {
@@ -349,6 +352,7 @@ export function parseConfig(data: unknown): Config {
     readerMode: c.reader_mode ?? "pages",
     llmPrices: { ...DEFAULT_LLM_PRICES, ...(c.llm_prices ?? {}) },
     openrouterModels: c.openrouter_models ?? DEFAULT_OPENROUTER_MODELS,
+    sportsEnabled: c.sports?.enabled === true,
   };
 }
 

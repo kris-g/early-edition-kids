@@ -58,6 +58,10 @@ favourite_players:
   - Harry Kane
   - Lamine Yamal
 favourite_team: Liverpool
+# The Sport page (docs/sports-page.md): the Premier League table, the latest results and the next
+# fixtures, fetched once a day with the paper. favourite_team marks his club on it. Off unless set.
+# sports:
+#   enabled: true
 # Only men's football: the prompts skip women's and girls' football. The feeds' exclude_title_patterns
 # below drop the obvious headlines before selection. Leave out or set false for all football.
 mens_football_only: true
@@ -261,7 +265,7 @@ blocklist:
 # reading history, dashboard and AI settings. An id is lowercase letters, digits and hyphens; use
 # something neutral like these, never a name. A profile may override any setting above (child_age,
 # story_count, reading_wpm, reader_mode, story_words, title, topics, feeds, blocklist, favourite_players,
-# favourite_team, rival_clubs, mens_football_only, ...); a list replaces the one above rather than
+# favourite_team, rival_clubs, mens_football_only, sports, ...); a list replaces the one above rather than
 # adding to it. llm_prices and openrouter_models are shared by all.
 # The first profile listed the first time keeps the existing paper and Kindle address (recorded in
 # $EARLY_EDITION_KIDS_DATA_DIR/profiles.json), so list the child who already reads it first. Every

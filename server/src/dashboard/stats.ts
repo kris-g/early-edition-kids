@@ -7,6 +7,7 @@ import { injected, type Context } from "../pipeline.js";
 import { LONDON, addDays, londonDate } from "../timeutil.js";
 import { callsInMonth } from "../usage.js";
 import { storyStats } from "../weights.js";
+import { sportDay } from "./sport.js";
 import { cardsFor, issueView } from "./views.js";
 import type {
   AiView,
@@ -409,6 +410,7 @@ export function dayView(ctx: Context, date: string, today: string): DayView {
     minutes: round1(closed.reduce((n, e) => n + e.seconds, 0) / 60),
     reads,
     paper: issueView(ctx, date, today),
+    sport: sportDay(ctx, date),
   };
 }
 

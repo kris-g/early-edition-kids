@@ -17,7 +17,8 @@ describe("GET /api/dashboard/about", () => {
     const r = await t.agent.get("/api/dashboard/about");
     expect(r.status).toBe(200);
     expect(r.headers["cache-control"]).toBe("no-store");
-    expect(Object.keys(r.body).sort()).toEqual(["arch", "container", "platform", "uptime_seconds", "version"]);
+    expect(Object.keys(r.body).sort()).toEqual(["arch", "container", "platform", "sport", "uptime_seconds", "version"]);
+    expect(r.body.sport).toBeNull(); // no profile shows the Sport page
     expect(r.body.version).toBe(VERSION);
     expect(r.body.version).toMatch(/^\d+\.\d+\.\d+/);
     expect(r.body.arch).toBe(process.arch);

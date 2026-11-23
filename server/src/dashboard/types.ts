@@ -104,6 +104,40 @@ export type DayView = {
   reads: DayRead[];
   /** That day's own paper, or null if there was none. */
   paper: IssueView | null;
+  /** Time on the Sport page that day, or null when it wasn't opened (docs/sports-page.md 5.4). */
+  sport: SportDay | null;
+};
+
+// ---- the Sport page (docs/sports-page.md 5.4): kept apart from reading ----
+
+export type SportPage = "matches" | "table" | "next" | "match";
+
+export type SportPageUse = {
+  page: SportPage;
+  /** For a match page: which match, and its name, such as "Liverpool 4–0 Man Utd". */
+  match_id: string | null;
+  match: string | null;
+  views: number;
+  seconds: number;
+};
+
+export type SportDay = {
+  date: string;
+  views: number;
+  seconds: number;
+  /** That day's totals per page, and per match, most time first. */
+  pages: SportPageUse[];
+};
+
+export type SportUsageView = {
+  from: string;
+  to: string;
+  /** Oldest first, one per date, gaps filled with zeros. */
+  days: SportDay[];
+  views: number;
+  seconds: number;
+  /** The range's totals per page, most time first. */
+  pages: SportPageUse[];
 };
 
 export type IssueSummary = { date: string; version: number; fallback: boolean; story_count: number; read_count: number };
@@ -180,6 +214,8 @@ export type AboutView = {
   container: "kubernetes" | "docker" | null;
   /** Whole seconds since the server process started. */
   uptime_seconds: number;
+  /** The Sport page's last fetch, or null when no profile shows it (docs/sports-page.md 5.4). */
+  sport: { updated_at: string | null; attempted_at: string | null; error: string | null } | null;
 };
 
 export type GenerateResponse = {

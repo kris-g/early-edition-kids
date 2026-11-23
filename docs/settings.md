@@ -35,6 +35,7 @@ Early Edition Kids is set up in three places:
 | `favourite_players` | none | Stories about these players are preferred, and the writer may mention them when the article does. |
 | `favourite_team` | none | The child's team. It only does something together with `rival_clubs`. |
 | `rival_clubs` | none | With `favourite_team`, a story about a rival club may carry one friendly line from a fan's point of view, such as "Not the best night for them!" |
+| `sports` | off | `{ enabled: true }` adds the [Sport page](sports-page.md): the Premier League table, the latest matchday's results and the next fixtures, fetched once a day with the paper. `favourite_team` marks the child's club on it. A profile can turn it on for one child only. |
 | `mens_football_only` | `false` | When `true`, the AI leaves out women's and girls' football. Add `exclude_title_patterns` to the football feeds as well, as the example does, so the obvious headlines never reach the AI. |
 
 **Topics in more detail:**

@@ -17,6 +17,7 @@ import { londonDate } from "../timeutil.js";
 import { fullStreak, storyStats, topicStats } from "../weights.js";
 import { requireHeader } from "./guard.js";
 import { shareView } from "./share.js";
+import { sportUsageView } from "./sport.js";
 import { aiView, calendarView, catchUpToday, dayView, lastRunCost, readingView, streakDetail } from "./stats.js";
 import { Jobs } from "./jobs.js";
 import type { ArticleHit, Job, Summary, TopicMode } from "./types.js";
@@ -90,6 +91,11 @@ export function dashboardApi(deps: DashboardDeps): Router {
     const t = today();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > t) throw new HttpError(404, "not a day yet");
     res.json(dayView(ctx, date, t));
+  });
+
+  // Time on the Sport page (docs/sports-page.md 5.4), apart from reading.
+  router.get("/sport", (req, res) => {
+    res.json(sportUsageView(ctx, today(), clampInt(req.query.days, 14, 7, 120)));
   });
 
   router.get("/share", (_req, res) => {
