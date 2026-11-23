@@ -7,10 +7,10 @@ Premier League page, one screen per tab and no scrolling.
   Next     the next matchday's fixtures
 
 While Sport is closed (read first, section 2.7) the same page shows the
-padlock, how many stories are needed, how far he has got, and the way back
-to the paper; no scores show behind it.
+padlock, how many stories are needed, how far he has got, and the next
+story to read as a headline to tap; no scores show behind it.
 
-Model (controller.lua): { tab, closed = { needed, counted, togo } or nil,
+Model (controller.lua): { tab, closed = { needed, counted, togo, story = { title, topic, again } or nil } or nil,
   results_text, matchday, next (Sport.matchday), table (Sport.tableHalf), empty }
 ]]
 
@@ -223,6 +223,28 @@ end
 
 -- ---------- closed ----------
 
+--- The next story to read, as a headline to tap; without one, a button to the paper.
+function SportScreen:nextStory(story)
+    local cw = self.content_w
+    local go = function() if self.on_paper then self.on_paper() end end
+    if not story then
+        return W.Button{ text = "Today's paper", filled = true, width = math.floor(cw * 0.55), height = 96, text_size = 32,
+                         icon_right = "arrow-right", icon_size = 36, callback = go }
+    end
+    -- The full content width, as the front page's cards and the Front page button.
+    local arrow = W.Icon("arrow-right", 44)
+    local text_w = cw - 2 * (W.px(3) + W.px(40)) - arrow:getSize().w - W.px(24)
+    local label = story.again and "Read again" or "Next story"
+    if story.topic and story.topic ~= "" then label = label .. " \194\183 " .. story.topic end
+    local words = W.VCol({
+        W.Label(label, 22, nil, text_w),
+        W.VSpace(W.px(10)),
+        W.TextBox{ text = story.title, face = W.face(W.SERIF_BOLD, 38), width = text_w },
+    }, 0, "left")
+    self.next_story = W.tappable(W.Box{ content = W.HRow({ words, arrow }, W.px(24)), border = 3, pad_h = 40, pad_v = 28, width = cw }, go)
+    return self.next_story
+end
+
 function SportScreen:closedBody(c, avail)
     local cw = self.content_w
     local col = W.VCol({
@@ -235,9 +257,7 @@ function SportScreen:closedBody(c, avail)
         W.VSpace(W.px(22)),
         W.Text{ text = string.format("%d more to go", c.togo), face = W.face(W.SANS_BOLD, 32), color = W.SECONDARY },
         W.VSpace(W.px(34)),
-        W.Button{ text = "Today's paper", filled = true, width = math.floor(cw * 0.55), height = 96, text_size = 32,
-                  icon_right = "arrow-right", icon_size = 36,
-                  callback = function() if self.on_paper then self.on_paper() end end },
+        self:nextStory(c.story),
     }, 0, "center")
     return W.Fixed(col, cw, avail, "center")
 end

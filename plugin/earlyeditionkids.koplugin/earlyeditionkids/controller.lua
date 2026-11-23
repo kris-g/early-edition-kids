@@ -514,6 +514,12 @@ function Controller:sportModel(tab, half)
     local m = { tab = tab or "matches" }
     if not lock.open then
         m.closed = { needed = lock.needed, counted = lock.counted, togo = lock.needed - lock.counted }
+        -- The next story to read, shown as a headline to tap; every story read but some too
+        -- quickly to count means reading again from the first.
+        local date, story = self:nextStoryToRead()
+        local again = false
+        if date and not story then story, again = self.issues:visibleStories(date)[1], true end
+        if story then m.closed.story = { title = story.title, topic = story.topic, again = again } end
         return m
     end
     if not view then return m end
@@ -741,9 +747,8 @@ function Controller:showFrontPage()
         on_back_issues = function() self:showBackIssues() end,
         on_my_week = function() self:showMyWeek() end,
         on_check = function() UIManager:nextTick(function() self:checkNow() end) end,
-        on_sport = function(open)
-            if open then self:showSport() else self:openNextStory() end
-        end,
+        -- Open or closed, the tile shows Sport: closed, its padlock and the next story to tap.
+        on_sport = function() self:showSport() end,
         on_close = function()
             -- Leaving Early Edition: back to his book, else Simple UI's home
             -- screen when it is installed, else the file browser.

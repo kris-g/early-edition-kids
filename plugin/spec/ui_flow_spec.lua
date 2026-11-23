@@ -1042,8 +1042,15 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(strip.open, false)
         eq(strip.sub, "Opens after reading 2 of today's stories \194\183 2 more to go")
 
-        -- The closed strip leads to the next story to read, never to Sport.
+        -- The closed tile shows the padlock screen, with the next story's headline to tap.
         S.UIManager:top().on_sport(false)
+        S.run()
+        eq(topName(S), "eek_sport")
+        local first = S.UIManager:top().model.closed.story
+        truthy(first and first.title, "the next story's headline")
+        falsy(first.again)
+        falsy(S.UIManager:top().model.matchday, "no scores behind it")
+        S.UIManager:top().next_story.callback()
         S.run()
         eq(S.ReaderUI.instance.document.file, ROOT .. "/2026-11-13/41.html")
         S.ReaderUI.instance:onClose()
@@ -1065,6 +1072,13 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(closed.counted, 1)
         eq(closed.togo, 1)
         falsy(S.UIManager:top().model.matchday, "no scores behind it")
+        -- One story left to count, and it is the last unread one.
+        truthy(closed.story and not closed.story.again, "the last unread story")
+        local function fitsHere(what)
+            local top = S.UIManager:top()
+            truthy(top.body_height <= top.body_room, what .. " is " .. top.body_height .. " of " .. top.body_room)
+        end
+        fitsHere("the closed screen with a headline")
         S.Controller:showFrontPage()
         S.run()
         readNext(S, 65)                     -- 43 counts: open
