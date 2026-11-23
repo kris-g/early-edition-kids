@@ -128,7 +128,12 @@ app.get('/api/dashboard/about', (_req, res) => {
     platform: 'linux',
     container: 'docker',
     uptime_seconds: Math.floor((Date.now() - STARTED) / 1000),
-    sport: null,
+    // A morning fetch that worked, and a later try where one feed failed.
+    sport: {
+      updated_at: new Date(Date.parse(`${new Date().toISOString().slice(0, 10)}T06:01:00Z`)).toISOString(),
+      attempted_at: new Date(Date.parse(`${new Date().toISOString().slice(0, 10)}T09:15:00Z`)).toISOString(),
+      error: 'fixtures: HTTP 503',
+    },
   }
   res.json(body)
 })

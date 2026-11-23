@@ -4,7 +4,7 @@ A React PWA served by the server at `/dashboard/`, behind Authelia. It shows wha
 
 Each screenshot below has numbered callouts with a key on its right. They show sample data at laptop width in the light theme. Click an image to see it full size.
 
-On a laptop the sidebar has Today, then three groups: **Reading** (Reading, Calendar, Share), **The paper** (Add a story, Topics, AI) and **Set-up** (Devices, Server). On a phone, Today, Reading and Calendar are tabs along the bottom, and the rest are under **More**, in the same groups.
+On a laptop the sidebar has Today, then three groups: **Reading** (Reading, Calendar, Share), **The paper** (Add a story, Topics, Sport, AI) and **Set-up** (Devices, Server). On a phone, Today, Reading and Calendar are tabs along the bottom, and the rest are under **More**, in the same groups.
 
 ## Today
 
@@ -20,7 +20,7 @@ How much gets read and which topics, over 14 days, 30 days or 12 weeks.
 
 ## Calendar
 
-A month of reading, day by day. Tap a day to see its stories. **Back issues**, linked under the month, lists the same papers newest first.
+A month of reading, day by day. Tap a day to see its stories, and, on a day the Sport page was opened, the time on it and on each page or match. **Back issues**, linked under the month, lists the same papers newest first.
 
 ![Calendar page with numbered callouts](images/dashboard/calendar.png)
 
@@ -51,7 +51,8 @@ Which model writes and which checks, what each costs, and how the month's spend 
 ## Pages without a screenshot here
 
 - **Devices:** the addresses and steps for putting the paper on a Kindle or an iPad.
-- **Server:** the server's version, what it runs on and how long it has been running, then the daily runs that made the recent papers.
+- **Server:** the server's version, what it runs on, how long it has been running and, when a child has the Sport page, its last fetch from the football feeds; then the daily runs that made the recent papers.
+- **Sport:** whether this child has the Sport page, how much of today's paper to read before it opens and how fast is too fast, today's progress, and the last 7 days' time on Sport. [sports-page.md](sports-page.md) has the rules.
 - **Share:** six picture cards (streak, today, the week, milestone, words learned, ask me about) to send to family. They are drawn in the browser; [CONTRACT.md](CONTRACT.md#share-cards-added-14-november-2026) has the rules.
 
 ## Remaking the screenshots
