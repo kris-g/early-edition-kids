@@ -107,4 +107,20 @@ describe("share view", () => {
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ today: TODAY, total_read: 0, milestone: null });
   });
+
+  it("leaves out stories read too fast, though their minutes still count", async () => {
+    ctx = makeCtx();
+    await generate(ctx, TODAY, NOW);
+    const ids = ctx.db.storiesFor(TODAY, 1).map((r) => Number(r.id));
+    closed(ctx, ids[0], "2026-11-14T07:00:00+00:00", 600); // read properly
+    closed(ctx, ids[1], "2026-11-14T07:10:00+00:00", 3); // paged through: read too fast
+    const v = shareView(ctx, TODAY);
+    expect(v.today_read.stories.map((s) => s.id)).toEqual([ids[0]]);
+    expect(v.today_read.minutes).toBeCloseTo(10.1, 1); // both sittings' time
+    expect(v.week.total_read).toBe(1);
+    expect(v.week.days.at(-1)!.read).toBe(1);
+    expect(v.total_read).toBe(1);
+    expect(v.ask.stories.map((s) => s.id)).toEqual([ids[0]]);
+    expect(v.words.map((w) => w.story_title)).not.toContain(ctx.db.getStory(ids[1])!.title);
+  });
 });

@@ -315,6 +315,7 @@ The Share page turns his reading into a picture to send to family: six cards (St
 - **Milestones** count different stories read to the end, ever: 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500, then every 100. The card shows the latest one reached and the story that reached it.
 - **Words** are the stories' word to know, from stories read in the last 7 days, newest first, one per word, up to 4.
 - **Ask me about** uses the stories read today, or else those read on the latest reading day in the last 7 days, up to 3.
+- **Only stories read properly** (added 23 November 2026): a story read too fast (see "Read too fast") isn't counted or listed on Today, The week, Milestone, Words learned or Ask me about, and nothing on a card mentions it. Its minutes still count as reading time, and the Streak card is the reading streak as everywhere else.
 - A card with nothing to show (no two-day streak yet, nothing read today, no milestone yet, no words) says why instead of being drawn.
 
 ```ts
