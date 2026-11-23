@@ -1120,6 +1120,31 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(T2.UIManager:top().model.matchday, nil)
     end)
 
+    it("points the closed screen at the first story that doesn't count yet, never one that does", function()
+        local S = fresh()
+        sportPaper(S, RULE)
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        readNext(S, 70)                     -- 41 counts
+        readNext(S, 6)                      -- 42 paged through
+        S.Controller:showSport()
+        S.run()
+        local story = S.UIManager:top().model.closed.story
+        eq(story.id, 43, "the unread one")
+        falsy(story.again)
+        S.Controller:showFrontPage()
+        S.run()
+        readNext(S, 5)                      -- 43 paged through: every story read, one counts
+        S.Controller:showSport()
+        S.run()
+        story = S.UIManager:top().model.closed.story
+        eq(story.id, 42, "the first read too quickly, not 41, which already counts")
+        truthy(story.again)
+        S.UIManager:top().next_story.callback()
+        S.run()
+        eq(S.ReaderUI.instance.document.file, ROOT .. "/2026-11-13/42.html")
+    end)
+
     it("every Sport screen fits the Kindle without scrolling", function()
         local S = fresh()
         sportPaper(S)

@@ -3,7 +3,7 @@
 // one of ours. Like the rest of the reader there are no links, only buttons app.ts handles.
 
 import { esc } from './body'
-import { icon } from './icons'
+import { icon, topicKey } from './icons'
 import type { LockState } from './sport'
 import type { Goal, Match, MatchDetail, Matchday, Player, Side, SportsView, TableRow } from './types'
 
@@ -30,16 +30,18 @@ function clubs(view: SportsView) {
 
 // ---------- the front page strip ----------
 
-/** The way in, under the stories. Never a score. Closed: how many more to read, and the way to the next story. */
-export function sportStripHtml(label: string, matchday: number | null, lock: LockState, nextStory: number | null): string {
+/**
+ * The way in, under the stories. Never a score. Closed, it says how many more to read and opens the
+ * closed screen, which shows how far he has got and the next story to read. `again`: every story
+ * left is one read too quickly to count.
+ */
+export function sportStripHtml(label: string, matchday: number | null, lock: LockState, again: boolean): string {
   if (!lock.open) {
     const togo = lock.needed - lock.counted
-    // Everything read, but too quickly to count: the stories need reading again, from the first.
-    const again = nextStory === null
-    return `<li class="sport-strip closed"><button class="strip-btn" data-go="${nextStory ?? 0}">
+    return `<li class="sport-strip closed"><button class="strip-btn" data-act="sport">
       <span class="strip-ico">${LOCK}</span>
       <span class="strip-text"><strong>Sport</strong><span class="meta">${again ? `Read ${togo} again to open` : `Opens after reading ${lock.needed} of today’s stories · ${togo} more to go`}</span></span>
-      <span class="strip-go">Today’s paper ${icon('arrow')}</span>
+      <span class="strip-go">${icon('arrow')}</span>
     </button></li>`
   }
   return `<li class="sport-strip"><button class="strip-btn" data-act="sport">
@@ -238,16 +240,27 @@ export const sportEmptyHtml = () =>
 
 // ---------- closed ----------
 
-/** Sport isn't open yet: how many stories, how far, and the way back to the paper. No scores behind it. */
-export function sportClosedHtml(lock: LockState, nextStory: number | null): string {
+/** The story the closed screen offers: its place in the paper, and whether it was read too quickly before. */
+export type NextStory = { index: number; title: string; topic: string; minutes: number; again: boolean }
+
+/** Sport isn't open yet: how many stories, how far, and the next story to read as a headline to tap. No scores behind it. */
+export function sportClosedHtml(lock: LockState, next: NextStory | null): string {
   const togo = lock.needed - lock.counted
   return `<section class="screen sport" data-topic="football">${head(toFront, 'Premier League')}<div class="screen-body closed-body">
     <div class="sport-closed">
       <span class="padlock">${LOCK}</span>
       <h2>Sport opens after reading ${lock.needed} of today’s stories</h2>
       <p class="tally"><span class="pips" aria-hidden="true">${Array.from({ length: lock.needed }, (_, k) => `<i class="${k < lock.counted ? 'on' : ''}"></i>`).join('')}</span>${togo} more to go</p>
-      ${nextStory === null ? `<p class="teaser">Read ${togo} of them again, all the way through, to open it.</p>` : ''}
-      <button class="btn go" data-go="${nextStory ?? 0}">Today’s paper ${icon('arrow')}</button>
+      ${
+        next
+          ? // The same button as at the end of a story.
+            `<button class="next-story" data-go="${next.index}" data-topic="${topicKey(next.topic)}">
+              <span class="disc">${icon(topicKey(next.topic))}</span>
+              <span><strong>${esc(next.title)}</strong><span class="meta">${next.again ? 'Read again' : 'Next story'} · ${esc(next.topic)} · ${next.minutes} min</span></span>
+              ${icon('arrow')}
+            </button>`
+          : `<button class="btn go" data-go="front">Today’s paper ${icon('arrow')}</button>`
+      }
     </div>
   </div></section>`
 }

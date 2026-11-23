@@ -514,12 +514,9 @@ function Controller:sportModel(tab, half)
     local m = { tab = tab or "matches" }
     if not lock.open then
         m.closed = { needed = lock.needed, counted = lock.counted, togo = lock.needed - lock.counted }
-        -- The next story to read, shown as a headline to tap; every story read but some too
-        -- quickly to count means reading again from the first.
-        local date, story = self:nextStoryToRead()
-        local again = false
-        if date and not story then story, again = self.issues:visibleStories(date)[1], true end
-        if story then m.closed.story = { title = story.title, topic = story.topic, again = again } end
+        -- The next story that would count, shown as a headline to tap.
+        local _, story, again = self:nextStoryToRead()
+        if story then m.closed.story = { id = story.id, title = story.title, topic = story.topic, again = again } end
         return m
     end
     if not view then return m end
@@ -531,17 +528,34 @@ function Controller:sportModel(tab, half)
     return m
 end
 
---- The next story to read in today's paper, for the closed strip and screen.
+--[[--
+The next story toward opening Sport, for the closed screen: the first in today's
+paper that doesn't count yet (not read, or read too quickly), so it never points
+at one already counted. Returns date, story (or nil), again (it was read, but too
+quickly to count).
+]]
 function Controller:nextStoryToRead()
     local date = self:latestDate()
     if not date then return nil end
-    return date, Models.firstUnread(self.issues:visibleStories(date), self.store:issueState(date).read)
+    local stories = self.issues:visibleStories(date)
+    local read = self.store:issueState(date).read or {}
+    local si = self.store:get("sport_issue")
+    local rule = si and si.date == date and si.sports and si.sports.unlock or nil
+    if type(rule) ~= "table" then return date, Models.firstUnread(stories, read), false end
+    local counted = Sport.counted(date, rule, self.readlog:entries())
+    local again
+    for _, s in ipairs(stories) do
+        if not counted[tostring(s.id)] and rule.min_seconds and rule.min_seconds[tostring(s.id)] then
+            -- An unread story first; one read too quickly only when none is left unread.
+            if not read[Store.idKey(s.id)] then return date, s, false end
+            again = again or s
+        end
+    end
+    return date, again, again ~= nil
 end
 
 function Controller:openNextStory()
     local date, story = self:nextStoryToRead()
-    -- Everything read but Sport still closed: the stories need reading again, from the first.
-    if date and not story then story = self.issues:visibleStories(date)[1] end
     if story then self:openStory(date, story, { kind = "frontpage" })
     elseif date then self:showHeadlines(date)
     else self:showFrontPage() end
