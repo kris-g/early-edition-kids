@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AboutView } from '../api/types'
 import { runsOn, uptime } from '../lib/format'
 import { jsonResponse } from '../test/fixtures'
+import { sportFetchRows } from '../lib/sport'
 import { AboutServer } from './AboutServer'
 
 const about = (over: Partial<AboutView> = {}): AboutView => ({
@@ -34,6 +35,36 @@ describe('About this server', () => {
     vi.stubGlobal('fetch', vi.fn<typeof fetch>(async () => jsonResponse({ error: 'That could not be found.' }, 404)))
     render(<AboutServer />)
     expect(await screen.findByText(/didn’t say/)).toBeInTheDocument()
+  })
+
+  it('shows the last Sport fetch, and a failed try with what went wrong', async () => {
+    const sport = { updated_at: '2026-11-23T06:01:00Z', attempted_at: '2026-11-23T09:15:00Z', error: 'fixtures: HTTP 503' }
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>(async () => jsonResponse(about({ sport }))))
+    render(<AboutServer />)
+    const card = screen.getByRole('region', { name: 'About this server' })
+    expect(await within(card).findByText('Sport fetched')).toBeInTheDocument()
+    expect(within(card).getByText('Last try')).toBeInTheDocument()
+    expect(within(card).getByText('fixtures: HTTP 503')).toBeInTheDocument()
+  })
+
+  it('words the Sport fetch: when it worked, never, partly and wholly failed', () => {
+    const now = new Date('2026-11-23T12:00:00Z')
+    expect(sportFetchRows({ updated_at: '2026-11-23T06:01:00Z', attempted_at: '2026-11-23T06:01:00Z', error: null }, now)).toEqual([
+      { label: 'Sport fetched', value: '06:01' },
+    ])
+    expect(sportFetchRows({ updated_at: null, attempted_at: '2026-11-23T06:01:00Z', error: 'table: timeout' }, now)).toEqual([
+      { label: 'Sport fetched', value: 'Not yet' },
+      { label: 'Last try', value: '06:01 · failed', note: 'table: timeout' },
+    ])
+    expect(sportFetchRows({ updated_at: '2026-11-23T06:01:00Z', attempted_at: '2026-11-23T06:01:00Z', error: 'fixtures: HTTP 503' }, now)[1].value).toBe(
+      '06:01 · some feeds failed',
+    )
+    expect(sportFetchRows({ updated_at: '2026-11-22T06:01:00Z', attempted_at: '2026-11-23T06:01:00Z', error: 'fixtures: HTTP 503' }, now)).toEqual([
+      { label: 'Sport fetched', value: 'Sun 22 Nov, 06:01' },
+      { label: 'Last try', value: '06:01 · failed', note: 'fixtures: HTTP 503' },
+    ])
+    // A failure older than the last good fetch is over.
+    expect(sportFetchRows({ updated_at: '2026-11-23T06:01:00Z', attempted_at: '2026-11-22T06:01:00Z', error: 'fixtures: HTTP 503' }, now)).toHaveLength(1)
   })
 
   it('names the container when there is one, else the operating system', () => {
