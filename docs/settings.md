@@ -22,7 +22,8 @@ Early Edition Kids is set up in three places:
 | `child_age` | `8` | The reader's age. The AI writes at this reading age and checks every story is suitable for it. |
 | `story_count` | `6` | Stories in each day's paper. A paper is published when at least 3 of them pass their checks, or all of them when `story_count` is 1 or 2. |
 | `story_words` | `{ min: 100, max: 160 }` | How long each story is, in words. A story outside the range is sent back to be rewritten. The example file uses 120 to 200. |
-| `reading_wpm` | `90` | How many words a minute the child reads. It sets the "2 min" shown on each story, and how long a story has to be open before it counts as properly read for topic weighting. |
+| `reading_wpm` | `90` | How many words a minute the child reads. It sets the "2 min" shown on each story, and with `min_reading` how long a story has to be open before it counts as properly read. |
+| `min_reading` | `0.5` | A story read to the end in less than this share of its expected reading time was read too fast: it isn't engaged (topic weighting), doesn't count toward opening Sport, and is marked on the readers and the dashboard. `0` means any speed. The starting value: change it for each child under Not too fast on the dashboard's Reading page. |
 | `reader_mode` | `pages` | How the iPad reader shows a story: `pages` turns pages like the Kindle, with no scrolling; `scroll` runs the whole paper down one long page. The Kindle is not affected. |
 
 **On the iPad** the type size follows `child_age`: largest for 6 and under, middle for 7 and 8, smallest for 9 and over. The reader keeps its reading log on the iPad, like the Kindle, so My week there shows what was read on that iPad.
@@ -35,7 +36,7 @@ Early Edition Kids is set up in three places:
 | `favourite_players` | none | Stories about these players are preferred, and the writer may mention them when the article does. |
 | `favourite_team` | none | The child's team. It only does something together with `rival_clubs`. |
 | `rival_clubs` | none | With `favourite_team`, a story about a rival club may carry one friendly line from a fan's point of view, such as "Not the best night for them!" |
-| `sports` | off | The [Sport page](sports-page.md): the Premier League table, the latest matchday's results and the next fixtures, fetched once a day with the paper. `enabled: true` turns it on; `read_first` (default `0.5`) is how much of today's paper to read before it opens, and `min_reading` (default `0.5`) how much of each story's reading time counts as properly read. These are starting values: change them for each child on the dashboard's Sport page. `favourite_team` marks the child's club on it. |
+| `sports` | off | The [Sport page](sports-page.md): the Premier League table, the latest matchday's results and the next fixtures, fetched once a day with the paper. `enabled: true` turns it on; `read_first` (default `0.5`) is how much of today's paper to read before it opens, These are starting values: change them for each child on the dashboard's Sport page. (`sports.min_reading` is the old name for `min_reading`, and still works.) `favourite_team` marks the child's club on it. |
 | `mens_football_only` | `false` | When `true`, the AI leaves out women's and girls' football. Add `exclude_title_patterns` to the football feeds as well, as the example does, so the obvious headlines never reach the AI. |
 
 **Topics in more detail:**

@@ -14,6 +14,7 @@ import type {
   ReadingView,
   RunView,
   ShareView,
+  ReadingSettings,
   SportSettings,
   SportSettingsView,
   SportUsageView,
@@ -57,6 +58,8 @@ export const api = {
   ai: (signal?: AbortSignal) => get<AiPage>('/ai', signal),
   putAi: (patch: AiSettingsPatch) => request<AiPage>('PUT', '/ai', { body: patch }),
 
+  readingSettings: (signal?: AbortSignal) => get<ReadingSettings>('/reading/settings', signal),
+  putReadingSettings: (patch: Partial<ReadingSettings>) => request<ReadingSettings>('PUT', '/reading/settings', { body: patch }),
   sportSettings: (signal?: AbortSignal) => get<SportSettingsView>('/sport/settings', signal),
   putSportSettings: (patch: Partial<SportSettings>) => request<SportSettingsView>('PUT', '/sport/settings', { body: patch }),
   sportUsage: (days: number, signal?: AbortSignal) => get<SportUsageView>(`/sport?days=${days}`, signal),

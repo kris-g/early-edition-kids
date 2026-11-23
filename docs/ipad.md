@@ -98,7 +98,7 @@ The dashboard counts reading on the iPad just like reading on the Kindle, so a c
 
 When the [Sport page](sports-page.md) is on for a child, the front page has a Sport strip under the stories. It never shows a score.
 
-- **Closed first.** Until enough of today's stories have been read properly, the strip has a padlock and says how many more to go. Tapping it shows how far they have got, with the next story that would count as a button to tap. A story read too quickly to count has a fast-forward mark instead of the tick in the list, and says "Read too fast to count for Sport". Turn this off, or change how much, on the dashboard's Sport page. Reading on the Kindle counts too.
+- **Closed first.** Until enough of today's stories have been read properly, the strip has a padlock and says how many more to go. Tapping it shows how far they have got, with the next story that would count as a button to tap. A story read too quickly to count has a fast-forward mark instead of the tick in the list, and says "Read too fast" (Sport or not). Turn this off, or change how much, on the dashboard's Sport page. Reading on the Kindle counts too.
 - **Open:** the strip opens Sport: **Matches** (the latest matchday by day, with the scorers), **Table** and **Next** (the next fixtures). Tap a result for its line-ups, goals, cards, substitutions and injuries.
 - It is the Sport page as it was fetched that morning, kept on the iPad, so it opens without the server too.
 

@@ -37,6 +37,7 @@ export function issue(over: Partial<Issue> = {}): Issue {
       title: `Story <${i + 1}>`,
       teaser: `Teaser ${i + 1}`,
       minutes: 2,
+      min_seconds: 60,
       path: `/issues/2026-11-16/v1/${i + 1}.html`,
       word_to_know: { word: 'booster', definition: 'the part of a rocket that pushes it' },
       image: i === 2 ? null : { path: `/issues/2026-11-16/v1/${i + 1}.jpg`, alt: `Alt ${i + 1}` },

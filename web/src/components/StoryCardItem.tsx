@@ -9,11 +9,12 @@ import { Badge, Spinner, TopicChip } from './ui'
 
 const PILL: Record<StoryStatusKind, string> = {
   read: 'bg-accent-soft text-accent',
+  too_fast: 'bg-warm-soft text-warm',
   opened: 'bg-warm-soft text-warm',
   none: 'bg-chip text-muted',
 }
 
-/** "Read to the end · 1 min 50 s", "Opened · 20 s" or "Not opened yet". */
+/** "Read to the end · 1 min 50 s", "Read too fast · 9 s", "Opened · 20 s" or "Not opened yet". */
 export function StatusPill({ stats, short, paperDate }: { stats: StoryStats; short?: boolean; paperDate?: string }) {
   const s = storyStatus(stats, short, paperDate)
   return (

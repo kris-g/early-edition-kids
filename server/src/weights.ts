@@ -2,11 +2,15 @@
 
 import type { Config } from "./config.js";
 import { loadsJson, type Database } from "./db.js";
+import { readingSettings } from "./reading.js";
 import { addDays } from "./timeutil.js";
 
 export const WINDOW_DAYS = 14;
 
 export const expectedSeconds = (wordCount: number, wpm: number) => (wordCount / Math.max(1, wpm)) * 60;
+
+/** The least active time for a story to count as read properly: `minReading` of its expected time, in whole seconds. */
+export const minSecondsFor = (wordCount: number, wpm: number, minReading: number) => Math.ceil(expectedSeconds(wordCount, wpm) * minReading);
 
 /** Python-compatible round half to even, so minutes match the original server. */
 function roundHalfEven(x: number): number {
@@ -38,6 +42,11 @@ export interface StoryStat {
   finished: boolean;
   activeSeconds: number;
   expectedSeconds: number;
+  /** The least active time for it to count as read properly (reading.ts). */
+  minSeconds: number;
+  /** Read to the end, but in less than minSeconds: skimmed or paged through. */
+  tooFast: boolean;
+  /** Read to the end, and not too fast. */
   engaged: boolean;
   /** Seconds since the epoch when he first read it to the end (the Kindle's time), or null. */
   finishedAt: number | null;
@@ -85,6 +94,7 @@ export function storyStats(
     );
   }
   if (!rows.length) return [];
+  const minReading = readingSettings(db, config).min_reading;
 
   const dates = [...new Set(rows.map((r) => r.issue_date as string))];
   const current = new Map<string, number>();
@@ -130,6 +140,8 @@ export function storyStats(
       finished: false,
       activeSeconds: 0,
       expectedSeconds: expectedSeconds(Number(r.word_count), config.readingWpm),
+      minSeconds: minSecondsFor(Number(r.word_count), config.readingWpm, minReading),
+      tooFast: false,
       engaged: false,
       finishedAt: null,
       hasEvents: false,
@@ -153,7 +165,8 @@ export function storyStats(
     const listed = shownVersions.has(`${s.issueDate}|${s.issueVersion}`) || shownVersions.has(`${s.issueDate}|*`);
     // A hidden story leaves the device's list, so it only counts if he opened it anyway.
     s.shown = s.opened || (listed && !s.hidden);
-    s.engaged = s.opened && s.finished && s.activeSeconds >= s.expectedSeconds / 2;
+    s.tooFast = s.finished && s.activeSeconds < s.minSeconds;
+    s.engaged = s.opened && s.finished && !s.tooFast;
     return s;
   });
 }

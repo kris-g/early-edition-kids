@@ -17,7 +17,7 @@ local function issueBody(date, version, ids, extra)
     local stories = {}
     for i, id in ipairs(ids) do
         stories[i] = { id = id, position = i, topic = i == 1 and "Football" or "Space",
-                       title = "Story " .. id, teaser = "Teaser " .. id, minutes = 2,
+                       title = "Story " .. id, teaser = "Teaser " .. id, minutes = 2, min_seconds = 60,
                        path = string.format("/issues/%s/v%d/%d.html", date, version, i) }
     end
     local body = { date = date, version = version, fallback = false, title = "Early Edition",
@@ -1145,7 +1145,26 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(S.ReaderUI.instance.document.file, ROOT .. "/2026-11-13/42.html")
     end)
 
-    it("marks a story read too fast in All headlines while Sport is closed", function()
+    it("marks a story read too fast in All headlines without Sport, from this Kindle's log only", function()
+        local S = fresh()
+        S.page_counts = nil
+        S.serve("2026-11-13", 1, { 41, 42, 43 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        readNext(S, 70)                     -- 41: read properly
+        readNext(S, 6)                      -- 42: paged through
+        -- 43 read elsewhere: read, but this Kindle has no time for it, so it isn't judged.
+        S.Controller.store:issueState("2026-11-13").read["43"] = true
+        S.Controller:showHeadlines()
+        S.run()
+        local rows = S.UIManager:top().model.stories
+        falsy(rows[1].too_fast)
+        eq(rows[2].too_fast, true)
+        falsy(rows[3].too_fast, "no reading time here for 43")
+        eq(rows[3].done, true)
+    end)
+
+    it("marks a story read too fast in All headlines, Sport or not", function()
         local S = fresh()
         sportPaper(S, RULE)
         S.FileManager:showFiles("/mnt/us/documents")
@@ -1165,7 +1184,7 @@ describe("the Sport page (stubbed KOReader)", function()
         readNext(S, 65)                     -- 43 counts: Sport opens
         S.Controller:showHeadlines()
         S.run()
-        falsy(S.UIManager:top().model.stories[2].too_fast, "once Sport is open, nothing to mark")
+        eq(S.UIManager:top().model.stories[2].too_fast, true, "still read too fast once Sport is open: it's a reading stat")
     end)
 
     it("every Sport screen fits the Kindle without scrolling", function()

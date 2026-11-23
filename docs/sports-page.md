@@ -96,10 +96,10 @@ Opened by tapping a played match. It is one page that scrolls on the iPad and tw
 Sport opens only after some of today's paper has been read properly. A parent sets how much on the dashboard (section 5.4).
 
 - **How many.** `read_first` of today's stories, rounded up and at least one: half of six is three, half of five is three. Today's paper only: its current version, without stories a parent has hidden. Back issues and stories caught up from other days don't count. With no paper today, or `read_first` at 0, Sport is open all day.
-- **Read properly.** A story counts when it was read to the end (the reader's `finished`) **and** its active reading time reached `min_reading` of the time it should take: `word_count / reading_wpm` minutes, the figure behind the "2 min" on the story. With the default half, a two-minute story needs at least a minute. Several sittings add up. Active time is measured as for reading: it stops while the device sleeps or the app is hidden, and at most 300 seconds count between two interactions, so leaving a story open doesn't fill it up.
+- **Read properly.** A story counts when it was read to the end (the reader's `finished`) **and** its active reading time reached `min_reading` (the child's reading setting) of the time it should take: `word_count / reading_wpm` minutes, the figure behind the "2 min" on the story. With the default half, a two-minute story needs at least a minute. Several sittings add up. Active time is measured as for reading: it stops while the device sleeps or the app is hidden, and at most 300 seconds count between two interactions, so leaving a story open doesn't fill it up.
 - **Too fast doesn't count.** A story finished in less than its least time was paged through or skimmed. It still counts as read everywhere else (the tick, "N of 6 read", the streak), as it always has; it only doesn't open Sport. The child isn't told off: the strip simply still says how many more to go, and the parent sees the story marked "too fast" on the dashboard.
 - **Who decides.** Each reader decides from its own reading, so it works offline: the issue payload carries the rule, with each story's least time (section 5.3). The Sport page's payload also carries the server's count from every device, so reading on the Kindle opens Sport on the iPad too. Either one opening it is enough. Once open, Sport stays open for the rest of the day.
-- **Read too fast, in the list.** While Sport is closed today, a story read to the end but too quickly to count has a fast-forward mark in place of the read tick (the Kindle's All headlines, the iPad's list), isn't greyed, and says `Read too fast to count for Sport`. It still counts as read everywhere else. Once Sport opens, it goes back to a plain tick.
+- **Read too fast** is a reading stat of its own ([CONTRACT.md](CONTRACT.md#read-too-fast-added-23-november-2026)), kept whether or not Sport is on. In the Kindle's All headlines and the iPad's list such a story has a fast-forward mark in place of the read tick, isn't greyed, and says `Read too fast`.
 - **Closed screen.** Sport opened while closed shows `Sport opens after reading 3 of today's stories`, a dot for each story needed, filled for each that counts, and `1 more to go`. Under it is the next story toward opening Sport, as a headline to tap: the first in the paper that doesn't count yet, an unread one before one read too quickly, never one that already counts. On the Kindle it is a full-width box (`NEXT STORY · FOOTBALL`, or `READ AGAIN · …` for one read too quickly); on the iPad, the end-of-story `Next story` button (`Read again · …`). No scores show behind it.
 - **What it guards against.** An eight-year-old tapping through stories to get to the football. The readers enforce it and nothing in them leads round it. A grown-up with the server's address could ask the API for the page directly; that isn't something it tries to stop.
 
@@ -144,7 +144,7 @@ Things the build must know about these feeds:
 sports:
   enabled: true     # off when the key is missing
   read_first: 0.5   # share of today's stories to read first; 0 means no lock
-  min_reading: 0.5  # a story counts after this share of its expected reading time; 0 means any speed
+  # min_reading is now a top-level setting for all reading (settings.md); sports.min_reading still works
 ```
 
 These are only the starting values: a parent changes all three on the dashboard, for each child (section 5.4), and the dashboard's values win. A profile may set `sports` like any other key. The page uses the existing `favourite_team` to mark his club; it matches a club's full or short name without regard to case, and no match is a warning in the log, not an error.
@@ -210,7 +210,7 @@ type TableRow = { position: number; team: string; played: number; won: number; d
 
 - **Sport page**: on or off.
 - **Read the news first**: No, ¼, ½, ¾ or All of today's stories, with the number it comes to today ("Sport opens after reading 3 of today's 6 stories").
-- **Not too fast**: a story counts after Any, ¼, ½ or ¾ of its reading time.
+- How fast is too fast (Any, ¼, ½ or ¾ of a story's reading time) is the child's reading setting, on the Reading page; the Read first card links to it.
 - **Today**: whether Sport has opened and when, and each of today's stories as Counts, Too fast (with its time against the least time), Not finished or Not read yet.
 - **Time on Sport**: the last 7 days' minutes, and the most-looked-at pages and matches.
 
@@ -219,7 +219,7 @@ They are stored in the child's database (the `settings` table, key `sport`) and 
 | Method and path | Returns |
 |---|---|
 | `GET /sport/settings` | `{settings: {enabled, read_first, min_reading}, today: UnlockStatus \| null}` |
-| `PUT /sport/settings` | any of `enabled` (boolean), `read_first`, `min_reading` (0 to 1); the same shape back, or 400 `{error}` |
+| `PUT /sport/settings` | any of `enabled` (boolean), `read_first` (0 to 1); `min_reading` still sets the reading setting; the same shape back, or 400 `{error}` |
 
 ```ts
 type UnlockStory = { id: number; title: string; finished: boolean; active_seconds: number; min_seconds: number;
@@ -260,7 +260,7 @@ type SportUsageView = { from: string; to: string;
 | `GET /day/YYYY-MM-DD` | `DayView` gains `sport: SportDay \| null` (null with no Sport views that day) |
 
   A day is the London date of the event's `ts`, as for reading.
-- **On the dashboard (built):** the Sport page shows the last 7 days. The Day screen has a Sport card under the day total with that day's time and looks, when Sport opened, and the time on each page or match, such as "Table 3 min, Liverpool 4–0 Man Utd 2 min 10 s, Matches 1 min 25 s". The Server page shows the last fetch, from `GET /api/dashboard/about`, which has `sport: {updated_at, attempted_at, error} | null`. Still to do: that day's stories read too fast on the Day screen.
+- **On the dashboard (built):** the Sport page shows the last 7 days. The Day screen has a Sport card under the day total with that day's time and looks, when Sport opened, and the time on each page or match, such as "Table 3 min, Liverpool 4–0 Man Utd 2 min 10 s, Matches 1 min 25 s". The Server page shows the last fetch, from `GET /api/dashboard/about`, which has `sport: {updated_at, attempted_at, error} | null`. The Day screen marks each story read too fast, Sport or not.
 
 ## 6. Safety
 
@@ -295,7 +295,7 @@ The page is the paper's, in the paper's faces and rules: Playfair Display for th
 | `server/` | `src/sports/` with the ESPN and Fantasy adapters, the daily fetch and the state file; the `sports` config key; `GET /api/sports` on each mount; `sports` in the issue payload; `POST /admin/sports`; the `sport_viewed` event type and its match label; `GET /api/dashboard/sport`, `sport` in `DayView` and in `AboutView`; recorded responses from both feeds under `tests/fixtures/sports/` |
 | `reader/` | built: the front page strip, open or closed; the Sport screen with three tabs, a match and the closed screen; deciding the lock from its own reading log and the server's count; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
 | `plugin/` | built: the front page strip, open or closed; `ui/sport.lua` (the tabs, the table in halves, the closed screen) and `ui/sportmatch.lua` (two screens a match) from the existing widgets; deciding the lock from the reading log and the server's count; fetching with the paper in the sync; `sport_viewed` events; the page kept as `sport.json` in the plugin's data folder |
-| `web/` | built: the Sport page (settings, today's progress, time on Sport), a Sport card on the Day screen and the last fetch on the Server page; still to do, that day's stories read too fast on the Day screen |
+| `web/` | built: the Sport page (settings, today's progress, time on Sport), a Sport card on the Day screen and the last fetch on the Server page; the Day screen marks stories read too fast (a reading stat, CONTRACT.md "Read too fast") |
 | `docs/` | CONTRACT.md gains the shapes above; settings.md the config key; kindle.md and ipad.md a section each |
 
 Order: the server first (it can be judged with `curl`), then the iPad, then the Kindle, then the dashboard.

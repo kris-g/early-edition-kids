@@ -11,7 +11,7 @@
 import type { Row } from "../db.js";
 import { loadsJson } from "../db.js";
 import type { Context } from "../pipeline.js";
-import { expectedSeconds } from "../weights.js";
+import { minSecondsFor } from "../weights.js";
 import type { SportSettings, UnlockStatus, UnlockStory } from "../dashboard/types.js";
 
 /** What a reader needs to decide for itself: how many stories, and each story's least reading time. */
@@ -31,8 +31,7 @@ function paperStories(ctx: Context, date: string): Row[] {
 }
 
 /** The least active time that counts: `min_reading` of its expected reading time, in whole seconds. */
-const minSeconds = (r: Row, ctx: Context, s: SportSettings) =>
-  Math.ceil(expectedSeconds(Number(r.word_count), ctx.config.readingWpm) * s.min_reading);
+const minSeconds = (r: Row, ctx: Context, s: SportSettings) => minSecondsFor(Number(r.word_count), ctx.config.readingWpm, s.min_reading);
 
 /** Half of six is three; any share above nothing needs at least one story. */
 const neededOf = (total: number, s: SportSettings) => Math.min(total, Math.max(1, Math.ceil(total * s.read_first - 1e-9)));

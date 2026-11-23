@@ -4,9 +4,9 @@ A2 · Today's paper: the headline list (DESIGN 5.2, mockup A-Headlines).
 Header: "Early Edition", "date · N stories · about M minutes", "N of M read"
 with progress dots. One row per story: topic icon in a circle, label,
 headline, teaser, and a boxed "2 min" chip, or a filled tick once read (read
-rows are greyed). While today's Sport is closed, a story read to the end too
-quickly to count for it has a fast-forward mark instead of the tick, is not
-greyed, and says so in place of its teaser. Footer: Front page / Back issues.
+rows are greyed). A story read to the end too quickly (under its least
+reading time, the child's reading setting) has a fast-forward mark instead of
+the tick, is not greyed, and says "Read too fast" in place of its teaser. Footer: Front page / Back issues.
 
 Rows that do not fit (a parent can add stories during the day) go on further
 pages, reached by a tappable "N more stories" row at the bottom and a "Back"
@@ -90,7 +90,7 @@ function HeadlinesScreen:row(item, extra)
     local tn = item.nav and 40 or (self.title_n or 42)
     col[#col + 1] = W.FitLine{ text = item.title or "", file = W.SERIF_BOLD, n = tn, min_n = tn, width = text_w, color = fg }
     if fast then
-        col[#col + 1] = W.Text{ text = "Read too fast to count for Sport", face = W.face(W.SANS_BOLD, 24),
+        col[#col + 1] = W.Text{ text = "Read too fast", face = W.face(W.SANS_BOLD, 24),
                                 color = W.INK, max_width = text_w }
     elseif item.teaser and item.teaser ~= "" then
         col[#col + 1] = W.Text{ text = item.teaser, face = W.face(W.SANS, 24),

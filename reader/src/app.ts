@@ -437,13 +437,27 @@ export class ReaderApp {
     }
   }
 
-  /** Today's stories read to the end but too quickly to count toward opening Sport, while it is closed. */
+  /**
+   * A paper's stories read to the end, but in less than their least reading time (each story's
+   * `min_seconds`, the child's reading setting): read too fast. Sittings add up, and only this
+   * iPad's reading log decides, so a story read on another device is never marked. Papers from
+   * before the server sent `min_seconds` fall back to the Sport rule's.
+   */
   private readTooFast(issue: Issue): Set<number> {
     const rule = issue.sports?.unlock
-    if (!rule || issue.date !== this.today() || this.sportLock().open) return new Set()
-    const read = this.library.readIds(issue.date)
-    const counted = countedStories(issue, this.log.entries())
-    return new Set(issue.stories.filter((s) => String(s.id) in rule.min_seconds && read.has(s.id) && !counted.has(s.id)).map((s) => s.id))
+    const min = new Map<number, number>()
+    for (const s of issue.stories) {
+      const m = s.min_seconds ?? rule?.min_seconds[String(s.id)]
+      if (typeof m === 'number') min.set(s.id, m)
+    }
+    const seconds = new Map<number, number>()
+    const finished = new Set<number>()
+    for (const e of this.log.entries()) {
+      if (e.date !== issue.date || !min.has(e.story_id)) continue
+      seconds.set(e.story_id, (seconds.get(e.story_id) ?? 0) + Math.max(0, e.active_seconds))
+      if (e.finished) finished.add(e.story_id)
+    }
+    return new Set([...finished].filter((id) => (seconds.get(id) ?? 0) < min.get(id)!))
   }
 
   private status(): DatelineStatus {

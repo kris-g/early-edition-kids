@@ -72,6 +72,11 @@ export function readingView(days: number): ReadingView {
     }
     return { name, read, shown }
   })
+  let too_fast = 0
+  for (const d of list) {
+    const rec = db.issues.get(d.date)
+    if (rec) too_fast += issueStories(rec).filter((s) => !s.hidden && s.stats.too_fast).length
+  }
   return {
     from,
     to: today,
@@ -81,6 +86,7 @@ export function readingView(days: number): ReadingView {
     total_read,
     avg_read_per_day: Math.round((total_read / days) * 10) / 10,
     avg_minutes_per_day: Math.round((minutes / days) * 10) / 10,
+    too_fast,
     topics,
   }
 }

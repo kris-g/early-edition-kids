@@ -10,6 +10,11 @@ export type StoryStats = {
   reached_end: boolean;
   active_seconds: number;
   expected_seconds: number;
+  /** The least active seconds for it to count as read properly (the child's reading setting). */
+  min_seconds: number;
+  /** Read to the end, but in fewer than min_seconds: skimmed or paged through. */
+  too_fast: boolean;
+  /** Read to the end, and not too fast. */
   engaged: boolean;
   /** London date he first read it to the end, or null. Can be after the paper's own date. */
   read_on: string | null;
@@ -113,6 +118,12 @@ export type DayView = {
 // ---- the Sport page (docs/sports-page.md 2.7, 5.4): kept apart from reading ----
 
 /** Set on the dashboard per child; config.yaml's `sports` block gives the starting values. */
+/** A child's reading settings (reading.ts), set on the dashboard's Reading page. */
+export type ReadingSettings = {
+  /** Share of a story's expected reading time it must be read for, 0 to 1; 0 means any speed. Below it: read too fast. */
+  min_reading: number;
+};
+
 export type SportSettings = {
   /** Whether this child has the Sport page. */
   enabled: boolean;
@@ -305,6 +316,8 @@ export type ReadingView = {
   total_read: number;
   avg_read_per_day: number;
   avg_minutes_per_day: number;
+  /** Stories in the range's papers read to the end but too fast to count as read properly. */
+  too_fast: number;
   /** In the range, configured topics in config order. */
   topics: { name: string; read: number; shown: number }[];
 };

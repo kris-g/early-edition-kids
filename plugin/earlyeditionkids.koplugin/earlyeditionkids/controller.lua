@@ -554,18 +554,34 @@ function Controller:nextStoryToRead()
     return date, again, again ~= nil
 end
 
---- Ids (as strings) of `date`'s stories read to the end but too quickly to count toward
---- opening Sport, while it is still closed today; an empty set otherwise.
+--[[--
+Ids (as strings) of `date`'s stories read to the end, but in less than their least
+reading time (the story's `min_seconds` from the server, the child's reading setting):
+read too fast. Time over several sittings adds up, as for Sport. Only this Kindle's own
+reading log decides: a story read on another device, or before the log was kept, is
+never marked. Papers from before the server sent `min_seconds` fall back to the Sport
+rule's, else nothing is marked.
+]]
 function Controller:readTooFast(date)
     local si = self.store:get("sport_issue")
     local rule = si and si.date == date and si.sports and si.sports.unlock or nil
-    if type(rule) ~= "table" or type(rule.min_seconds) ~= "table" or date ~= self:today() then return {} end
-    if self:sportLock().open then return {} end
-    local counted = Sport.counted(date, rule, self.readlog:entries())
-    local read = self.store:issueState(date).read or {}
+    local mins = {}
+    for _, s in ipairs(self.issues:visibleStories(date)) do
+        local id = tostring(s.id)
+        local m = tonumber(s.min_seconds) or (type(rule) == "table" and type(rule.min_seconds) == "table" and tonumber(rule.min_seconds[id])) or nil
+        if m then mins[id] = m end
+    end
+    local seconds, finished = {}, {}
+    for _, e in ipairs(self.readlog:entries() or {}) do
+        local id = tostring(e.story_id)
+        if e.date == date and mins[id] then
+            seconds[id] = (seconds[id] or 0) + math.max(0, tonumber(e.active_seconds) or 0)
+            if e.finished then finished[id] = true end
+        end
+    end
     local out = {}
-    for id in pairs(rule.min_seconds) do
-        if read[Store.idKey(tonumber(id) or id)] and not counted[id] then out[id] = true end
+    for id in pairs(finished) do
+        if seconds[id] < mins[id] then out[id] = true end
     end
     return out
 end

@@ -74,8 +74,9 @@ describe('Sport page', () => {
     expect(first).toHaveTextContent('Sport opens after reading 3 of today’s 6 stories.'.replace('’', "'"))
     expect(within(first).getByRole('button', { name: 'Half' })).toHaveAttribute('aria-pressed', 'true')
 
-    const fast = screen.getByRole('region', { name: 'Not too fast' })
-    expect(fast).toHaveTextContent('after 50% of the time it should take to read')
+    // How fast is too fast is the Reading page's now.
+    expect(screen.queryByRole('region', { name: 'Not too fast' })).not.toBeInTheDocument()
+    expect(within(first).getByRole('link', { name: 'Reading' })).toHaveAttribute('href', '/reading')
 
     const day = screen.getByRole('region', { name: 'Today' })
     expect(day).toHaveTextContent('1 of 3 read; Sport is still closed. 1 story was read too fast to count.')
@@ -91,7 +92,7 @@ describe('Sport page', () => {
     expect(week).toHaveTextContent('Table')
   })
 
-  it('changes how much to read first and how fast is too fast', async () => {
+  it('changes how much to read first', async () => {
     const user = userEvent.setup()
     show()
     const first = await screen.findByRole('region', { name: 'Read first' })
@@ -99,15 +100,10 @@ describe('Sport page', () => {
     expect(puts).toEqual([{ read_first: 1 }])
     expect(within(first).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true')
 
-    await user.click(within(screen.getByRole('region', { name: 'Not too fast' })).getByRole('button', { name: 'Any' }))
-    expect(puts[1]).toEqual({ min_reading: 0 })
-    expect(screen.getByRole('region', { name: 'Not too fast' })).toHaveTextContent('Any story read to the end counts')
-
-    // No lock: the speed setting and today's list go, as there is nothing to open.
+    // No lock: today's list goes, as there is nothing to open.
     await user.click(within(first).getByRole('button', { name: 'No' }))
-    expect(puts[2]).toEqual({ read_first: 0 })
+    expect(puts[1]).toEqual({ read_first: 0 })
     expect(await screen.findByText('Sport is open from the start of the day.')).toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: 'Not too fast' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Today' })).not.toBeInTheDocument()
   })
 

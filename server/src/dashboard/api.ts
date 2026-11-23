@@ -20,6 +20,7 @@ import { shareView } from "./share.js";
 import { sportUsageView } from "./sport.js";
 import { SportSettingsError, sportSettings, updateSportSettings } from "../sports/settings.js";
 import { unlockStatus } from "../sports/unlock.js";
+import { ReadingSettingsError, readingSettings, updateReadingSettings } from "../reading.js";
 import { aiView, calendarView, catchUpToday, dayView, lastRunCost, readingView, streakDetail } from "./stats.js";
 import { Jobs } from "./jobs.js";
 import type { ArticleHit, Job, Summary, TopicMode } from "./types.js";
@@ -93,6 +94,19 @@ export function dashboardApi(deps: DashboardDeps): Router {
     const t = today();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > t) throw new HttpError(404, "not a day yet");
     res.json(dayView(ctx, date, t));
+  });
+
+  // How quickly a story can be read and still count (reading.ts): "read too fast" below it.
+  router.get("/reading/settings", (_req, res) => {
+    res.json(readingSettings(ctx.db, ctx.config));
+  });
+  router.put("/reading/settings", (req, res) => {
+    try {
+      res.json(updateReadingSettings(ctx.db, ctx.config, req.body));
+    } catch (err) {
+      if (err instanceof ReadingSettingsError) throw new HttpError(400, err.message);
+      throw err;
+    }
   });
 
   // Time on the Sport page (docs/sports-page.md 5.4), apart from reading.

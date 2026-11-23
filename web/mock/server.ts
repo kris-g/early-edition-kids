@@ -320,6 +320,15 @@ const sportToday = () => {
   const counted = list.filter((x) => x.counts).length
   return { needed, total: list.length, counted, unlocked: counted >= needed, unlocked_at: counted >= needed ? new Date().toISOString() : null, stories: list }
 }
+app.get('/api/dashboard/reading/settings', (_req, res) => {
+  res.json({ min_reading: sportSettings.min_reading })
+})
+app.put('/api/dashboard/reading/settings', (req, res) => {
+  const v = req.body?.min_reading
+  if (typeof v !== 'number' || v < 0 || v > 1) return fail(res, 400, 'The reading time must be between 0 and 1.')
+  sportSettings = { ...sportSettings, min_reading: v }
+  res.json({ min_reading: v })
+})
 app.get('/api/dashboard/sport/settings', (_req, res) => {
   res.json({ settings: sportSettings, today: sportToday() })
 })

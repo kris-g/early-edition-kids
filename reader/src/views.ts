@@ -12,7 +12,7 @@ import type { ApiStory, Issue, StoryBody } from './types'
 export interface ViewCtx {
   issue: Issue
   read: Set<number>
-  /** Stories read to the end too quickly to count toward opening Sport, while it is closed today. */
+  /** Stories read to the end, but too quickly: under their least reading time. */
   tooFast?: Set<number>
   /** The photo's URL, or null when the story has none (or it failed to load). */
   photo(s: ApiStory): string | null
@@ -104,12 +104,12 @@ export function frontHtml(c: ViewCtx, status: DatelineStatus, strip = ''): strin
         <ol class="inside">
           ${rest
             .map((s) => {
-              // Read too fast to count for Sport: not greyed, a different mark, and it says why.
+              // Read too fast: not greyed, a different mark, and it says so.
               const fast = !!c.tooFast?.has(s.id)
               const read = c.read.has(s.id) && !fast
               return `<li><button class="row${read ? ' read' : ''}${fast ? ' too-fast' : ''}" data-go="${stories.indexOf(s)}" data-topic="${topicKey(s.topic)}">
                 <span class="thumb">${c.photo(s) ? img(c, s) : icon(topicKey(s.topic))}${fast ? icon('too-fast', 'tick') : read ? icon('tick', 'tick') : ''}</span>
-                <span><strong>${esc(s.title)}</strong><span class="meta">${fast ? '<b>Read too fast to count for Sport</b>' : `${esc(s.topic)} · ${read ? 'Read' : `${s.minutes} min`}`}</span></span>
+                <span><strong>${esc(s.title)}</strong><span class="meta">${fast ? '<b>Read too fast</b>' : `${esc(s.topic)} · ${read ? 'Read' : `${s.minutes} min`}`}</span></span>
               </button></li>`
             })
             .join('')}

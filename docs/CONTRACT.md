@@ -165,7 +165,8 @@ For setups with no authenticating proxy, such as a plain `docker run`. Off unles
 
 ```ts
 type StoryStats = { opened: boolean; reached_end: boolean; active_seconds: number;
-                    expected_seconds: number; engaged: boolean };
+                    expected_seconds: number; min_seconds: number;   // see "Read too fast"
+                    too_fast: boolean; engaged: boolean };
 type StoryCard = { id: number; date: string; version: number; position: number; topic: string;
                    title: string; teaser: string; minutes: number; word_count: number;
                    hidden: boolean; added_by_parent: boolean; reused: boolean;
@@ -236,6 +237,7 @@ type ReadingDay = { date: string; issue: boolean; stories: number;   // stories 
 type ReadingView = { from: string; to: string; days: ReadingDay[];   // oldest first, one per date, gaps filled with zeros
                      streak: Streak; reading_days: number; total_read: number;
                      avg_read_per_day: number; avg_minutes_per_day: number;
+                     too_fast: number;   // stories in the range's papers read too fast
                      topics: { name: string; read: number; shown: number }[] };   // in the range, configured topics in config order
 type CalendarView = { month: string;                                 // "2026-11"
                       days: (ReadingDay & { all_read: boolean })[];  // every date of the month; future dates have issue: false, read: 0
@@ -268,6 +270,7 @@ type AiView = { settings: AiSettings; models: ModelOption[];          // models 
 | `GET /summary` | gains `streak_detail: Streak` and `last_run_cost: RunCost \| null`, `kindle_seen_at: string \| null` (when the Kindle last asked for today's paper or sent reading, UTC ISO), and `catch_up_today: number` (stories from earlier papers read to the end today); existing fields unchanged |
 | `GET /day/YYYY-MM-DD` | `DayView`: `{ date, read, minutes, reads: { story: StoryCard; at; active_seconds; finished }[], paper: IssueView \| null }`. `reads` is everything opened that day from any paper, oldest first; `paper` is that day's own paper. 404 for a future date. |
 | `GET /reading?days=14` | `ReadingView` for the last `days` days (7–120, default 14) ending today |
+| `GET /reading/settings`, `PUT /reading/settings` | `ReadingSettings` `{ min_reading }`; PUT takes `min_reading` (0 to 1, kept to two places) and returns the settings, or 400 `{error}`. See "Read too fast" |
 | `GET /calendar?month=YYYY-MM` | `CalendarView` (default this month) |
 | `GET /ai` | `AiView` |
 | `PUT /ai` `Partial<{writer_model, check_model, writer_effort, check_effort, monthly_limit_usd}>` | `AiView`; 400 `{error}` for a model not offered by the provider, a bad effort, or a negative limit. `monthly_limit_usd: null` removes the limit. Needs `X-Early-Edition: 1`. |
@@ -349,6 +352,15 @@ type StoryChecks = { numbers: { value: string; in_source: boolean }[];   // each
 - **`StoryDetail.created_at`** is when the story was written; for a catch-up story, when its original was.
 - **Marks, on the dashboard only.** When a story has checks, `StoryDetail.body_html` wraps each checked number in the headline and the paragraphs in `<mark data-check="number" data-value="1300">1,300</mark>` (`data-value` matches `numbers[].value`), and the bold first use of the word to know in `<mark data-check="word"><b>…</b></mark>`. The reading-time line and the Word to know and Think about it boxes are never marked. Taking the `<mark>` tags out gives exactly the story page's body. The story file, `GET /issues/...` (with or without `?photo=1`) and the issue payload never contain a mark, so the Kindle and the iPad get what they always did.
 
+## Read too fast (added 23 November 2026)
+
+A story read to the end in less than its least reading time was skimmed or paged through: it was **read too fast**. It still counts as read (the tick, "N of M read", the streak), but it isn't engaged and doesn't count toward opening Sport.
+
+- **The least time:** `min_seconds = ceil(word_count / reading_wpm × 60 × min_reading)`. `min_reading` is set per profile on the dashboard's Reading page (`GET`/`PUT /reading/settings`, stored in the `settings` table under `reading`); config.yaml's `min_reading` (formerly `sports.min_reading`, still read) is the starting value, default 0.5. A value set on the Sport page before this setting existed still holds until it is changed.
+- **Server:** active time is summed over all of a story's `story_closed` events from every device. `StoryStats.too_fast` is `reached_end && active_seconds < min_seconds`, and `engaged` is now `reached_end && !too_fast` (it was a fixed half of the expected time). `ReadingView.too_fast` counts them in the range's papers.
+- **Issue payload:** every story carries `min_seconds`, Sport or not, so a reader marks a story read too fast offline. The readers judge only from their own reading log: a story read on another device, or before the log was kept, is never marked there. The Sport rule's `min_seconds` are the same numbers.
+- **On the readers:** the Kindle's All headlines and the iPad's list show a fast-forward mark instead of the read tick, don't grey the story, and say `Read too fast`.
+
 ## Story photos (added 16 November 2026)
 
 Both readers show each story's source photo: the iPad as it came, the Kindle (from 16 November 2026) a grey copy under the headline of the story page.
@@ -425,10 +437,10 @@ type TableRow = { position: number; team: string; played: number; won: number; d
 
 ### Read first
 
-Sport opens after part of today's paper is read properly ([sports-page.md](sports-page.md) 2.7). Set per profile on the dashboard; config.yaml's `sports.read_first` and `sports.min_reading` are the starting values.
+Sport opens after part of today's paper is read properly ([sports-page.md](sports-page.md) 2.7). Set per profile on the dashboard; config.yaml's `sports.read_first` is the starting value. How fast is too fast is the child's reading setting (see "Read too fast").
 
 - **Needed:** `ceil(read_first × stories)`, at least 1, of today's paper's current version without hidden stories. No lock (`unlock: null`) when Sport is off, `read_first` is 0, or there is no paper.
-- **Counts:** a story read to the end (any `story_closed` with `finished`, or `max_page >= pages_total`) whose `active_seconds`, summed over all its closes, reach `min_seconds = ceil(word_count / reading_wpm × 60 × min_reading)`. One finished faster is `rushed` and doesn't count; it is still read for every other purpose.
+- **Counts:** a story read to the end (any `story_closed` with `finished`, or `max_page >= pages_total`) whose `active_seconds`, summed over all its closes, reach `min_seconds = ceil(word_count / reading_wpm × 60 × min_reading)`. One finished faster is `rushed` (read too fast) and doesn't count; it is still read for every other purpose.
 - **The issue's `sports.unlock`** is `{needed, min_seconds: {"<story id>": seconds}}` for that paper's stories, so a reader decides offline from its own reading. **`/api/sports`'s `unlock`** is `{needed, counted, unlocked}` for today from every device's events. A reader opens Sport when either says so, and keeps it open until the London date changes.
 
 ### `sport_viewed` events
@@ -458,7 +470,7 @@ type SportUsageView = { from: string; to: string; days: SportDay[];   // oldest 
 ```
 
 - `GET /sport?days=14` returns `SportUsageView`. `DayView` gains `sport: SportDay | null` (null on a day with no Sport views). A day is the London date of the event's `ts`, as for reading.
-- `GET /sport/settings` returns `SportSettingsView`; `PUT /sport/settings` takes any of `enabled` (boolean), `read_first` and `min_reading` (numbers from 0 to 1, kept to two places) and returns the same, or 400 `{error}`. Stored in the profile's `settings` table under `sport`; unset values come from the config.
+- `GET /sport/settings` returns `SportSettingsView`; `PUT /sport/settings` takes any of `enabled` (boolean) and `read_first` (a number from 0 to 1, kept to two places); `min_reading` is still accepted and sets the reading setting. `settings.min_reading` is the reading setting's value, and returns the same, or 400 `{error}`. Stored in the profile's `settings` table under `sport`; unset values come from the config.
 - `DayView` also gains `sport_unlock: UnlockStatus | null`: that day's paper against the current settings.
 
 ```ts
