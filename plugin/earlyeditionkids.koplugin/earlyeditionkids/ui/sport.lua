@@ -228,7 +228,7 @@ function SportScreen:closedBody(c, avail)
     local col = W.VCol({
         W.Icon("lock", 120),
         W.VSpace(W.px(28)),
-        W.TextBox{ text = string.format("Sport opens after %d of today's stories", c.needed), face = W.face(W.SERIF_BOLD, 52),
+        W.TextBox{ text = string.format("Sport opens after reading %d of today's stories", c.needed), face = W.face(W.SERIF_BOLD, 52),
                    width = math.floor(cw * 0.86), align = "center" },
         W.VSpace(W.px(30)),
         W.Dots(c.needed, c.counted, 48, 4, 18, cw),

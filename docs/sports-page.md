@@ -77,7 +77,7 @@ Opened by tapping a played match. It is one page that scrolls on the iPad and tw
 ### 2.5 Getting there
 
 - **Front page.** On the Kindle, Sport is a tile like Back issues and My week, in place of the Check for news tile, which moves to the footer beside Close: the front page has no room for another row. On the iPad, one full-width strip under the stories: `Sport`, `Premier League · Matchday 11`, and on the right `Table, results, fixtures →`. It never shows a score, so a child waiting to watch the highlights isn't told the result by the front page.
-- **While Sport is closed** (section 2.7) the strip shows a padlock and says `Opens after 3 of today's stories · 1 more to go` on its second line, with `Today's paper →` on the right, which opens the next unread story. Tapping it never shows the Sport page.
+- **While Sport is closed** (section 2.7) the strip shows a padlock and says `Opens after reading 3 of today's stories · 1 more to go` on its second line, with `Today's paper →` on the right, which opens the next unread story. Tapping it never shows the Sport page.
 - **From Sport,** a **Front page** button goes back, as on the other screens.
 - There is no route to Sport from inside a story and no "next" from Sport into a story. It sits beside the paper, like Back issues and My week.
 
@@ -99,7 +99,7 @@ Sport opens only after some of today's paper has been read properly. A parent se
 - **Read properly.** A story counts when it was read to the end (the reader's `finished`) **and** its active reading time reached `min_reading` of the time it should take: `word_count / reading_wpm` minutes, the figure behind the "2 min" on the story. With the default half, a two-minute story needs at least a minute. Several sittings add up. Active time is measured as for reading: it stops while the device sleeps or the app is hidden, and at most 300 seconds count between two interactions, so leaving a story open doesn't fill it up.
 - **Too fast doesn't count.** A story finished in less than its least time was paged through or skimmed. It still counts as read everywhere else (the tick, "N of 6 read", the streak), as it always has; it only doesn't open Sport. The child isn't told off: the strip simply still says how many more to go, and the parent sees the story marked "too fast" on the dashboard.
 - **Who decides.** Each reader decides from its own reading, so it works offline: the issue payload carries the rule, with each story's least time (section 5.3). The Sport page's payload also carries the server's count from every device, so reading on the Kindle opens Sport on the iPad too. Either one opening it is enough. Once open, Sport stays open for the rest of the day.
-- **Closed screen.** If Sport is opened while closed (from a bookmark, or the strip's old state), it shows `Sport opens after 3 of today's stories`, a dot for each story needed, filled for each that counts, `1 more to go`, and a `Today's paper` button. No scores show behind it.
+- **Closed screen.** If Sport is opened while closed (from a bookmark, or the strip's old state), it shows `Sport opens after reading 3 of today's stories`, a dot for each story needed, filled for each that counts, `1 more to go`, and a `Today's paper` button. No scores show behind it.
 - **What it guards against.** An eight-year-old tapping through stories to get to the football. The readers enforce it and nothing in them leads round it. A grown-up with the server's address could ask the API for the page directly; that isn't something it tries to stop.
 
 ## 3. Updates: once a day
@@ -208,7 +208,7 @@ type TableRow = { position: number; team: string; played: number; won: number; d
 **Settings.** The dashboard has a Sport page (under The paper, and under More on a phone) for each child:
 
 - **Sport page**: on or off.
-- **Read the news first**: No, ¼, ½, ¾ or All of today's stories, with the number it comes to today ("Sport opens after 3 stories of today's 6").
+- **Read the news first**: No, ¼, ½, ¾ or All of today's stories, with the number it comes to today ("Sport opens after reading 3 of today's 6 stories").
 - **Not too fast**: a story counts after Any, ¼, ½ or ¾ of its reading time.
 - **Today**: whether Sport has opened and when, and each of today's stories as Counts, Too fast (with its time against the least time), Not finished or Not read yet.
 - **Time on Sport**: the last 7 days' minutes, and the most-looked-at pages and matches.

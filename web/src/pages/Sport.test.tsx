@@ -71,7 +71,7 @@ describe('Sport page', () => {
     expect(within(page).getByRole('switch')).toBeChecked()
 
     const first = screen.getByRole('region', { name: 'Read first' })
-    expect(first).toHaveTextContent('Sport opens after 3 stories of today’s 6.'.replace('’', "'"))
+    expect(first).toHaveTextContent('Sport opens after reading 3 of today’s 6 stories.'.replace('’', "'"))
     expect(within(first).getByRole('button', { name: 'Half' })).toHaveAttribute('aria-pressed', 'true')
 
     const fast = screen.getByRole('region', { name: 'Not too fast' })

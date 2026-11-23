@@ -4,6 +4,10 @@ What the child sees in KOReader. The plugin draws the front page, the headline l
 
 These are captures from the KOReader emulator at the Kindle Paperwhite's size. E-ink refresh, fonts and touch can only be judged on the real device.
 
+<img src="images/kindle/set-paper.png" alt="The paper on a Kindle Paperwhite 3: front page, today's paper, end of a story and back issues">
+
+The feature sets (this one and Sport's, below) are made by [`tools/kindle-sets.mjs`](tools/kindle-sets.mjs) from the plugin's screenshot tour run on the sample papers; the script's header says how.
+
 | Front page | Today's paper | A story | End of a story | Back issues |
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="images/kindle/front-page.png" width="160" alt="Front page"> | <img src="images/kindle/todays-paper.png" width="160" alt="Today's paper"> | <img src="images/kindle/story-page.png" width="160" alt="A story with its photo"> | <img src="images/kindle/story-finished.png" width="160" alt="End of a story"> | <img src="images/kindle/back-issues.png" width="160" alt="Back issues"> |
@@ -51,6 +55,8 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 - Each row shows the day, the lead headline and how much of that paper was read.
 
 ## Sport
+
+<img src="images/kindle/set-sport.png" alt="Sport on a Kindle Paperwhite 3: the Sport tile, closed until today's stories are read, the latest results, the table and a match">
 
 When the [Sport page](sports-page.md) is on for a child, Sport is one of the front page's tiles, in place of Check for news, which moves to the bottom row beside Close. It never shows a score.
 

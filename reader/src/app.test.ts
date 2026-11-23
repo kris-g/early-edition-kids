@@ -219,7 +219,7 @@ describe('the Sport page', () => {
     const app = start()
     await settle()
     expect(strip()!.classList.contains('closed')).toBe(true)
-    expect(strip()!.textContent).toContain('Opens after 2 of today’s stories · 2 more to go')
+    expect(strip()!.textContent).toContain('Opens after reading 2 of today’s stories · 2 more to go')
     expect(strip()!.textContent).not.toMatch(/\d\s*–\s*\d/) // never a score
 
     await read(0, 70) // counts

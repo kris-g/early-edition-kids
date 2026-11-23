@@ -331,7 +331,7 @@ function Sport.strip(sport_issue, today, lock, all_read)
     end
     local togo = lock.needed - lock.counted
     return { open = false, needed = lock.needed, counted = lock.counted, togo = togo,
-             sub = string.format("Opens after %d of today's stories \194\183 %d more to go", lock.needed, togo),
+             sub = string.format("Opens after reading %d of today's stories \194\183 %d more to go", lock.needed, togo),
              tile_sub = all_read and string.format("Read %d again to open", togo)
                         or (togo == 1 and "1 more story first" or string.format("%d more stories first", togo)) }
 end

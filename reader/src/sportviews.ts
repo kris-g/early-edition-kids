@@ -38,7 +38,7 @@ export function sportStripHtml(label: string, matchday: number | null, lock: Loc
     const again = nextStory === null
     return `<li class="sport-strip closed"><button class="strip-btn" data-go="${nextStory ?? 0}">
       <span class="strip-ico">${LOCK}</span>
-      <span class="strip-text"><strong>Sport</strong><span class="meta">${again ? `Read ${togo} again to open` : `Opens after ${lock.needed} of today’s stories · ${togo} more to go`}</span></span>
+      <span class="strip-text"><strong>Sport</strong><span class="meta">${again ? `Read ${togo} again to open` : `Opens after reading ${lock.needed} of today’s stories · ${togo} more to go`}</span></span>
       <span class="strip-go">Today’s paper ${icon('arrow')}</span>
     </button></li>`
   }
@@ -244,7 +244,7 @@ export function sportClosedHtml(lock: LockState, nextStory: number | null): stri
   return `<section class="screen sport" data-topic="football">${head(toFront, 'Premier League')}<div class="screen-body closed-body">
     <div class="sport-closed">
       <span class="padlock">${LOCK}</span>
-      <h2>Sport opens after ${lock.needed} of today’s stories</h2>
+      <h2>Sport opens after reading ${lock.needed} of today’s stories</h2>
       <p class="tally"><span class="pips" aria-hidden="true">${Array.from({ length: lock.needed }, (_, k) => `<i class="${k < lock.counted ? 'on' : ''}"></i>`).join('')}</span>${togo} more to go</p>
       ${nextStory === null ? `<p class="teaser">Read ${togo} of them again, all the way through, to open it.</p>` : ''}
       <button class="btn go" data-go="${nextStory ?? 0}">Today’s paper ${icon('arrow')}</button>

@@ -1040,7 +1040,7 @@ describe("the Sport page (stubbed KOReader)", function()
         local strip = S.UIManager:top().model.sport
         truthy(strip, "a strip on the front page")
         eq(strip.open, false)
-        eq(strip.sub, "Opens after 2 of today's stories \194\183 2 more to go")
+        eq(strip.sub, "Opens after reading 2 of today's stories \194\183 2 more to go")
 
         -- The closed strip leads to the next story to read, never to Sport.
         S.UIManager:top().on_sport(false)
@@ -1052,7 +1052,7 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(topName(S), "eek_frontpage")
 
         readNext(S, 70)                     -- 41 counts
-        eq(S.UIManager:top().model.sport.sub, "Opens after 2 of today's stories \194\183 1 more to go")
+        eq(S.UIManager:top().model.sport.sub, "Opens after reading 2 of today's stories \194\183 1 more to go")
         readNext(S, 6)                      -- 42 paged through
         eq(S.UIManager:top().model.sport.open, false)
         eq(S.UIManager:top().model.read_text, "2 of 3 read", "still read everywhere else")

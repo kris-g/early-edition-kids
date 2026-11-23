@@ -116,13 +116,19 @@ function Tour.start(Controller)
     }
     -- The Sport page (docs/sports-page.md). Always queued: the first sync may only bring it now.
     do
+        -- His team's match if it can be opened, else the first that can.
         local function firstMatch()
             local view = Controller:sportView()
+            local first
             for _, d in ipairs(view and view.matchday and view.matchday.days or {}) do
                 for _, m in ipairs(d.matches or {}) do
-                    if m.detail then return m.id end
+                    if m.detail then
+                        if m.home == view.favourite_team or m.away == view.favourite_team then return m.id end
+                        first = first or m.id
+                    end
                 end
             end
+            return first
         end
         local sport_steps = {
             function() Controller:showFrontPage() end,

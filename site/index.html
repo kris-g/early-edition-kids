@@ -146,6 +146,7 @@
               <a href="#kindle">On a Kindle<span>E-ink, through KOReader</span></a>
               <a href="#ipad">On an iPad<span>A home-screen app</span></a>
               <a href="#topics">Topics<span>Tuned to one child</span></a>
+              <a href="#sport">Sport<span>Football, after the news</span></a>
             </div>
             <div class="menu-col span-3">
               <p class="t-label">For you</p>
@@ -321,6 +322,31 @@
     </div>
   </section>
 
+  <!-- SPORT (split, mirrored): the football page on the Kindle; the results behind, the closed screen in front -->
+  <section class="section" id="sport" aria-labelledby="sport-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <div class="frame frame--split span-6">
+          <div class="stage stage--fade-b">
+            <div class="at-corner device device--kindle" style="--ax: 9%; --ay: 40px"><img src="img/kindle-sport-matches.webp" width="666" height="900" alt="Sport on the Kindle, open: the weekend's Premier League results by day, with Liverpool's 4–0 win outlined" loading="lazy" data-source="client" data-subject="the Kindle's Sport page, results"></div>
+            <div class="at-right device device--kindle" style="--ax: 9%; --ay: 72px"><img src="img/kindle-sport-closed.webp" width="666" height="900" alt="Sport on the Kindle, closed: a padlock, Sport opens after reading 3 of today's stories, and a button back to today's paper" loading="lazy" data-source="client" data-subject="the Kindle's Sport page, closed"></div>
+          </div>
+        </div>
+        <div class="span-5 start-8 stack-5">
+          <h2 id="sport-h">Football, once the news is read</h2>
+          <p class="t-lead">A Sport page with the Premier League table, the latest results and the next fixtures. It opens when half of today&rsquo;s stories have been read properly, so the football comes after the news, not instead of it.</p>
+          <ul class="rows">
+            <li><span class="rows__name">Results, the table and the next fixtures, fresh each morning</span></li>
+            <li><span class="rows__name">Line-ups, goals, cards and substitutions for every match</span></li>
+            <li><span class="rows__name">A story skimmed too quickly doesn&rsquo;t count</span></li>
+            <li><span class="rows__name">Time on Sport shown on your dashboard</span></li>
+          </ul>
+          <p><a class="link" href="https://github.com/kris-g/early-edition-kids/blob/master/docs/sports-page.md">See how the Sport page works</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- QUESTIONS (faq): every answer open -->
   <section class="section" id="questions" aria-labelledby="questions-h" style="--h: 1; --hm: 2">
     <div class="wrap">
@@ -340,6 +366,8 @@
           <div class="faq__item"><h3>Why must the Kindle stay in KOReader?</h3><p>KOReader only runs plugins while it is open, so the Kindle fetches the paper when it wakes there. Left on the stock Kindle screen overnight, it fetches nothing.</p></div>
           <div class="faq__item"><h3>Where does the reading history go?</h3><p>It stays on your server, in one Docker volume. The AI model you choose is sent the news articles and the paper&rsquo;s settings, such as the age and the topics.</p></div>
           <div class="faq__item"><h3>Does the paper work outside the UK?</h3><p>It suits a UK reader best. The paper runs on London time and the built-in feeds are British; you can change the feeds in the config file.</p></div>
+          <div class="faq__item"><h3>Can my child skip the news for the football?</h3><p>No. Sport opens once half of today&rsquo;s stories have been read to the end, each for at least half the time it should take. You can change how much, or turn Sport off, for each child on the dashboard.</p></div>
+          <div class="faq__item"><h3>Where do the football scores come from?</h3><p>Your server fetches them once a day with the paper, from free public feeds, so there are no live scores and nothing on the Kindle or iPad talks to anyone else. Scores never appear on the front page, so nothing gives away a result before the highlights.</p></div>
           <div class="faq__item"><h3>Is it a finished product?</h3><p>It runs every morning for one family, and most of the code was written with AI under one person&rsquo;s direction. Read the code before you rely on it.</p></div>
         </div>
       </div>
@@ -403,7 +431,7 @@
           <a class="nav__logo" href="#top"><svg class="sun" viewBox="0 0 44 26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 23a10 10 0 0 1 20 0z" fill="#ffd21f"/><path d="M2 23h40M22 2v5M8.5 8.5l3.5 3.5M35.500 8.500l-3.500 3.500"/></svg>Early Edition Kids</a>
           <p class="footer__lede">A daily newspaper for one child, made on your own server.</p>
         </div>
-        <div class="span-2 footer__col"><h3>Reading</h3><ul><li><a href="#paper">Paper</a></li><li><a href="#devices">Devices</a></li><li><a href="#topics">Topics</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>Reading</h3><ul><li><a href="#paper">Paper</a></li><li><a href="#devices">Devices</a></li><li><a href="#topics">Topics</a></li><li><a href="#sport">Sport</a></li></ul></div>
         <div class="span-2 footer__col"><h3>Parents</h3><ul><li><a href="#dashboard">Dashboard</a></li><li><a href="#making">How it is made</a></li><li><a href="#questions">Questions</a></li></ul></div>
         <div class="span-2 footer__col"><h3>Running it</h3><ul><li><a href="#setup">Setup</a></li><li><a href="https://github.com/kris-g/early-edition-kids/blob/master/deploy/README.md">Kubernetes guide</a></li></ul></div>
         <div class="span-2 footer__col"><h3>Project</h3><ul><li><a href="https://github.com/kris-g/early-edition-kids/releases/latest">Latest release</a></li><li><a href="https://github.com/kris-g/early-edition-kids/tree/master/docs">Documentation</a></li></ul></div>

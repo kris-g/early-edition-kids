@@ -69,7 +69,7 @@ describe('the closed screen', () => {
   it('says how many, how far, and leads to the next story, with no scores', async () => {
     const { sportClosedHtml } = await import('./sportviews')
     document.body.innerHTML = sportClosedHtml({ open: false, needed: 3, counted: 2 }, 4)
-    expect(document.querySelector('h2')!.textContent).toBe('Sport opens after 3 of today’s stories')
+    expect(document.querySelector('h2')!.textContent).toBe('Sport opens after reading 3 of today’s stories')
     expect(document.querySelectorAll('.pips i')).toHaveLength(3)
     expect(document.querySelectorAll('.pips i.on')).toHaveLength(2)
     expect(document.querySelector('.tally')!.textContent).toBe('1 more to go')

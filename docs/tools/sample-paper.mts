@@ -7,6 +7,7 @@
 //     NODE_USE_ENV_PROXY=1 node --import tsx ../docs/tools/sample-paper.mts
 // then start the server with the same data folder and LLM_BASE_URL=stub (no GENERATE_AT).
 
+import { execFileSync } from "node:child_process";
 import { dbPath, loadConfig, settingsFromEnv } from "../../server/src/config.js";
 import { Database } from "../../server/src/db.js";
 import { StubLLM } from "../../server/src/llm.js";
@@ -151,10 +152,14 @@ const EARLIER: Sample[][] = [
 
 const londonToday = londonDate(new Date());
 
+// Wikimedia answers Node's fetch with 429 (as of November 2026) while serving curl, so the photos
+// come through curl, which ships with macOS and most Linux systems.
 async function download(url: string): Promise<Buffer> {
-  const res = await fetch(url, { headers: { "User-Agent": "early-edition-kids-docs/1.0" } });
-  if (!res.ok) throw new Error(`${res.status} for ${url}`);
-  return Buffer.from(await res.arrayBuffer());
+  try {
+    return execFileSync("curl", ["-sSfL", "--max-time", "60", "-A", "early-edition-kids-docs/1.0", url], { maxBuffer: 50 * 1024 * 1024 });
+  } catch (err) {
+    throw new Error(`could not download ${url}: ${(err as Error).message}`);
+  }
 }
 
 const photos = new Map<string, Buffer>();

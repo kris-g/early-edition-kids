@@ -27,8 +27,8 @@ const PAGE_NAMES: Record<SportPageUse['page'], string> = { matches: 'Matches', t
 /** "Half of today's 6 stories (3)", in words a parent reads at a glance. */
 function readFirstLine(s: SportSettings, today: UnlockStatus | null): string {
   if (s.read_first <= 0) return 'Sport is open from the start of the day.'
-  if (!today) return `Sport opens after ${percent(s.read_first)} of the day's stories are read.`
-  return `Sport opens after ${plural(today.needed, 'story', 'stories')} of today's ${today.total}.`
+  if (!today) return `Sport opens after reading ${percent(s.read_first)} of the day's stories.`
+  return `Sport opens after reading ${today.needed} of today's ${plural(today.total, 'story', 'stories')}.`
 }
 
 function minReadingLine(s: SportSettings): string {
