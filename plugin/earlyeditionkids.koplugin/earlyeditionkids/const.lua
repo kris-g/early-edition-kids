@@ -20,6 +20,8 @@ local Const = {
     LOG_KEEP_DAYS = 366,                    -- DESIGN 5.1 step 8: "keep a year of it"
 
     UPLOAD_DELAY = 60,                      -- send reading this long after a story closes
+    SPORT_MIN_LOOK = 2,                     -- a Sport page left sooner is not recorded (docs/sports-page.md 5.4)
+    SPORT_MAX_LOOK = 300,                   -- at most this long counts for one look, as for stories
     BACKOFF_NOT_READY = 30 * 60,            -- after a 404 (DESIGN 5.1 step 2)
     BACKOFF_NETWORK = 2 * 60,               -- after a network failure
     RECHECK_INTERVAL = 30 * 60,             -- CONTRACT sync rule 3

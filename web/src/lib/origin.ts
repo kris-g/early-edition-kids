@@ -15,7 +15,7 @@ export type Origin = {
   back: { to: string; label: string }
 }
 
-const SECTIONS = ['/reading', '/calendar', '/find', '/topics', '/share', '/ai', '/issues', '/runs', '/devices', '/more']
+const SECTIONS = ['/reading', '/calendar', '/find', '/topics', '/sport', '/share', '/ai', '/issues', '/runs', '/devices', '/more']
 
 /** The section a path belongs to when nothing says otherwise (opened from a bookmark). */
 export function sectionOf(pathname: string): string {
@@ -29,6 +29,7 @@ const LABELS: Record<string, string> = {
   '/calendar': 'Calendar',
   '/find': 'Add a story',
   '/topics': 'Topics',
+  '/sport': 'Sport',
   '/share': 'Share',
   '/ai': 'AI',
   '/issues': 'Back issues',

@@ -12,6 +12,9 @@ saves a screenshot of it into <KOReader data dir>/screenshots/, and quits:
   3-story-finished.png  a story at its last page with the finished panel
   4-back-issues.png     back issues
   5-my-week.png         my week
+  6-sport-*.png         when the paper has a Sport page: the Sport screen (or
+                        the closed one), the table's two halves, the next
+                        fixtures, and the first match that opens, both pages
   0-simpleui-home.png   first, when Simple UI is installed: its home screen
                         at start (our front page must not have opened)
 
@@ -110,8 +113,42 @@ function Tour.start(Controller)
         function() shot("4-back-issues.png") end,
         function() Controller:showMyWeek() end,
         function() shot("5-my-week.png") end,
-        function() UIManager:quit() end,
     }
+    -- The Sport page (docs/sports-page.md). Always queued: the first sync may only bring it now.
+    do
+        -- His team's match if it can be opened, else the first that can.
+        local function firstMatch()
+            local view = Controller:sportView()
+            local first
+            for _, d in ipairs(view and view.matchday and view.matchday.days or {}) do
+                for _, m in ipairs(d.matches or {}) do
+                    if m.detail then
+                        if m.home == view.favourite_team or m.away == view.favourite_team then return m.id end
+                        first = first or m.id
+                    end
+                end
+            end
+            return first
+        end
+        local sport_steps = {
+            function() Controller:showFrontPage() end,
+            function() shot("6-sport-front-page.png") end,
+            function() Controller:showSport() end,
+            function() shot(Controller:sportLock().open and "6-sport-matches.png" or "6-sport-closed.png") end,
+            function() Controller:showSport("table", 1) end,
+            function() shot("6-sport-table-1.png") end,
+            function() Controller:showSport("table", 2) end,
+            function() shot("6-sport-table-2.png") end,
+            function() Controller:showSport("next") end,
+            function() shot("6-sport-next.png") end,
+            function() local id = firstMatch() if id then Controller:showSportMatch(id, 1) end end,
+            function() shot("6-sport-match.png") end,
+            function() local id = firstMatch() if id then Controller:showSportMatch(id, 2) end end,
+            function() shot("6-sport-lineups.png") end,
+        }
+        for _, step in ipairs(sport_steps) do main_steps[#main_steps + 1] = step end
+    end
+    main_steps[#main_steps + 1] = function() UIManager:quit() end
     if os.getenv("EEK_TOUR_SYNC") == "1" then
         -- Also sync with the real server first ("Check for news"), so the
         -- copy catches up on back issues; give its messages time to go.

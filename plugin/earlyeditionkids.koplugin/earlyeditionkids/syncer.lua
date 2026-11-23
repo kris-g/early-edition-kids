@@ -41,12 +41,13 @@ Returns a result table:
     { kind = "ok"|"not_found"|"network"|"server",
       outcome = "new_issue"|"replaced"|"unchanged"|"kept_started"|"older"|nil,
       date, version, list_changed, added, events_sent, events_accepted, events_dropped,
-      profile_changed, message }
+      profile_changed, sport_changed, message }
 ]]
 
 local Clock = require("earlyeditionkids/clock")
 local Const = require("earlyeditionkids/const")
 local Queue = require("earlyeditionkids/events")
+local Sport = require("earlyeditionkids/sport")
 local Store = require("earlyeditionkids/store")
 
 local Syncer = {}
@@ -407,6 +408,8 @@ function Syncer.run(ctx)
     result.kind, result.message = kind, msg
 
     if kind == "ok" then
+        -- The Sport page comes with today's paper (docs/sports-page.md section 3).
+        if ctx.json then Sport.sync(ctx, r.data, result) end
         catchUp(ctx, result)
         local protect = {}
         local current = ctx.store:get("current_date")

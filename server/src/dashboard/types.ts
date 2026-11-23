@@ -104,6 +104,81 @@ export type DayView = {
   reads: DayRead[];
   /** That day's own paper, or null if there was none. */
   paper: IssueView | null;
+  /** Time on the Sport page that day, or null when it wasn't opened (docs/sports-page.md 5.4). */
+  sport: SportDay | null;
+  /** How that day's paper went toward opening Sport, with stories read too fast; null with no lock. */
+  sport_unlock: UnlockStatus | null;
+};
+
+// ---- the Sport page (docs/sports-page.md 2.7, 5.4): kept apart from reading ----
+
+/** Set on the dashboard per child; config.yaml's `sports` block gives the starting values. */
+export type SportSettings = {
+  /** Whether this child has the Sport page. */
+  enabled: boolean;
+  /** Share of today's stories to read before Sport opens, 0 to 1. 0 turns the lock off. */
+  read_first: number;
+  /** A story counts only after this share of its expected reading time; 0 counts any read to the end. */
+  min_reading: number;
+};
+
+export type UnlockStory = {
+  id: number;
+  title: string;
+  finished: boolean;
+  active_seconds: number;
+  min_seconds: number;
+  /** Read to the end, and not too fast. */
+  counts: boolean;
+  /** Read to the end, but faster than `min_seconds`. */
+  rushed: boolean;
+};
+
+/** How far a paper's reading got toward opening Sport. */
+export type UnlockStatus = {
+  needed: number;
+  total: number;
+  counted: number;
+  unlocked: boolean;
+  /** When the story that opened it was closed, UTC ISO. */
+  unlocked_at: string | null;
+  stories: UnlockStory[];
+};
+
+export type SportSettingsView = {
+  settings: SportSettings;
+  /** Today's progress, or null when there is no lock today. */
+  today: UnlockStatus | null;
+};
+
+export type SportPage = "matches" | "table" | "next" | "match";
+
+export type SportPageUse = {
+  page: SportPage;
+  /** For a match page: which match, and its name, such as "Liverpool 4–0 Man Utd". */
+  match_id: string | null;
+  match: string | null;
+  views: number;
+  seconds: number;
+};
+
+export type SportDay = {
+  date: string;
+  views: number;
+  seconds: number;
+  /** That day's totals per page, and per match, most time first. */
+  pages: SportPageUse[];
+};
+
+export type SportUsageView = {
+  from: string;
+  to: string;
+  /** Oldest first, one per date, gaps filled with zeros. */
+  days: SportDay[];
+  views: number;
+  seconds: number;
+  /** The range's totals per page, most time first. */
+  pages: SportPageUse[];
 };
 
 export type IssueSummary = { date: string; version: number; fallback: boolean; story_count: number; read_count: number };
@@ -180,6 +255,8 @@ export type AboutView = {
   container: "kubernetes" | "docker" | null;
   /** Whole seconds since the server process started. */
   uptime_seconds: number;
+  /** The Sport page's last fetch, or null when no profile shows it (docs/sports-page.md 5.4). */
+  sport: { updated_at: string | null; attempted_at: string | null; error: string | null } | null;
 };
 
 export type GenerateResponse = {

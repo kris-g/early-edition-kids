@@ -14,6 +14,9 @@ import type {
   ReadingView,
   RunView,
   ShareView,
+  SportSettings,
+  SportSettingsView,
+  SportUsageView,
   StoryCard,
   StoryDetail,
   TopicView,
@@ -53,4 +56,8 @@ export const api = {
   share: (signal?: AbortSignal) => get<ShareView>('/share', signal),
   ai: (signal?: AbortSignal) => get<AiPage>('/ai', signal),
   putAi: (patch: AiSettingsPatch) => request<AiPage>('PUT', '/ai', { body: patch }),
+
+  sportSettings: (signal?: AbortSignal) => get<SportSettingsView>('/sport/settings', signal),
+  putSportSettings: (patch: Partial<SportSettings>) => request<SportSettingsView>('PUT', '/sport/settings', { body: patch }),
+  sportUsage: (days: number, signal?: AbortSignal) => get<SportUsageView>(`/sport?days=${days}`, signal),
 }

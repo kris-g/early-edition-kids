@@ -2,7 +2,7 @@
 // <mount>/read/, so the API is ../api/... and story files are the payload's paths joined onto the
 // mount. One build works for the root profile and every /p/<id>/ mount.
 
-import type { Issue, ReaderSettings } from './types'
+import type { Issue, ReaderSettings, SportsView } from './types'
 
 export type FailKind = 'not_found' | 'network' | 'server' | 'conflict'
 
@@ -78,6 +78,18 @@ export async function getIssue(date?: string): Promise<Issue> {
 
 export async function getSettings(): Promise<ReaderSettings> {
   return json<ReaderSettings>('/api/reader')
+}
+
+export function isSportsView(v: unknown): v is SportsView {
+  const s = v as SportsView
+  return Boolean(s) && typeof s.updated_at === 'string' && Array.isArray(s.teams)
+}
+
+/** The Sport page, at the path the issue gave. A 404 means it is off or withdrawn. */
+export async function getSports(path: string): Promise<SportsView> {
+  const data = await json<unknown>(path)
+  if (!isSportsView(data)) throw new ApiError('server', 200, 'not a Sport page')
+  return data
 }
 
 export async function getStoryHtml(path: string): Promise<string> {

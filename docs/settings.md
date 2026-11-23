@@ -35,6 +35,7 @@ Early Edition Kids is set up in three places:
 | `favourite_players` | none | Stories about these players are preferred, and the writer may mention them when the article does. |
 | `favourite_team` | none | The child's team. It only does something together with `rival_clubs`. |
 | `rival_clubs` | none | With `favourite_team`, a story about a rival club may carry one friendly line from a fan's point of view, such as "Not the best night for them!" |
+| `sports` | off | The [Sport page](sports-page.md): the Premier League table, the latest matchday's results and the next fixtures, fetched once a day with the paper. `enabled: true` turns it on; `read_first` (default `0.5`) is how much of today's paper to read before it opens, and `min_reading` (default `0.5`) how much of each story's reading time counts as properly read. These are starting values: change them for each child on the dashboard's Sport page. `favourite_team` marks the child's club on it. |
 | `mens_football_only` | `false` | When `true`, the AI leaves out women's and girls' football. Add `exclude_title_patterns` to the football feeds as well, as the example does, so the obvious headlines never reach the AI. |
 
 **Topics in more detail:**
@@ -116,6 +117,7 @@ These are kept in each child's own database, so with more than one child each ha
 
 - **Topics page:** pin a topic so it appears more, or block it so it never appears.
 - **AI page:** the model that writes and the one that checks, how hard each thinks, and a monthly spending limit. Until these are set, the `LLM_MODEL` and related environment variables apply.
+- **Sport page:** whether the child has the Sport page, how much of today's paper to read before it opens, and how quickly a story can be read and still count. Until these are set, the `sports` block in `config.yaml` applies.
 - **Stories:** hidden stories and articles a parent has added.
 
 ## Set in the environment

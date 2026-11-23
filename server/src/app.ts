@@ -51,9 +51,13 @@ import { markKindleSeen } from "./kindleseen.js";
 import { beforeReset, readingSince } from "./readingreset.js";
 import { parseWordToKnow, renderStory } from "./render.js";
 import { isIsoDate, londonDate } from "./timeutil.js";
+import { Sports, sportsFile, type JsonFetcher } from "./sports/index.js";
+import { SPORT_VIEWED, sportViewedPayload } from "./dashboard/sport.js";
+import { sportSettings } from "./sports/settings.js";
+import { unlockRule, unlockStatus } from "./sports/unlock.js";
 import { minutesFor } from "./weights.js";
 
-export const EVENT_TYPES = new Set(["issue_downloaded", "list_shown", "story_opened", "story_closed"]);
+export const EVENT_TYPES = new Set(["issue_downloaded", "list_shown", "story_opened", "story_closed", SPORT_VIEWED]);
 const STORY_EVENT_TYPES = new Set(["story_opened", "story_closed"]);
 export const MAX_EVENTS = 500;
 export { HttpError, safeEqual };
@@ -69,6 +73,8 @@ export interface AppOptions {
   feedFetcher?: FeedFetcher;
   pageFetcher?: PageFetcher;
   imageFetcher?: ImageFetcher;
+  /** Gets the Sport page's feeds (tests); the network otherwise. */
+  sportsFetcher?: JsonFetcher;
   clock?: () => Date;
 }
 
@@ -87,6 +93,10 @@ export interface EarlyEditionKidsApp {
   /** The root profile's context (or the first profile's when no profile owns the root data). */
   ctx: Context;
   jobs: Jobs;
+  /** The Sport page's data, one for the server (docs/sports-page.md). */
+  sports: Sports;
+  /** Whether any profile shows the Sport page now (a parent can turn it on), so it is worth fetching. */
+  sportsWanted: () => boolean;
   close(): void;
 }
 
@@ -140,6 +150,8 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
   if (layout.warning) console.warn(layout.warning);
   // One lock for every profile, so two papers are never made at once.
   const lock = new Mutex();
+  // One Sport page for the server, in the root data folder whichever profile owns it.
+  const sports = new Sports(sportsFile(settings.dataDir), opts.sportsFetcher);
   const dbs: Database[] = [];
   const profiles: AppProfile[] = parsed.profiles.map(({ id, config }) => {
     const pSettings: Settings = { ...settings, dataDir: layout.dirs.get(id)! };
@@ -158,6 +170,7 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
       feedFetcher: opts.feedFetcher,
       pageFetcher: opts.pageFetcher,
       imageFetcher: opts.imageFetcher,
+      sports,
     });
     if (ctx.llmSetupError) console.warn(`LLM not configured: ${ctx.llmSetupError} (generation will use the catch-up fallback)`);
     return { id, title: config.title, root: id === layout.root, ctx, jobs: new Jobs() };
@@ -167,14 +180,15 @@ export function createApp(opts: AppOptions = {}): EarlyEditionKidsApp {
   const login = settings.dashboardPassword
     ? new DashboardLogin({ password: settings.dashboardPassword, user: settings.dashboardUser, secret: settings.sessionSecret, clock })
     : null;
-  const kindleApp = finish(kindleRoutes(baseApp(clock), profiles, settings));
-  const dashboardApp = finish(dashboardRoutes(baseApp(clock), profiles, clock, settings, login));
+  const sportsWanted = () => profiles.some((p) => sportSettings(p.ctx.db, p.ctx.config).enabled);
+  const kindleApp = finish(kindleRoutes(baseApp(clock), profiles, settings, sports, sportsWanted));
+  const dashboardApp = finish(dashboardRoutes(baseApp(clock), profiles, clock, settings, login, sports, sportsWanted));
   const llm = isStub(settings) ? "stub" : `${settings.llmProvider || "openai"}${settings.llmProvider === "anthropic" ? "" : `@${settings.llmBaseUrl || "unset"}`}`;
   const where = parsed.explicit ? ` profiles=${profiles.map((p) => (p.root ? `${p.id} (root)` : p.id)).join(",")}` : "";
   console.log(
     `Early Edition Kids ready: data=${settings.dataDir} config=${settings.configPath}${where} llm=${llm} fts=${main.ctx.db.ftsEnabled}${login ? " login=on" : ""}`,
   );
-  return { kindleApp, dashboardApp, profiles, ctx: main.ctx, jobs: main.jobs, close: () => dbs.forEach((db) => db.close()) };
+  return { kindleApp, dashboardApp, profiles, ctx: main.ctx, jobs: main.jobs, sports, sportsWanted, close: () => dbs.forEach((db) => db.close()) };
 }
 
 /** The Kindle routes for one profile, relative to where they are mounted (/ or /p/<id>), with the iPad reader. */
@@ -189,7 +203,7 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
   app.get("/api/issue/today", (req, res) => {
     markKindleSeen(ctx.db, req.app.locals.clock());
     const today = londonDate(req.app.locals.clock());
-    const payload = issuePayload(ctx, today);
+    const payload = issuePayload(ctx, today, req.app.locals.clock());
     if (!payload) throw new HttpError(404, `no issue for ${today} yet`);
     res.json(payload);
   });
@@ -197,7 +211,7 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
   app.get("/api/issue/:date", (req, res) => {
     const date = String(req.params.date);
     if (!isIsoDate(date)) throw new HttpError(404, "not a date");
-    const payload = issuePayload(ctx, date);
+    const payload = issuePayload(ctx, date, req.app.locals.clock());
     if (!payload) throw new HttpError(404, `no issue for ${date}`);
     res.json(payload);
   });
@@ -256,6 +270,18 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
       .send(readFileSync(file));
   });
 
+  // The Sport page (docs/sports-page.md 5.3): the same data for every profile that shows it.
+  app.get("/api/sports", (req, res) => {
+    const now: Date = req.app.locals.clock();
+    const s = sportSettings(ctx.db, ctx.config);
+    const view = s.enabled && ctx.sports ? ctx.sports.view(ctx.config, now) : null;
+    if (!view) throw new HttpError(404, s.enabled ? "the Sport page isn't ready" : "the Sport page is off for this paper");
+    // Today's lock from every device's reading, so reading on the Kindle opens Sport on the iPad too.
+    const status = unlockStatus(ctx, londonDate(now), s);
+    view.unlock = status ? { needed: status.needed, counted: status.counted, unlocked: status.unlocked } : null;
+    res.set("Cache-Control", "no-store").json(view);
+  });
+
   app.post("/api/events", express.json({ limit: "5mb" }), (req, res) => {
     markKindleSeen(ctx.db, req.app.locals.clock());
     res.json(ingestEvents(ctx, req.body));
@@ -263,16 +289,23 @@ function kindleRouter(ctx: Context, settings: Settings): Router {
   return app;
 }
 
-function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings): express.Express {
+/** The admin endpoints need X-Admin-Token. */
+function requireAdmin(req: Request, settings: Settings) {
+  if (!settings.adminToken) throw new HttpError(403, "ADMIN_TOKEN is not set on the server");
+  const token = req.get("x-admin-token");
+  if (!token || !safeEqual(token, settings.adminToken)) throw new HttpError(403, "bad admin token");
+}
+
+function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Settings, sports: Sports, sportsWanted: () => boolean): express.Express {
   for (const p of profiles) app.use(`/p/${p.id}`, kindleRouter(p.ctx, settings));
   const root = profiles.find((p) => p.root);
   if (root) app.use(kindleRouter(root.ctx, settings));
 
   app.post("/admin/generate", async (req, res) => {
-    if (!settings.adminToken) throw new HttpError(403, "ADMIN_TOKEN is not set on the server");
-    const token = req.get("x-admin-token");
-    if (!token || !safeEqual(token, settings.adminToken)) throw new HttpError(403, "bad admin token");
+    requireAdmin(req, settings);
     const now = req.app.locals.clock();
+    // The Sport page is fetched with the morning paper, alongside it: it never holds the paper up.
+    if (sportsWanted()) sports.refreshInBackground(now);
     const date = typeof req.query.date === "string" && req.query.date ? req.query.date : null;
     if (date !== null && !isIsoDate(date)) throw new HttpError(422, "date must be YYYY-MM-DD");
     const only = typeof req.query.profile === "string" && req.query.profile ? req.query.profile : null;
@@ -281,6 +314,13 @@ function kindleRoutes(app: express.Express, profiles: AppProfile[], settings: Se
     const results = await generateAll(targets, date ?? londonDate(now), now, parseBool(req.query.force));
     const { status, body } = generateResponse(targets, results);
     res.status(status).json(body);
+  });
+
+  // Fetch the Sport page now (docs/sports-page.md section 3), for testing or after a failure.
+  app.post("/admin/sports", async (req, res) => {
+    requireAdmin(req, settings);
+    const r = await sports.refresh(req.app.locals.clock());
+    res.status(r.status === "failed" ? 503 : 200).json(r);
   });
 
   return app;
@@ -317,6 +357,8 @@ function dashboardRoutes(
   clock: () => Date,
   settings: Settings,
   login: DashboardLogin | null,
+  sports: Sports,
+  sportsWanted: () => boolean,
 ): express.Express {
   if (login) {
     app.use(login.routes());
@@ -334,7 +376,7 @@ function dashboardRoutes(
   });
   // The server itself, not a child's paper, so only here and never under /p/<id>.
   app.get("/api/dashboard/about", (_req, res) => {
-    const body: AboutView = aboutView();
+    const body: AboutView = aboutView(undefined, sportsWanted() ? sports.status() : null);
     res.set("Cache-Control", "no-store").json(body);
   });
   for (const p of profiles) app.use(`/api/dashboard/p/${p.id}`, dashboardApi({ ctx: p.ctx, clock, jobs: p.jobs }));
@@ -368,7 +410,7 @@ export function parseBool(v: unknown): boolean {
   return typeof v === "string" && ["true", "1", "yes", "on", "t", "y"].includes(v.toLowerCase());
 }
 
-export function issuePayload(ctx: Context, date: string) {
+export function issuePayload(ctx: Context, date: string, now: Date = new Date()) {
   const issue = ctx.db.getIssue(date);
   if (!issue) return null;
   const version = Number(issue.version);
@@ -412,7 +454,16 @@ export function issuePayload(ctx: Context, date: string) {
     // starts afresh when the paper comes from different data (CONTRACT.md "Profiles").
     profile: ctx.profileId,
     profile_root: ctx.profileRoot,
+    // The Sport page, when this paper has one (docs/sports-page.md 5.3); null otherwise.
+    sports: sportsField(ctx, date, now),
   };
+}
+
+/** The issue's `sports` field: the page is there, with what must be read first (docs/sports-page.md 2.7). */
+function sportsField(ctx: Context, date: string, now: Date) {
+  const s = sportSettings(ctx.db, ctx.config);
+  const field = s.enabled && ctx.sports ? ctx.sports.issueField(now) : null;
+  return field ? { ...field, unlock: unlockRule(ctx, date, s) } : null;
 }
 
 function asInt(v: unknown): number | null {
@@ -469,8 +520,14 @@ export function ingestEvents(ctx: Context, body: unknown): { accepted: string[] 
       const storyId = asInt(e.story_id);
       if (e.story_id !== null && e.story_id !== undefined && (storyId === null || !known.has(storyId))) continue;
       if (STORY_EVENT_TYPES.has(type) && storyId === null) continue;
-      const payload = e.payload ?? {};
+      let payload = e.payload ?? {};
       if (!isObj(payload)) continue;
+      if (type === SPORT_VIEWED) {
+        // Never about a story; kept in our own shape, with the match's name as it is today.
+        const sport = storyId === null ? sportViewedPayload(payload, (id) => ctx.sports?.matchLabel(id) ?? null) : null;
+        if (!sport) continue;
+        payload = sport;
+      }
       if (beforeReset(ctx.db, asInt(e.ts))) {
         skipped.push(ceid);
         continue;

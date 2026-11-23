@@ -38,6 +38,7 @@ const NAV_GROUPS: { label: string; links: NavLink[] }[] = [
     links: [
       { to: '/find', label: 'Add a story' },
       { to: '/topics', label: 'Topics' },
+      { to: '/sport', label: 'Sport' },
       { to: '/ai', label: 'AI' },
     ],
   },
@@ -51,7 +52,7 @@ const NAV_GROUPS: { label: string; links: NavLink[] }[] = [
 ]
 
 /** Pages reached from "More" on a phone keep that tab lit. */
-const UNDER_MORE = ['/share', '/find', '/topics', '/ai', '/devices', '/runs', '/more']
+const UNDER_MORE = ['/share', '/find', '/topics', '/sport', '/ai', '/devices', '/runs', '/more']
 
 function Brand() {
   return (

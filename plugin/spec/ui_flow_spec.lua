@@ -995,6 +995,223 @@ describe("with Simple UI", function()
     end)
 end)
 
+-- The Sport page (docs/sports-page.md), with the real round 11 as the server makes it.
+local SPORT_FIXTURE = PLUGIN_DIR .. "/../spec/fixtures/sport-round11.json"
+local function readAll(p)
+    local fh = assert(io.open(p, "rb"))
+    local d = fh:read("*a")
+    fh:close()
+    return d
+end
+
+local function sportPaper(S, unlock, sport_body)
+    S.page_counts = nil -- the stubs are shared: an earlier scenario may have set some
+    local sports = { path = "/api/sports", label = "Premier League", matchday = 11, unlock = unlock or JSON.null }
+    S.serve("2026-11-13", 1, { 41, 42, 43 })
+    S.http.routes["GET /api/issue/today"] = { status = 200, body = issueBody("2026-11-13", 1, { 41, 42, 43 }, { sports = sports }),
+                                              headers = { date = S.http_date } }
+    S.http.routes["GET /api/sports"] = { status = 200, body = sport_body or readAll(SPORT_FIXTURE) }
+end
+
+local RULE = { needed = 2, min_seconds = { ["41"] = 60, ["42"] = 60, ["43"] = 60 } }
+
+--- Read the first unread story from the front page: `seconds` of reading, to the end, then back to the front page.
+local function readNext(S, seconds)
+    local front = S.UIManager:top()
+    front.on_start(front.model.first_up)
+    S.run()
+    local rui = S.ReaderUI.instance
+    local start = S.mono.t
+    S.mono.t = start + math.floor(seconds / 2); rui:turnPage()
+    S.mono.t = start + seconds; rui:turnPage() -- EndOfBook: the finished panel
+    S.run()
+    local panel = S.Controller.panel
+    panel:choose(panel.on_front_page)
+    S.run()
+end
+
+describe("the Sport page (stubbed KOReader)", function()
+    it("is closed until enough stories are read properly; one read too fast doesn't count", function()
+        local S = fresh()
+        sportPaper(S, RULE)
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(topName(S), "eek_frontpage")
+        local strip = S.UIManager:top().model.sport
+        truthy(strip, "a strip on the front page")
+        eq(strip.open, false)
+        eq(strip.sub, "Opens after reading 2 of today's stories \194\183 2 more to go")
+
+        -- The closed strip leads to the next story to read, never to Sport.
+        S.UIManager:top().on_sport(false)
+        S.run()
+        eq(S.ReaderUI.instance.document.file, ROOT .. "/2026-11-13/41.html")
+        S.ReaderUI.instance:onClose()
+        S.FileManager:showFiles(ROOT .. "/2026-11-13")
+        S.run()
+        eq(topName(S), "eek_frontpage")
+
+        readNext(S, 70)                     -- 41 counts
+        eq(S.UIManager:top().model.sport.sub, "Opens after reading 2 of today's stories \194\183 1 more to go")
+        readNext(S, 6)                      -- 42 paged through
+        eq(S.UIManager:top().model.sport.open, false)
+        eq(S.UIManager:top().model.read_text, "2 of 3 read", "still read everywhere else")
+        -- The closed Sport screen: the padlock, how far, and the way back to the paper.
+        S.Controller:showSport()
+        S.run()
+        eq(topName(S), "eek_sport")
+        local closed = S.UIManager:top().model.closed
+        eq(closed.needed, 2)
+        eq(closed.counted, 1)
+        eq(closed.togo, 1)
+        falsy(S.UIManager:top().model.matchday, "no scores behind it")
+        S.Controller:showFrontPage()
+        S.run()
+        readNext(S, 65)                     -- 43 counts: open
+        strip = S.UIManager:top().model.sport
+        eq(strip.open, true)
+        eq(strip.sub, "Premier League \194\183 Matchday 11")
+        eq(S.Controller.store:get("sport_open"), "2026-11-13")
+    end)
+
+    it("opens on the server's count from another device", function()
+        local S = fresh()
+        local view = JSON.decode(readAll(SPORT_FIXTURE))
+        view.unlock = { needed = 2, counted = 2, unlocked = true }
+        sportPaper(S, RULE, JSON.encode(view))
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(S.UIManager:top().model.sport.open, true)
+    end)
+
+    it("has no strip when the paper has no Sport page, and forgets a page the server took down", function()
+        local S = fresh()
+        S.serve("2026-11-13", 1, { 41, 42 })
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        eq(S.UIManager:top().model.sport, nil)
+
+        local T2 = fresh()
+        sportPaper(T2)
+        T2.FileManager:showFiles("/mnt/us/documents")
+        T2.run()
+        truthy(T2.Controller:sportView(), "kept")
+        T2.http.routes["GET /api/sports"] = nil -- 404
+        T2.Controller:checkNow()
+        T2.run()
+        falsy(T2.Controller:sportView(), "forgotten")
+        T2.Controller:showSport()
+        T2.run()
+        eq(T2.UIManager:top().model.closed, nil)
+        eq(T2.UIManager:top().model.matchday, nil)
+    end)
+
+    it("every Sport screen fits the Kindle without scrolling", function()
+        local S = fresh()
+        sportPaper(S)
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        local function fits(what)
+            local top = S.UIManager:top()
+            truthy(top.body_height <= top.body_room, what .. " is " .. top.body_height .. " of " .. top.body_room)
+        end
+        fits("the front page with the strip")
+        S.Controller:showSport()
+        S.run()
+        local m = S.UIManager:top().model
+        eq(m.tab, "matches")
+        eq(m.results_text, "Results to Sun 22 Nov")
+        eq(#m.matchday.days, 3)
+        local liverpool = m.matchday.days[2].matches[2]
+        eq(liverpool.home, "Liverpool")
+        eq(liverpool.score_text, "4 \226\128\147 0")
+        truthy(liverpool.fav and liverpool.opens)
+        eq(m.matchday.days[3].matches[1].state_text, "8:00pm")
+        fits("Matches")
+        S.UIManager:top().on_tab("table")
+        S.run()
+        m = S.UIManager:top().model
+        eq(m.table.half, 1, "opens on his club's half")
+        eq(#m.table.rows, 10)
+        eq(m.table.rows[4].club, "Liverpool")
+        truthy(m.table.rows[4].fav and m.table.rows[4].cut)
+        eq(m.table.zones[1], "Top 4: Champions League")
+        fits("Table, 1 to 10")
+        S.UIManager:top():onSwipe(nil, { direction = "west" })
+        S.run()
+        m = S.UIManager:top().model
+        eq(m.table.half, 2)
+        eq(m.table.rows[10].club, "Crystal Palace")
+        eq(m.table.zones[1], "Below the line: relegation")
+        fits("Table, 11 to 20")
+        S.UIManager:top().on_tab("next")
+        S.run()
+        eq(S.UIManager:top().model.next.number, 12)
+        fits("Next")
+        for _, id in ipairs({ "2645301", "2645298" }) do
+            S.Controller:showSportMatch(id, 1)
+            S.run()
+            eq(topName(S), "eek_sportmatch")
+            fits("match " .. id .. ", page 1")
+            S.UIManager:top().on_page(2)
+            S.run()
+            fits("match " .. id .. ", line-ups")
+        end
+        local mm = S.UIManager:top().model
+        eq(mm.home, "Chelsea")
+        eq(mm.goals.away[2], "Dominic Calvert-Lewin 53' (pen)")
+        eq(mm.injuries.home.off[1], "Mois\195\169s Caicedo 22'")
+        S.Controller:showSportMatch("2645301", 1)
+        S.run()
+        mm = S.UIManager:top().model
+        eq(mm.cards.away[1].card, "red")
+        eq(mm.lineups.home.groups[2].players[4].note, "off 85'")
+        eq(mm.when_text, "FULL TIME \194\183 SUNDAY 22 NOVEMBER")
+        -- A match without its summary can't be opened: back to Matches.
+        S.Controller:showSportMatch("2645302", 1)
+        S.run()
+        eq(topName(S), "eek_sport")
+    end)
+
+    it("records each look at a Sport page for the dashboard", function()
+        local S = fresh()
+        sportPaper(S)
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        S.UIManager:top().on_sport(true)
+        S.run()
+        S.now = S.now + 30
+        S.UIManager:top().on_tab("table")
+        S.run()
+        S.now = S.now + 1                   -- a flick: not recorded
+        S.UIManager:top().on_tab("next")
+        S.run()
+        S.now = S.now + 10
+        S.UIManager:top().on_tab("matches")
+        S.run()
+        S.UIManager:top().on_match("2645301")
+        S.run()
+        S.now = S.now + 45
+        S.UIManager:top().on_page(2)        -- the same look
+        S.run()
+        S.now = S.now + 20
+        S.UIManager:top().on_back()
+        S.run()
+        S.UIManager:top().on_front_page()
+        S.run()
+        local looks, all = {}, {}
+        for _, ev in ipairs(S.uploaded or {}) do all[#all + 1] = ev end -- some may have gone up already
+        for _, ev in ipairs(S.Controller.queue:list()) do all[#all + 1] = ev end
+        for _, ev in ipairs(all) do
+            if ev.type == "sport_viewed" then
+                looks[#looks + 1] = string.format("%s %s %s %d", ev.payload.page, tostring(ev.payload.match_id), tostring(ev.payload.matchday), ev.payload.active_seconds)
+                eq(ev.story_id, nil)
+            end
+        end
+        eq(table.concat(looks, ", "), "matches nil 11 30, next nil 12 10, match 2645301 11 65")
+    end)
+end)
+
 describe("plugin flow logs", function()
     it("no errors or warnings were logged in the last scenario", function()
         collectLogs(require("koreader_stubs"))

@@ -134,6 +134,18 @@ function Api:getIssue(date)
     return r
 end
 
+--- GET the Sport page at the path today's issue gave (docs/sports-page.md 5.3).
+-- A 404 (kind "not_found") means it is off for this child or withdrawn.
+function Api:getSports(path)
+    local r = decodeOk(self, call(self, "GET", path))
+    if r.kind == "ok" and not (type(r.data.updated_at) == "string" and type(r.data.teams) == "table") then
+        r.kind = "server"
+        r.message = "bad Sport page"
+        r.data = nil
+    end
+    return r
+end
+
 --- `wire_events` are already in wire form (events.lua Queue.toWire).
 -- `paper` is the stored { id, root } of the paper the events belong to, or
 -- nil; the server refuses (409) events meant for another child's paper.

@@ -96,6 +96,11 @@ export function fixtureImageFetcher(calls: string[] = []) {
   };
 }
 
+/** The default in tests: the Sport page's feeds are never reached. */
+export async function noNetworkSports(url: string): Promise<unknown> {
+  throw new Error(`no network in tests (${url})`);
+}
+
 export class Clock {
   constructor(public now: Date = NOW) {}
   fn = () => this.now;
@@ -141,6 +146,7 @@ export function makeApp(
     feedFetcher: opts.feedFetcher ?? fixtureFeedFetcher,
     pageFetcher: opts.pageFetcher ?? fixturePageFetcher,
     imageFetcher: opts.imageFetcher ?? noNetworkImages,
+    sportsFetcher: opts.sportsFetcher ?? noNetworkSports,
     clock: clock.fn,
   });
   return {

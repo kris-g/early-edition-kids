@@ -4,6 +4,10 @@ What the child sees in KOReader. The plugin draws the front page, the headline l
 
 These are captures from the KOReader emulator at the Kindle Paperwhite's size. E-ink refresh, fonts and touch can only be judged on the real device.
 
+<img src="images/kindle/set-paper.png" alt="The paper on a Kindle Paperwhite 3: front page, today's paper, end of a story and back issues">
+
+The feature sets (this one and Sport's, below) are made by [`tools/kindle-sets.mjs`](tools/kindle-sets.mjs) from the plugin's screenshot tour run on the sample papers; the script's header says how.
+
 | Front page | Today's paper | A story | End of a story | Back issues |
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="images/kindle/front-page.png" width="160" alt="Front page"> | <img src="images/kindle/todays-paper.png" width="160" alt="Today's paper"> | <img src="images/kindle/story-page.png" width="160" alt="A story with its photo"> | <img src="images/kindle/story-finished.png" width="160" alt="End of a story"> | <img src="images/kindle/back-issues.png" width="160" alt="Back issues"> |
@@ -49,6 +53,23 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 
 - The last 7 papers are kept on the Kindle, so this screen needs no network.
 - Each row shows the day, the lead headline and how much of that paper was read.
+
+## Sport
+
+<img src="images/kindle/set-sport.png" alt="Sport on a Kindle Paperwhite 3: the Sport tile, closed until today's stories are read, the latest results, the table and a match">
+
+When the [Sport page](sports-page.md) is on for a child, Sport is one of the front page's tiles, in place of Check for news, which moves to the bottom row beside Close. It never shows a score.
+
+| Front page | Matches | Table | A match | Line-ups | Closed |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="images/kindle/sport-front-page.png" width="130" alt="The front page with the Sport tile"> | <img src="images/kindle/sport-matches.png" width="130" alt="Sport: the latest matchday's results"> | <img src="images/kindle/sport-table-1.png" width="130" alt="Sport: the table, places 1 to 10"> | <img src="images/kindle/sport-match.png" width="130" alt="A match: goals, cards and substitutions"> | <img src="images/kindle/sport-lineups.png" width="130" alt="A match: both line-ups"> | <img src="images/kindle/sport-closed.png" width="130" alt="Sport closed until three stories are read"> |
+
+- **Closed first.** Until enough of today's stories have been read properly, the tile has a padlock and says how many more stories first, and tapping it opens the next story. A story paged through too quickly doesn't count; if every story is read but not enough count, the tile says how many to read again. Reading on the iPad counts too, once the Kindle has synced.
+- **Matches:** the latest matchday by day on one screen; his club's match is outlined and its winners in bold. A result with `›` opens.
+- **Table:** ten clubs a page, his club's half first, his club in white on black. Tap `1 to 10` and `11 to 20`, or swipe.
+- **Next:** the next round's fixtures with kick-off times.
+- **A match:** two screens. The score, goals, cards, substitutions and injuries, then both line-ups side by side.
+- It is the page fetched with the morning paper, kept on the Kindle, so it opens without Wi-Fi.
 
 ## With Simple UI
 

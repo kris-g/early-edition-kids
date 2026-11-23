@@ -5,6 +5,7 @@
  * the event loop, and /healthz, keep answering while a run waits on the LLM.
  */
 
+import type { Sports } from "./sports/index.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { DEFAULT_PROFILE, issuesDir, topicNames, type Config, type Settings } from "./config.js";
@@ -116,13 +117,15 @@ export interface Context {
   openrouterFetch?: typeof fetch;
   /** The run or job LLM usage is recorded against. */
   scope: UsageScope;
+  /** The Sport page's data, shared by every profile (docs/sports-page.md); null where it isn't wired up. */
+  sports: Sports | null;
 }
 
 export function buildContext(
   settings: Settings,
   config: Config,
   db: Database,
-  extra: Partial<Pick<Context, "profileId" | "profileRoot" | "lock" | "writer" | "checker" | "feedFetcher" | "pageFetcher" | "imageFetcher" | "anthropicClient" | "openrouterFetch">> = {},
+  extra: Partial<Pick<Context, "profileId" | "profileRoot" | "lock" | "writer" | "checker" | "feedFetcher" | "pageFetcher" | "imageFetcher" | "anthropicClient" | "openrouterFetch" | "sports">> = {},
 ): Context {
   const ctx: Context = {
     profileId: extra.profileId ?? DEFAULT_PROFILE,
@@ -141,6 +144,7 @@ export function buildContext(
     anthropicClient: extra.anthropicClient,
     openrouterFetch: extra.openrouterFetch,
     scope: { runId: null, jobId: null },
+    sports: extra.sports ?? null,
   };
   if (!ctx.writer) {
     try {

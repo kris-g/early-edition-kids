@@ -11,6 +11,7 @@ Start with the tours if you want to see what it does, and the spec if you want t
 | [Architecture](architecture.md) | The system overview, the daily pipeline and the morning sync. |
 | [Model comparison](model-comparison.md) | Four writer models tested over four days, and which one is recommended. |
 | [DESIGN.md](DESIGN.md) | The spec the build started from. |
+| [The Sport page](sports-page.md) | A proposal, not yet built: the Premier League table, live results and fixtures, with mockups. |
 | [CONTRACT.md](CONTRACT.md) | The exact interfaces shared by the server, the plugin, the web app and the deploy manifests. |
 
 Each part of the code has its own README for running it: [server](../server/README.md), [web](../web/README.md), [plugin](../plugin/README.md), [deploy](../deploy/README.md).
@@ -21,9 +22,9 @@ Each part of the code has its own README for running it: [server](../server/READ
 docs/
   images/
     architecture/  the system overview, light and dark, made by tools/system-diagram.mjs
-    kindle/        screens from the KOReader emulator
     dashboard/     annotated dashboard screenshots, made by tools/annotate.mjs
     ipad/          annotated iPad setup screenshots, made by tools/annotate-ipad.mjs
+    kindle/        screens from the KOReader emulator, and the feature sets made by tools/kindle-sets.mjs
     mockups/       the three original mockups the design started from
   tools/           scripts that make the images
 ```

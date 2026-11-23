@@ -29,6 +29,7 @@ npm run build      # type check, then dist/
 |---|---|
 | `src/app.ts` | Screens, moving about, pages and the long paper, reading sessions and their events |
 | `src/views.ts` | Each screen as HTML (front page, story, Story finished, Back issues, My week, waiting) |
+| `src/sport.ts`, `src/sportviews.ts` | The Sport page: what is kept, whether it is open yet (read first), and its screens: the front page strip, the three tabs, a match, closed |
 | `src/styles.css` | The mock-up's styles, with the new screens and the iPad's safe areas |
 | `src/library.ts` | The papers kept on the iPad, read marks, and the Kindle's rules for versions and profiles |
 | `src/events.ts`, `src/uploader.ts` | The event queue and sending it in batches |

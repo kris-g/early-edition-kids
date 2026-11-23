@@ -25,6 +25,7 @@ local FrontPage = W.Page:extend{
     on_back_issues = nil,
     on_my_week = nil,
     on_check = nil,
+    on_sport = nil,        -- the Sport strip: Sport when open, else the next story to read
 }
 
 function FrontPage:card()
@@ -152,17 +153,33 @@ function FrontPage:tiles()
             W.Text{ text = "Not today", face = W.face(W.SERIF_BOLD, 34), max_width = inner },
         }, W.px(6))
     end
-    contents[4] = W.HRow({ W.Icon("refresh", icon), tileText("Check for news", m.updated or "Tap to look now", text_w) }, igap)
+    -- On a day with Sport (docs/sports-page.md 2.5), Sport takes this tile and Check for
+    -- news moves to the footer: the page has no room for another row. Never a score;
+    -- closed, a padlock and how many more stories first.
+    local sport = m.sport
+    if sport then
+        contents[4] = W.HRow({ sport.open and W.TopicIcon("Football", icon) or W.Icon("lock", icon),
+                               tileText("Sport", sport.tile_sub, text_w) }, igap)
+    else
+        contents[4] = W.HRow({ W.Icon("refresh", icon), tileText("Check for news", m.updated or "Tap to look now", text_w) }, igap)
+    end
 
-    local h = W.px(124)
-    for _, c in ipairs(contents) do h = math.max(h, c:getSize().h + 2 * (W.px(border) + W.px(pv))) end
-    local function tile(content, callback)
+    -- Each row as tall as its own tallest tile: the top row needs less than Word of the day,
+    -- which leaves the page room for even gaps around the tiles.
+    local function rowHeight(a, b)
+        local h = W.px(124)
+        for _, c in ipairs({ a, b }) do h = math.max(h, c:getSize().h + 2 * (W.px(border) + W.px(pv))) end
+        return h
+    end
+    local h1, h2 = rowHeight(contents[1], contents[2]), rowHeight(contents[3], contents[4])
+    local function tile(content, callback, h)
         local box = W.Box{ content = content, border = border, pad_h = ph, pad_v = pv, width = tw, min_height = h }
         return callback and W.tappable(box, callback) or box
     end
     return W.VCol({
-        W.HRow({ tile(contents[1], self.on_back_issues), tile(contents[2], self.on_my_week) }, gap),
-        W.HRow({ tile(contents[3]), tile(contents[4], self.on_check) }, gap),
+        W.HRow({ tile(contents[1], self.on_back_issues, h1), tile(contents[2], self.on_my_week, h1) }, gap),
+        W.HRow({ tile(contents[3], nil, h2), tile(contents[4], sport and function() if self.on_sport then self.on_sport(sport.open) end end
+                                                         or self.on_check, h2) }, gap),
     }, gap)
 end
 
@@ -171,6 +188,14 @@ function FrontPage:footer()
     local close = W.Button{ text = "Close", width = W.px(170), height = 90, text_size = 28, border = 2,
                             callback = function() self:onClose() end }
     local text_w = cw - close:getSize().w - W.px(24)
+    if self.model.sport then
+        -- Sport has the tile: Check for news is here instead, with when the paper came.
+        local check = W.Button{ text = "Check for news", icon_left = "refresh", icon_size = 30, height = 90, text_size = 26, border = 2,
+                                callback = function() if self.on_check then self.on_check() end end }
+        local updated = W.Text{ text = self.model.updated or "", face = W.face(W.SANS, 22), color = W.SECONDARY }
+        local left = W.HRow({ check, updated }, W.px(20))
+        return W.SplitRow(cw, left, close, "center")
+    end
     local sources = W.TextBox{ text = self.model.sources_text or "", face = W.face(W.SANS, 22),
                                color = W.SECONDARY, width = text_w }
     return W.SplitRow(cw, sources, close, "center")
@@ -188,7 +213,7 @@ function FrontPage:build()
         W.VSpace(W.px(16)),
         W.Label("The news, written for you", 24),
     }, 0, "center")
-    return {
+    local items = {
         W.SplitRow(cw, W.Label(m.date_line or "", 24), m.number_text and W.Label(m.number_text, 24) or nil),
         { space = 16 },
         W.Rule(cw, W.px(2)),
@@ -200,10 +225,14 @@ function FrontPage:build()
         self:card(),
         { space = tight and 18 or 26 },
         self:tiles(),
+    }
+    local tail = {
         { flex = true },
         { space = 16 },
         self:footer(),
     }
+    for _, it in ipairs(tail) do items[#items + 1] = it end
+    return items
 end
 
 return FrontPage

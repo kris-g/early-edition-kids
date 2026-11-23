@@ -18,6 +18,7 @@ const GROUPS: { label: string; links: MoreLink[] }[] = [
     links: [
       { to: '/find', label: 'Add a story', hint: 'Search the news or paste a link, for today or tomorrow' },
       { to: '/topics', label: 'Topics', hint: 'What the paper leans towards; pin or turn off' },
+      { to: '/sport', label: 'Sport', hint: 'The football page, and how much news to read before it opens' },
       { to: '/ai', label: 'AI', hint: 'Who writes and checks the paper, and what it costs' },
     ],
   },

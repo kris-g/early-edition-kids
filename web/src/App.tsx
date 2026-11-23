@@ -17,6 +17,7 @@ import { Share } from './pages/Share'
 import { Story } from './pages/Story'
 import { Today } from './pages/Today'
 import { Topics } from './pages/Topics'
+import { Sport } from './pages/Sport'
 import { basenameFor } from './lib/profile'
 
 // No login route in the app: Authelia on the cluster edge, or the server's own
@@ -36,6 +37,7 @@ export function AppRoutes() {
             <Route path="day/:date" element={<Day />} />
             <Route path="find" element={<Find />} />
             <Route path="topics" element={<Topics />} />
+            <Route path="sport" element={<Sport />} />
             <Route path="reading" element={<Reading />} />
             <Route path="calendar" element={<Calendar />} />
             <Route path="ai" element={<Ai />} />
