@@ -26,6 +26,7 @@ Queue.TYPES = {
     list_shown = true,
     story_opened = true,
     story_closed = true,
+    sport_viewed = true,     -- a look at the Sport page (docs/sports-page.md 5.4)
 }
 
 function Queue.new(store, make_id)

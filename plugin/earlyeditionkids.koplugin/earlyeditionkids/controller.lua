@@ -47,6 +47,7 @@ local Store = require("earlyeditionkids/store")
 local StoryInfo = require("earlyeditionkids/storyinfo")
 local Models = require("earlyeditionkids/models")
 local SimpleUI = require("earlyeditionkids/simpleui")
+local Sport = require("earlyeditionkids/sport")
 local Syncer = require("earlyeditionkids/syncer")
 local UIManager = require("ui/uimanager")
 local UUID = require("earlyeditionkids/uuid")
@@ -64,7 +65,8 @@ local Controller = {
     syncing = false,
     waiting_for_network = nil,
     screen = nil,          -- our full-screen page currently shown (front page, headlines, ...)
-    screen_kind = nil,     -- "frontpage" | "headlines" | "backissues" | "myweek"
+    screen_kind = nil,     -- "frontpage" | "headlines" | "backissues" | "myweek" | "sport" | "sportmatch"
+    sport_look = nil,      -- the Sport page being looked at, timed for sport_viewed
     panel = nil,           -- FinishedPanel currently shown
     clock = os.time,       -- wall clock, replaced by Env.now in setup
 }
@@ -293,6 +295,7 @@ function Controller:startSync(opts)
 end
 
 function Controller:onResume()
+    if self.screen_kind == "sport" or self.screen_kind == "sportmatch" then self:beginSportLook() end
     self:scheduleAutoSync(3)
 end
 
@@ -332,6 +335,7 @@ function Controller:uploadNow()
 end
 
 function Controller:onSuspend()
+    self:endSportLook()
     if self._upload_task then
         UIManager:unschedule(self._upload_task)
         self._upload_task = nil
@@ -429,6 +433,10 @@ function Controller:afterSync(result, opts)
                 self:notify(result.added == 1 and "A new story has been added to today's paper."
                             or T("%1 new stories have been added to today's paper.", result.added))
             end
+        elseif result.sport_changed and self.screen
+               and (self.screen_kind == "frontpage" or self.screen_kind == "sport" or self.screen_kind == "sportmatch") then
+            -- The Sport page or its lock changed (a new page, or a parent changed the rule).
+            self:refreshScreen()
         elseif result.backfilled and #result.backfilled > 0 and self.screen
                and (self.screen_kind == "backissues" or self.screen_kind == "frontpage") then
             -- Back issues caught up: no notice, no new screen; just redraw the
@@ -474,10 +482,122 @@ function Controller:latestDate()
     return self.store:get("current_date") or self.issues:listDates()[1]
 end
 
+---------------------------------------------------------------------------
+-- The Sport page (docs/sports-page.md; logic in sport.lua)
+---------------------------------------------------------------------------
+
+function Controller:sportView()
+    return Sport.load(self.issues, JSON)
+end
+
+--- Whether Sport is open today; once it opens it stays open for the day.
+function Controller:sportLock()
+    local today = self:today()
+    local lock = Sport.lock{
+        today = today,
+        sport_issue = self.store:get("sport_issue"),
+        view = self:sportView(),
+        sport_day = self.store:get("sport_day"),
+        sport_open = self.store:get("sport_open"),
+        entries = self.readlog:entries(),
+    }
+    if lock.stick and self.store:get("sport_open") ~= today then
+        self.store:set("sport_open", today)
+        self.store:save()
+    end
+    return lock
+end
+
+function Controller:sportModel(tab, half)
+    local view = self:sportView()
+    local lock = self:sportLock()
+    local m = { tab = tab or "matches" }
+    if not lock.open then
+        m.closed = { needed = lock.needed, counted = lock.counted, togo = lock.needed - lock.counted }
+        return m
+    end
+    if not view then return m end
+    m.matchday = Sport.matchday(view, view.matchday)
+    m.next = Sport.matchday(view, view.next)
+    m.table = view.matchday and Sport.tableHalf(view, half) or nil
+    m.results_text = view.results_to and ("Results to " .. Sport.shortDay(view.results_to)) or ""
+    if m.tab == "matches" and not m.matchday then m.tab = m.next and "next" or "table" end
+    return m
+end
+
+--- The next story to read in today's paper, for the closed strip and screen.
+function Controller:nextStoryToRead()
+    local date = self:latestDate()
+    if not date then return nil end
+    return date, Models.firstUnread(self.issues:visibleStories(date), self.store:issueState(date).read)
+end
+
+function Controller:openNextStory()
+    local date, story = self:nextStoryToRead()
+    if story then self:openStory(date, story, { kind = "frontpage" })
+    elseif date then self:showHeadlines(date)
+    else self:showFrontPage() end
+end
+
+function Controller:showSport(tab, half)
+    if not self.ready then return end
+    self:configureWidgets()
+    local SportScreen = require("earlyeditionkids/ui/sport")
+    local m = self:sportModel(tab, half)
+    self:present("sport", SportScreen:new{
+        model = m,
+        on_tab = function(t, h) self:showSport(t, h) end,
+        on_match = function(id) self:showSportMatch(id, 1) end,
+        on_front_page = function() self:showFrontPage() end,
+        on_paper = function() self:openNextStory() end,
+        on_close = function() self:showFrontPage() end,
+    }, { tab = m.tab, half = m.table and m.table.half or nil, closed = m.closed ~= nil,
+         matchday = (m.tab == "next" and m.next or m.matchday or {}).number })
+end
+
+function Controller:showSportMatch(id, page)
+    if not self.ready then return end
+    local view = self:sportView()
+    local model = view and self:sportLock().open and Sport.match(view, id)
+    if not model then return self:showSport("matches") end
+    self:configureWidgets()
+    local MatchScreen = require("earlyeditionkids/ui/sportmatch")
+    self:present("sportmatch", MatchScreen:new{
+        model = model,
+        page = page or 1,
+        on_page = function(p) self:showSportMatch(id, p) end,
+        on_back = function() self:showSport("matches") end,
+        on_close = function() self:showSport("matches") end,
+    }, { id = id, page = page or 1, matchday = view.matchday and view.matchday.number })
+end
+
+--- Start timing the Sport page now showing (not the closed screen, nor the second page of the same match).
+function Controller:beginSportLook()
+    local kind, args = self.screen_kind, self.screen_args or {}
+    if kind == "sport" and not args.closed and self:sportView() then
+        self.sport_look = { page = args.tab, match_id = nil, matchday = args.matchday, started = self.clock() }
+    elseif kind == "sportmatch" then
+        self.sport_look = { page = "match", match_id = args.id, matchday = args.matchday, started = self.clock() }
+    end
+end
+
+--- Record the Sport page being left: sport_viewed, if it was looked at for long enough (docs/sports-page.md 5.4).
+function Controller:endSportLook()
+    local look = self.sport_look
+    if not look then return end
+    self.sport_look = nil
+    local seconds = math.min(Const.SPORT_MAX_LOOK, math.max(0, self.clock() - look.started))
+    if seconds < Const.SPORT_MIN_LOOK then return end
+    self.queue:add("sport_viewed", nil, { page = look.page, match_id = look.match_id, matchday = look.matchday,
+                                          active_seconds = math.floor(seconds) }, self.clock())
+    self.store:save()
+    self:scheduleUpload()
+end
+
 function Controller:frontModel()
     local date = self:latestDate()
     local idx = date and self.issues:loadIndex(date)
-    return Models.frontPage{
+    local m = Models.frontPage{
         date = idx and date or nil,
         today = self:today(),
         idx = idx,
@@ -492,6 +612,8 @@ function Controller:frontModel()
         end,
         skew = self.store:get("clock_skew"),
     }
+    m.sport = Sport.strip(self.store:get("sport_issue"), self:today(), self:sportLock())
+    return m
 end
 
 function Controller:headlineModel(date)
@@ -565,15 +687,21 @@ end
 
 --- Shows a screen widget, replacing the one we had (no callbacks fired).
 function Controller:present(kind, widget, args)
+    local same_match = kind == "sportmatch" and self.screen_kind == "sportmatch"
+                       and (self.screen_args or {}).id == (args or {}).id
+    -- Moving on from a Sport page records it; the second page of a match is the same look.
+    if not same_match then self:endSportLook() end
     local old = self.screen
     self.screen, self.screen_kind, self.screen_args = widget, kind, args
     -- A full refresh only when one of our pages replaces the reader or file
     -- browser, to clear e-ink ghosting; between our own pages "partial".
     UIManager:show(widget, old and "partial" or "full")
     if old then UIManager:close(old) end
+    if not same_match then self:beginSportLook() end
 end
 
 function Controller:dismissScreen()
+    self:endSportLook()
     if self.screen then
         local w = self.screen
         self.screen, self.screen_kind, self.screen_args = nil, nil, nil
@@ -586,7 +714,9 @@ function Controller:refreshScreen()
     if kind == "frontpage" then self:showFrontPage()
     elseif kind == "headlines" then self:showHeadlines(args.date, args.page)
     elseif kind == "backissues" then self:showBackIssues()
-    elseif kind == "myweek" then self:showMyWeek() end
+    elseif kind == "myweek" then self:showMyWeek()
+    elseif kind == "sport" then self:showSport(args.tab, args.half)
+    elseif kind == "sportmatch" then self:showSportMatch(args.id, args.page) end
 end
 
 function Controller:showFrontPage()
@@ -609,6 +739,9 @@ function Controller:showFrontPage()
         on_back_issues = function() self:showBackIssues() end,
         on_my_week = function() self:showMyWeek() end,
         on_check = function() UIManager:nextTick(function() self:checkNow() end) end,
+        on_sport = function(open)
+            if open then self:showSport() else self:openNextStory() end
+        end,
         on_close = function()
             -- Leaving Early Edition: back to his book, else Simple UI's home
             -- screen when it is installed, else the file browser.

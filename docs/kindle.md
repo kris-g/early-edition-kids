@@ -50,6 +50,17 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 - The last 7 papers are kept on the Kindle, so this screen needs no network.
 - Each row shows the day, the lead headline and how much of that paper was read.
 
+## Sport
+
+When the [Sport page](sports-page.md) is on for a child, the front page has a Sport strip under the tiles. It never shows a score. Mock-ups of every screen are in [the Sport page's mock-ups](mockups/sports-page/index.html).
+
+- **Closed first.** Until enough of today's stories have been read properly, the strip has a padlock and says how many more to go, and tapping it opens the next story. A story paged through too quickly doesn't count. Reading on the iPad counts too, once the Kindle has synced.
+- **Matches:** the latest matchday by day on one screen; his club's match is outlined. A result with `›` opens.
+- **Table:** ten clubs a page, his club's half first, his club in white on black. Tap `1 to 10` and `11 to 20`, or swipe.
+- **Next:** the next round's fixtures with kick-off times.
+- **A match:** two screens. The score, goals, cards, substitutions and injuries, then both line-ups side by side.
+- It is the page fetched with the morning paper, kept on the Kindle, so it opens without Wi-Fi.
+
 ## With Simple UI
 
 <img src="images/kindle/simpleui-home.png" width="360" alt="Simple UI home screen: a deck of book covers, reading goals and stats, with Early Edition in the navigation bar between Home and History">

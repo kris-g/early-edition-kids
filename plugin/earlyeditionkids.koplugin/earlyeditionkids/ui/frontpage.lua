@@ -25,6 +25,7 @@ local FrontPage = W.Page:extend{
     on_back_issues = nil,
     on_my_week = nil,
     on_check = nil,
+    on_sport = nil,        -- the Sport strip: Sport when open, else the next story to read
 }
 
 function FrontPage:card()
@@ -166,6 +167,27 @@ function FrontPage:tiles()
     }, gap)
 end
 
+--- The Sport strip (docs/sports-page.md 2.5): never a score. Closed: a padlock and how many more to go.
+function FrontPage:sportStrip()
+    local s = self.model.sport
+    if not s then return nil end
+    local cw = self.content_w
+    local border = 2
+    local ico_w = W.px(96)
+    local go = W.HRow({ W.Text{ text = s.open and "Table, results" or "Today's paper", face = W.face(W.SANS_BOLD, 26) },
+                        W.Icon("arrow-right", 30) }, W.px(8))
+    local text_w = cw - 2 * W.px(border) - ico_w - go:getSize().w - W.px(24) - W.px(24)
+    local text = W.VCol({
+        W.Text{ text = "Sport", face = W.face(W.SERIF_BOLD, 34), max_width = text_w },
+        W.Text{ text = s.sub or "", face = W.face(W.SANS, 23), color = W.SECONDARY, max_width = text_w },
+    }, W.px(2))
+    local h = math.max(W.px(96), text:getSize().h + W.px(16))
+    local ico = W.Fixed(s.open and W.TopicIcon("Football", 60) or W.Icon("lock", 60), ico_w, h, "center")
+    local row = W.HRow({ ico, W.Rule(W.px(border), h), W.HSpace(W.px(22)), W.Fixed(text, text_w, h, "left"), W.Fixed(go, go:getSize().w, h, "right") }, 0)
+    local box = W.Box{ content = row, border = border, pad_h = 0, pad_v = 0, width = cw }
+    return W.tappable(box, function() if self.on_sport then self.on_sport(s.open) end end)
+end
+
 function FrontPage:footer()
     local cw = self.content_w
     local close = W.Button{ text = "Close", width = W.px(170), height = 90, text_size = 28, border = 2,
@@ -188,7 +210,7 @@ function FrontPage:build()
         W.VSpace(W.px(16)),
         W.Label("The news, written for you", 24),
     }, 0, "center")
-    return {
+    local items = {
         W.SplitRow(cw, W.Label(m.date_line or "", 24), m.number_text and W.Label(m.number_text, 24) or nil),
         { space = 16 },
         W.Rule(cw, W.px(2)),
@@ -200,10 +222,19 @@ function FrontPage:build()
         self:card(),
         { space = tight and 18 or 26 },
         self:tiles(),
+    }
+    local strip = self:sportStrip()
+    if strip then
+        items[#items + 1] = { space = tight and 14 or 18 }
+        items[#items + 1] = strip
+    end
+    local tail = {
         { flex = true },
         { space = 16 },
         self:footer(),
     }
+    for _, it in ipairs(tail) do items[#items + 1] = it end
+    return items
 end
 
 return FrontPage

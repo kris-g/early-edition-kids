@@ -483,4 +483,6 @@ After a story closes, the plugin also uploads queued events on their own, with n
 
 A sync uploads events, then fetches `/api/issue/today`. If the date and version match what it has, it applies `hidden` (removes those stories from the headline list and deletes their files, photos included). A higher version replaces the stored issue only if no story from it has been opened.
 
+When today's issue has `sports`, the plugin fetches that path in the same sync, after the issue, and keeps the page and the issue's `sports` field; a 404 there drops what it kept (see "Sport page").
+
 The plugin stores `profile` and `profile_root` from issue responses (today's and back issues) and sends them with its events. When an issue arrives from a different paper (the rule under the issue fields), it first clears its issues, reading log and queued events, then applies the issue as new. An absent `profile` on either side (an older server, or nothing stored yet) changes nothing.
