@@ -162,6 +162,7 @@ function StoryPane({
       <Card>
         <p className="text-sm">{statsSentence(s.stats)}</p>
         {s.stats.engaged && <p className="mt-1 text-sm text-accent">Engaged.</p>}
+        {s.stats.too_fast && <p className="mt-1 text-sm font-semibold text-warm">Read too fast.</p>}
         <p className="mt-2 text-xs text-muted">{ENGAGED_EXPLAINER}</p>
       </Card>
 

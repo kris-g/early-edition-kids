@@ -524,6 +524,17 @@ describe("Sport opens after reading", () => {
     r = await t.agent.put("/api/dashboard/sport/settings").set(DASH).send({ read_first: 1, min_reading: 0 });
     expect(r.status).toBe(200);
     expect(r.body.settings).toEqual({ enabled: true, read_first: 1, min_reading: 0 });
+    // The speed is the child's reading setting now; an older dashboard setting it here still works.
+    expect((await t.agent.get("/api/dashboard/reading/settings")).body).toEqual({ min_reading: 0 });
+    r = await t.agent.put("/api/dashboard/reading/settings").set(DASH).send({ min_reading: 0.25 });
+    expect(r.body).toEqual({ min_reading: 0.25 });
+    expect((await t.agent.get("/api/dashboard/sport/settings")).body.settings.min_reading).toBe(0.25);
+    expect((await t.agent.put("/api/dashboard/reading/settings").set(DASH).send({ min_reading: "fast" })).status).toBe(400);
+    // Every story carries its least reading time, Sport or not; the lock's rule uses the same numbers.
+    const withMin = (await request(t.app).get("/api/issue/today")).body;
+    for (const s of withMin.stories) expect(withMin.sports.unlock.min_seconds[String(s.id)]).toBe(s.min_seconds);
+    expect(withMin.stories.every((s: { min_seconds: number }) => s.min_seconds > 0)).toBe(true);
+    await t.agent.put("/api/dashboard/reading/settings").set(DASH).send({ min_reading: 0 });
     let issue = (await request(t.app).get("/api/issue/today")).body;
     expect(issue.sports.unlock.needed).toBe(6);
     expect(Object.values(issue.sports.unlock.min_seconds).every((s) => s === 0)).toBe(true);

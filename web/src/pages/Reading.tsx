@@ -6,6 +6,7 @@ import { DayStrip } from '../components/charts/DayStrip'
 import { MinutesLineChart } from '../components/charts/MinutesLineChart'
 import { ChartLegend, StoriesBarChart } from '../components/charts/StoriesBarChart'
 import { RangePills } from '../components/RangePills'
+import { ReadingSpeed } from '../components/ReadingSpeed'
 import { BigNumber, Card, ErrorNote, Eyebrow, Loading, PageHeader, SectionTitle } from '../components/ui'
 import { dayMonthLong, plural, rangeLabel, weekdayDayMonth } from '../lib/format'
 import type { RangeDays } from '../lib/ranges'
@@ -107,6 +108,8 @@ export function Reading() {
               </div>
             ))}
           </Card>
+
+          <ReadingSpeed tooFast={r.too_fast} days={r.days.length} />
         </div>
       )}
     </div>

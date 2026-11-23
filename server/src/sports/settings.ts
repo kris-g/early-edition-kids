@@ -7,6 +7,7 @@
 import { loadsJson, type Database } from "../db.js";
 import type { Config } from "../config.js";
 import type { SportSettings } from "../dashboard/types.js";
+import { readingSettings, updateReadingSettings } from "../reading.js";
 
 export type { SportSettings };
 
@@ -28,7 +29,8 @@ export function sportSettings(db: Database, config: Config): SportSettings {
   return {
     enabled: typeof s.enabled === "boolean" ? s.enabled : config.sports.enabled,
     read_first: share(s.read_first) ?? config.sports.readFirst,
-    min_reading: share(s.min_reading) ?? config.sports.minReading,
+    // The child's reading setting (reading.ts), which Sport's lock uses for "not too fast".
+    min_reading: readingSettings(db, config).min_reading,
   };
 }
 
@@ -41,12 +43,17 @@ export function updateSportSettings(db: Database, config: Config, body: unknown)
     if (typeof b.enabled !== "boolean") throw new SportSettingsError("Sport is either on or off.");
     next.enabled = b.enabled;
   }
-  for (const key of ["read_first", "min_reading"] as const) {
-    if (!(key in b)) continue;
-    const v = share(b[key]);
-    if (v === null) throw new SportSettingsError(`${key === "read_first" ? "How much to read first" : "The reading time"} must be between 0 and 1.`);
-    next[key] = v;
+  if ("read_first" in b) {
+    const v = share(b.read_first);
+    if (v === null) throw new SportSettingsError("How much to read first must be between 0 and 1.");
+    next.read_first = v;
   }
+  // Older dashboards set the speed here; it is the reading setting now.
+  if ("min_reading" in b) {
+    if (share(b.min_reading) === null) throw new SportSettingsError("The reading time must be between 0 and 1.");
+    updateReadingSettings(db, config, { min_reading: b.min_reading });
+  }
+  delete next.min_reading;
   db.run("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [KEY, JSON.stringify(next)]);
   return sportSettings(db, config);
 }

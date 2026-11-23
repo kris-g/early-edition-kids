@@ -102,10 +102,11 @@ export function plural(n: number, one: string, many = `${one}s`): string {
   return `${n} ${n === 1 ? one : many}`
 }
 
-export type ReadState = 'not_opened' | 'opened' | 'finished' | 'engaged'
+export type ReadState = 'not_opened' | 'opened' | 'finished' | 'too_fast' | 'engaged'
 
 export function readState(stats: StoryStats): ReadState {
   if (stats.engaged) return 'engaged'
+  if (stats.too_fast) return 'too_fast'
   if (stats.reached_end) return 'finished'
   if (stats.opened) return 'opened'
   return 'not_opened'
@@ -115,17 +116,19 @@ export const READ_STATE_LABEL: Record<ReadState, string> = {
   not_opened: 'Not opened',
   opened: 'Opened',
   finished: 'Finished',
+  too_fast: 'Read too fast',
   engaged: 'Engaged',
 }
 
 export const ENGAGED_EXPLAINER =
-  'Engaged means the story was opened, read to the last page and given at least half the expected reading time.'
+  'Engaged means the story was read to the last page, and not too fast: for at least the share of its expected reading time set under Not too fast on the Reading page. Read to the end faster than that, it was read too fast.'
 
 /** "Opened, read to the end, 1 min 50 s of an expected 1 min 30 s" */
 export function statsSentence(stats: StoryStats): string {
   if (!stats.opened) return `Not opened yet. Expected reading time ${duration(stats.expected_seconds)}.`
   const end = stats.reached_end ? 'read to the end' : 'not read to the end'
-  return `Opened, ${end}, ${duration(stats.active_seconds)} of an expected ${duration(stats.expected_seconds)}`
+  const fast = stats.too_fast ? `. Read too fast: at least ${duration(stats.min_seconds)} counts` : ''
+  return `Opened, ${end}, ${duration(stats.active_seconds)} of an expected ${duration(stats.expected_seconds)}${fast}`
 }
 
 /** "bbc.co.uk" from a URL, or the input when it is not one. */
@@ -266,7 +269,7 @@ export function prettyModel(id: string): string {
 }
 
 /** "Read to the end · 1 min 50 s" and friends, for the story status pills. */
-export type StoryStatusKind = 'read' | 'opened' | 'none'
+export type StoryStatusKind = 'read' | 'too_fast' | 'opened' | 'none'
 
 /** With `paperDate`, a story read on a later day says when: "Read on Sun 15 Nov · 3 min 27 s". */
 export function storyStatus(
@@ -274,6 +277,7 @@ export function storyStatus(
   short = false,
   paperDate?: string,
 ): { kind: StoryStatusKind; label: string } {
+  if (stats.reached_end && stats.too_fast) return { kind: 'too_fast', label: `Read too fast · ${duration(stats.active_seconds)}` }
   if (stats.reached_end) {
     const later = paperDate && stats.read_on && stats.read_on !== paperDate
     const what = later ? `Read on ${weekdayDayMonthShort(stats.read_on!)}` : short ? 'Read' : 'Read to the end'

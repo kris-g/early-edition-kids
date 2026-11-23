@@ -14,7 +14,7 @@ Everything at a glance: the reading streak, stories per day, this month's calend
 
 ## Reading
 
-How much gets read and which topics, over 14 days, 30 days or 12 weeks.
+How much gets read and which topics, over 14 days, 30 days or 12 weeks. **Not too fast** sets how quickly this child can read a story and have it count (Any, ¼, ½ or ¾ of its expected time), and says how many stories were read too fast in the range. Such a story is marked Read too fast on the Day screen, in story lists and on the story page.
 
 ![Reading page with numbered callouts](images/dashboard/reading.png)
 
@@ -52,7 +52,7 @@ Which model writes and which checks, what each costs, and how the month's spend 
 
 - **Devices:** the addresses and steps for putting the paper on a Kindle or an iPad.
 - **Server:** the server's version, what it runs on, how long it has been running and, when a child has the Sport page, its last fetch from the football feeds; then the daily runs that made the recent papers.
-- **Sport:** whether this child has the Sport page, how much of today's paper to read before it opens and how fast is too fast, today's progress, and the last 7 days' time on Sport. [sports-page.md](sports-page.md) has the rules.
+- **Sport:** whether this child has the Sport page, how much of today's paper to read before it opens, today's progress, and the last 7 days' time on Sport. [sports-page.md](sports-page.md) has the rules.
 - **Share:** six picture cards (streak, today, the week, milestone, words learned, ask me about) to send to family. They are drawn in the browser; [CONTRACT.md](CONTRACT.md#share-cards-added-14-november-2026) has the rules.
 
 ## Remaking the screenshots

@@ -20,7 +20,7 @@ const STORY_CARD_KEYS = [
 
 function expectStoryCard(c: any) {
   expect(Object.keys(c).sort()).toEqual(STORY_CARD_KEYS);
-  expect(Object.keys(c.stats).sort()).toEqual(["active_seconds", "engaged", "expected_seconds", "opened", "reached_end", "read_on"]);
+  expect(Object.keys(c.stats).sort()).toEqual(["active_seconds", "engaged", "expected_seconds", "min_seconds", "opened", "reached_end", "read_on", "too_fast"]);
 }
 
 describe("two ports, no login", () => {
@@ -116,7 +116,7 @@ describe("dashboard routes", () => {
     expect(v.downloaded_by).toEqual([{ device: "device-1", version: 1, received_at: expect.any(String) }]);
     expect(v.stories.length).toBe(6);
     v.stories.forEach(expectStoryCard);
-    expect(v.stories[0].stats).toEqual({ opened: true, reached_end: true, active_seconds: 300, expected_seconds: expect.any(Number), engaged: true, read_on: null });
+    expect(v.stories[0].stats).toEqual({ opened: true, reached_end: true, active_seconds: 300, expected_seconds: expect.any(Number), min_seconds: expect.any(Number), too_fast: false, engaged: true, read_on: null });
     expect(v.stories[0].source_url).toContain("https://");
   });
 

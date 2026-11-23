@@ -163,7 +163,8 @@ export function readingView(ctx: Context, today: string, days: number): ReadingV
   const totalMinutes = list.reduce((n, d) => n + d.minutes, 0);
 
   // Topics: stories shown in issues dated in the range, and stories read in the range.
-  const shownStats = storyStats(ctx.db, ctx.config, today, { days }).filter((s) => s.currentVersion && s.shown);
+  const rangeStats = storyStats(ctx.db, ctx.config, today, { days });
+  const shownStats = rangeStats.filter((s) => s.currentVersion && s.shown);
   const readIds = [...new Set(events.filter((e) => e.read).map((e) => e.storyId))];
   const readTopics = new Map<string, number>();
   if (readIds.length) {
@@ -186,6 +187,7 @@ export function readingView(ctx: Context, today: string, days: number): ReadingV
     total_read: totalRead,
     avg_read_per_day: round1(totalRead / days),
     avg_minutes_per_day: round1(totalMinutes / days),
+    too_fast: rangeStats.filter((s) => s.tooFast).length,
     topics,
   };
 }

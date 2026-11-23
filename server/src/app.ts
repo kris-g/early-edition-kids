@@ -55,7 +55,8 @@ import { Sports, sportsFile, type JsonFetcher } from "./sports/index.js";
 import { SPORT_VIEWED, sportViewedPayload } from "./dashboard/sport.js";
 import { sportSettings } from "./sports/settings.js";
 import { unlockRule, unlockStatus } from "./sports/unlock.js";
-import { minutesFor } from "./weights.js";
+import { minSecondsFor, minutesFor } from "./weights.js";
+import { readingSettings } from "./reading.js";
 
 export const EVENT_TYPES = new Set(["issue_downloaded", "list_shown", "story_opened", "story_closed", SPORT_VIEWED]);
 const STORY_EVENT_TYPES = new Set(["story_opened", "story_closed"]);
@@ -416,6 +417,7 @@ export function issuePayload(ctx: Context, date: string, now: Date = new Date())
   const version = Number(issue.version);
   const stories: Array<Record<string, unknown>> = [];
   const hidden: number[] = [];
+  const minReading = readingSettings(ctx.db, ctx.config).min_reading;
   for (const r of ctx.db.storiesFor(date, version)) {
     if (r.hidden) {
       hidden.push(Number(r.id));
@@ -428,6 +430,8 @@ export function issuePayload(ctx: Context, date: string, now: Date = new Date())
       title: r.title,
       teaser: r.teaser,
       minutes: minutesFor(Number(r.word_count), ctx.config.readingWpm),
+      // Read to the end in fewer active seconds than this, it was read too fast (CONTRACT.md "Read too fast").
+      min_seconds: minSecondsFor(Number(r.word_count), ctx.config.readingWpm, minReading),
       path: storyPath(date, version, Number(r.position)),
       word_to_know: parseWordToKnow(r.word_to_know),
       // The source article's photo for the iPad reader, {path, alt} relative to the mount, or null.

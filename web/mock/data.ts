@@ -265,6 +265,9 @@ export function makeStory(
       reached_end: stats === 'finished' || stats === 'engaged',
       active_seconds: active,
       expected_seconds: expected,
+      // 'finished' is read at about a third of the expected time: under half, so read too fast.
+      min_seconds: Math.ceil(expected * 0.5),
+      too_fast: stats === 'finished',
       engaged: stats === 'engaged',
       read_on: stats === 'finished' || stats === 'engaged' ? date : null,
     },

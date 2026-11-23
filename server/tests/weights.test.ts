@@ -3,6 +3,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { parseConfig } from "../src/config.js";
 import { Database } from "../src/db.js";
+import { readingSettings, updateReadingSettings } from "../src/reading.js";
 import { addDays } from "../src/timeutil.js";
 import { effectiveWeight, engagementRate, minutesFor, storyStats, streak, topicStats } from "../src/weights.js";
 import { TODAY, tmpDir } from "./helpers.js";
@@ -84,6 +85,20 @@ describe("reading signals", () => {
     expect(stats.get(d)!.opened).toBe(false);
     expect(stats.get(a)!.expectedSeconds).toBeCloseTo(90);
 
+    // Read too fast: to the end, in under half the expected time (the default reading setting).
+    expect(stats.get(a)!.minSeconds).toBe(45);
+    expect(stats.get(a)!.tooFast).toBe(false);
+    expect(stats.get(b)!.tooFast).toBe(true);
+    expect(stats.get(c)!.tooFast).toBe(false); // not finished, so not "read" at all
+
+    // The child's reading setting moves the line for both.
+    updateReadingSettings(db, cfg, { min_reading: 0.25 });
+    const looser = new Map(storyStats(db, cfg, TODAY).map((s) => [s.id, s]));
+    expect(looser.get(b)!.minSeconds).toBe(23);
+    expect(looser.get(b)!.tooFast).toBe(false);
+    expect(looser.get(b)!.engaged).toBe(true);
+    updateReadingSettings(db, cfg, { min_reading: 0.5 });
+
     const topics = new Map(topicStats(cfg, {}, [...stats.values()]).map((t) => [t.name, t]));
     expect(topics.get("Football")!.shown).toBe(2);
     expect(topics.get("Football")!.engaged).toBe(1);
@@ -139,5 +154,27 @@ describe("reading signals", () => {
     const [sid] = addIssue(TODAY, ["Science"]);
     closed(sid, 100);
     expect(streak(storyStats(db, cfg, TODAY), TODAY)).toBe(4);
+  });
+});
+
+describe("reading settings", () => {
+  let dir: string;
+  let db: Database;
+  beforeEach(() => {
+    dir = tmpDir();
+    db = new Database(path.join(dir, "t.db"));
+    db.init();
+  });
+  afterEach(() => db.close());
+
+  it("start from the config, keep an older Sport setting, and take the dashboard's", () => {
+    expect(readingSettings(db, parseConfig({})).min_reading).toBe(0.5);
+    expect(readingSettings(db, parseConfig({ min_reading: 0.25 })).min_reading).toBe(0.25);
+    expect(readingSettings(db, parseConfig({ sports: { min_reading: 0.75 } })).min_reading).toBe(0.75); // the old name
+    // A value set on the Sport page before this setting existed still holds.
+    db.run("INSERT INTO settings (key, value) VALUES ('sport', ?)", [JSON.stringify({ min_reading: 0.75 })]);
+    expect(readingSettings(db, parseConfig({})).min_reading).toBe(0.75);
+    expect(updateReadingSettings(db, parseConfig({}), { min_reading: 0 }).min_reading).toBe(0);
+    expect(() => updateReadingSettings(db, parseConfig({}), { min_reading: 2 })).toThrow("between 0 and 1");
   });
 });

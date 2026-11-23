@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { messageOf } from '../api/client'
 import { api } from '../api/endpoints'
 import type { SportPageUse, SportSettings, SportSettingsView, UnlockStatus, UnlockStory } from '../api/types'
@@ -16,23 +17,12 @@ const READ_FIRST: Choice[] = [
   { value: 0.75, label: '¾', name: 'Three quarters' },
   { value: 1, label: 'All', name: 'All' },
 ]
-const MIN_READING: Choice[] = [
-  { value: 0, label: 'Any', name: 'Any' },
-  { value: 0.25, label: '¼', name: 'A quarter' },
-  { value: 0.5, label: '½', name: 'Half' },
-  { value: 0.75, label: '¾', name: 'Three quarters' },
-]
 
 /** "Half of today's 6 stories (3)", in words a parent reads at a glance. */
 function readFirstLine(s: SportSettings, today: UnlockStatus | null): string {
   if (s.read_first <= 0) return 'Sport is open from the start of the day.'
   if (!today) return `Sport opens after reading ${percent(s.read_first)} of the day's stories.`
   return `Sport opens after reading ${today.needed} of today's ${plural(today.total, 'story', 'stories')}.`
-}
-
-function minReadingLine(s: SportSettings): string {
-  if (s.min_reading <= 0) return 'Any story read to the end counts, however quickly.'
-  return `A story counts only after ${percent(s.min_reading)} of the time it should take to read. Faster than that and it was paged through, so it doesn't count.`
 }
 
 function storyState(s: UnlockStory): { label: string; tone: 'green' | 'amber' | 'neutral' } {
@@ -92,6 +82,15 @@ export function Sport() {
                   <div className="flex flex-col gap-0.5">
                     <SectionTitle>Read the news first</SectionTitle>
                     <span className="text-[13px] text-muted">{readFirstLine(s, data.today)}</span>
+                    {s.read_first > 0 && (
+                      <span className="text-[13px] text-muted">
+                        A story read too fast doesn’t count; how fast is too fast is set on the{' '}
+                        <Link to="/reading" className="font-semibold text-accent hover:underline">
+                          Reading
+                        </Link>{' '}
+                        page.
+                      </span>
+                    )}
                   </div>
                   <div role="group" aria-label="How much of the paper to read first" className="grid grid-cols-5 gap-1.5">
                     {READ_FIRST.map((c) => (
@@ -101,21 +100,6 @@ export function Sport() {
                     ))}
                   </div>
                 </Card>
-                {s.read_first > 0 && (
-                  <Card label="Not too fast" className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-0.5">
-                      <SectionTitle>Not too fast</SectionTitle>
-                      <span className="text-[13px] text-muted">{minReadingLine(s)}</span>
-                    </div>
-                    <div role="group" aria-label="Least reading time for a story to count" className="grid grid-cols-4 gap-1.5">
-                      {MIN_READING.map((c) => (
-                        <Segment key={c.value} aria-label={c.name} pressed={s.min_reading === c.value} disabled={busy} onClick={() => void change({ min_reading: c.value })} className="text-base">
-                          {c.label}
-                        </Segment>
-                      ))}
-                    </div>
-                  </Card>
-                )}
               </>
             )}
           </div>

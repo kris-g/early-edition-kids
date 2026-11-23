@@ -247,6 +247,34 @@ describe('the Sport page', () => {
     expect(strip()!.textContent).toContain('Premier League · Matchday 11')
   })
 
+  it('marks a story read too fast without Sport, from this iPad’s log only', async () => {
+    serve(issue(), sportsRoute())
+    start()
+    await settle()
+    await read(0, 70) // read properly
+    await read(1, 5) // paged through
+    const row = (i: number) => stage().querySelector(`.row[data-go="${i}"]`)!
+    expect(row(0).classList.contains('too-fast')).toBe(false)
+    expect(row(1).classList.contains('too-fast')).toBe(true)
+    expect(row(1).querySelector('.meta')!.textContent).toBe('Read too fast')
+  })
+
+  it('marks a story read too fast in the list, and keeps it once Sport is open', async () => {
+    serve(withSport(), sportsRoute())
+    start()
+    await settle()
+    await read(0, 70) // counts
+    await read(1, 5) // too fast
+    const row = (i: number) => stage().querySelector(`.row[data-go="${i}"]`)!
+    expect(row(0).classList.contains('read')).toBe(true)
+    expect(row(0).querySelector('svg.too-fast, .meta b')).toBeNull()
+    expect(row(1).classList.contains('too-fast')).toBe(true)
+    expect(row(1).classList.contains('read')).toBe(false) // not greyed: it still needs reading
+    expect(row(1).textContent).toContain('Read too fast')
+    await read(2, 55) // counts: Sport opens; reading too fast is a reading stat, so it stays
+    expect(row(1).classList.contains('too-fast')).toBe(true)
+  })
+
   it('with every story read but too few counting, offers the first read too fast, not one that counts', async () => {
     serve(withSport(), sportsRoute())
     const app = start()

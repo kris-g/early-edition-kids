@@ -3,7 +3,7 @@ import type { ReadingView, ShareView } from '../api/types'
 import type { Job, StoryCard, StoryChecks, StoryDetail, StoryStats } from '../api/types'
 
 export function stats(over: Partial<StoryStats> = {}): StoryStats {
-  return { opened: false, reached_end: false, active_seconds: 0, expected_seconds: 90, engaged: false, read_on: null, ...over }
+  return { opened: false, reached_end: false, active_seconds: 0, expected_seconds: 90, min_seconds: 45, too_fast: false, engaged: false, read_on: null, ...over }
 }
 
 export function card(over: Partial<StoryCard> = {}): StoryCard {
@@ -94,6 +94,7 @@ export function readingView(days: number, to = '2026-11-13'): ReadingView {
     total_read: total,
     avg_read_per_day: total / days,
     avg_minutes_per_day: (total * 1.8) / days,
+    too_fast: 2,
     topics: [
       { name: 'Football', read: 5, shown: 7 },
       { name: 'Space', read: 2, shown: 4 },

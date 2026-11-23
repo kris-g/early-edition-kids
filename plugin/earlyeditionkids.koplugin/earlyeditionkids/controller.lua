@@ -554,6 +554,38 @@ function Controller:nextStoryToRead()
     return date, again, again ~= nil
 end
 
+--[[--
+Ids (as strings) of `date`'s stories read to the end, but in less than their least
+reading time (the story's `min_seconds` from the server, the child's reading setting):
+read too fast. Time over several sittings adds up, as for Sport. Only this Kindle's own
+reading log decides: a story read on another device, or before the log was kept, is
+never marked. Papers from before the server sent `min_seconds` fall back to the Sport
+rule's, else nothing is marked.
+]]
+function Controller:readTooFast(date)
+    local si = self.store:get("sport_issue")
+    local rule = si and si.date == date and si.sports and si.sports.unlock or nil
+    local mins = {}
+    for _, s in ipairs(self.issues:visibleStories(date)) do
+        local id = tostring(s.id)
+        local m = tonumber(s.min_seconds) or (type(rule) == "table" and type(rule.min_seconds) == "table" and tonumber(rule.min_seconds[id])) or nil
+        if m then mins[id] = m end
+    end
+    local seconds, finished = {}, {}
+    for _, e in ipairs(self.readlog:entries() or {}) do
+        local id = tostring(e.story_id)
+        if e.date == date and mins[id] then
+            seconds[id] = (seconds[id] or 0) + math.max(0, tonumber(e.active_seconds) or 0)
+            if e.finished then finished[id] = true end
+        end
+    end
+    local out = {}
+    for id in pairs(finished) do
+        if seconds[id] < mins[id] then out[id] = true end
+    end
+    return out
+end
+
 function Controller:openNextStory()
     local date, story = self:nextStoryToRead()
     if story then self:openStory(date, story, { kind = "frontpage" })
@@ -646,12 +678,14 @@ function Controller:headlineModel(date)
     end
     local sum = self.issues:summary(date)
     local st = self.store:issueState(date)
+    local fast = self:readTooFast(date)
     local items = {}
     for _, s in ipairs(sum.stories) do
         table.insert(items, {
             topic = s.topic, title = s.title or "", teaser = s.teaser,
             minutes_text = T("%1 min", tonumber(s.minutes) or 1),
             done = st.read[Store.idKey(s.id)] and true or false,
+            too_fast = fast[tostring(s.id)] or false,
             story = s,
         })
     end

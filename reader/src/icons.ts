@@ -35,6 +35,8 @@ const ICONS: Record<string, [string, string]> = {
   weird: ['0 0 48 48', RING + `<path d="M19 31c0-3-4-5-4-11a9 9 0 0 1 18 0c0 6-4 8-4 11z" fill="none" ${S} stroke-linejoin="round"/><path d="M20 34.5h8M21.5 38h5" ${S} stroke-linecap="round"/><path d="M24 31v-6l-2.5-3M24 25l2.5-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`],
   generic: ['0 0 48 48', RING + `<rect x="14" y="13" width="20" height="23" fill="none" ${S}/><path d="M18 19h12M18 24h12M18 29h8" ${S}/>`],
   tick: ['0 0 48 48', '<circle cx="24" cy="24" r="21" fill="#121212" stroke="#fafaf7" stroke-width="3"/><path d="M14 25l7 7 13-14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'],
+  // A story read to the end too quickly: outlined, so it doesn't read as the tick.
+  'too-fast': ['0 0 48 48', '<circle cx="24" cy="24" r="21" fill="#fafaf7" stroke="#121212" stroke-width="3"/><path d="M12 15.5l11 8.5-11 8.5z M24.5 15.5l11 8.5-11 8.5z" fill="#121212" stroke="#121212" stroke-width="1.5" stroke-linejoin="round"/>'],
   arrow: ['0 0 24 24', '<path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'],
   back: ['0 0 24 24', '<path d="M19 12H6M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'],
   refresh: ['0 0 24 24', '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4.2h-4.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'],

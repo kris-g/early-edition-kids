@@ -208,6 +208,11 @@ export interface Config {
   childAge: number;
   storyCount: number;
   readingWpm: number;
+  /**
+   * A story read to the end in less than this share of its expected reading time was read too fast
+   * (0 to 1; 0 means any speed). The starting value; a parent changes it per child (reading.ts).
+   */
+  minReading: number;
   topics: Topic[];
   feeds: Feed[];
   blocklist: string[];
@@ -244,7 +249,7 @@ export interface SportDefaults {
   enabled: boolean;
   /** Share of today's stories to read before Sport opens, 0 to 1; 0 means no lock. */
   readFirst: number;
-  /** A story counts only after this share of its expected reading time, 0 to 1. */
+  /** Same as Config.minReading, which it was before that applied to all reading. */
   minReading: number;
 }
 
@@ -314,6 +319,7 @@ const configSchema = z.object({
   llm_prices: z
     .record(z.string(), z.object({ input_per_mtok: z.number().min(0), output_per_mtok: z.number().min(0) }))
     .nullish(),
+  min_reading: z.number().min(0).max(1).nullish(),
   sports: z
     .object({
       enabled: z.boolean().nullish(),
@@ -352,6 +358,8 @@ export function parseConfig(data: unknown): Config {
     childAge: c.child_age,
     storyCount: c.story_count,
     readingWpm: Math.max(1, c.reading_wpm),
+    // `sports.min_reading` was its name before it applied to all reading.
+    minReading: c.min_reading ?? c.sports?.min_reading ?? 0.5,
     topics,
     feeds,
     blocklist: c.blocklist.filter((w) => w.trim()),
@@ -373,7 +381,7 @@ export function parseConfig(data: unknown): Config {
     sports: {
       enabled: c.sports?.enabled === true,
       readFirst: c.sports?.read_first ?? 0.5,
-      minReading: c.sports?.min_reading ?? 0.5,
+      minReading: c.min_reading ?? c.sports?.min_reading ?? 0.5,
     },
   };
 }

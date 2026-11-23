@@ -89,6 +89,16 @@ describe('Day', () => {
     expect(screen.queryByRole('region', { name: 'Sport' })).not.toBeInTheDocument()
   })
 
+  it('says which stories were read too fast, and how many', () => {
+    const quick = card({ id: 68, date: '2026-11-15', title: 'Rivers are getting cleaner', stats: stats({ ...read, active_seconds: 9, too_fast: true, read_on: '2026-11-15' }) })
+    const reads = [...day.reads, { story: quick, at: '2026-11-15T13:00:00Z', active_seconds: 9, finished: true }]
+    show(<ReadThatDay day={{ ...day, read: 4, reads, paper: paper('2026-11-15', [sunday, quick]) }} today="2026-11-15" />)
+    expect(screen.getByText(/2 from today’s paper · 2 catching up · 1 read too fast/)).toBeInTheDocument()
+    const own = screen.getByRole('region', { name: 'From today’s paper' })
+    expect(within(own).getByRole('img', { name: 'Read too fast' })).toBeInTheDocument()
+    expect(within(own).getByText(/read too fast/)).toBeInTheDocument()
+  })
+
   it('shows a paper’s stories with the day they were read', () => {
     const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]), sport: null, sport_unlock: null }
     show(<PaperOfDay day={fri} onStoryChange={() => {}} />)

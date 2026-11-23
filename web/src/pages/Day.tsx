@@ -237,9 +237,11 @@ export function ReadThatDay({
     )
   }
 
+  const tooFast = day.reads.filter((r) => r.finished && r.story.stats.too_fast).length
   const parts = [
     day.paper ? `${ownRead} from ${isToday ? 'today’s' : 'this day’s'} paper` : null,
     catchUp > 0 ? `${catchUp} catching up` : null,
+    tooFast > 0 ? `${tooFast} read too fast` : null,
   ].filter(Boolean)
 
   return (
@@ -319,8 +321,8 @@ function ReadGroup({ title, reads, link }: { title: string; reads: DayRead[]; sh
             <Link to={`/story/${r.story.id}`} state={origin} className="flex min-h-11 items-center gap-3 py-[11px]">
               <span
                 role="img"
-                aria-label={r.finished ? 'Read to the end' : 'Opened'}
-                className={cx('shrink-0', r.finished ? 'text-accent' : 'text-warm')}
+                aria-label={r.finished ? (r.story.stats.too_fast ? 'Read too fast' : 'Read to the end') : 'Opened'}
+                className={cx('shrink-0', r.finished && !r.story.stats.too_fast ? 'text-accent' : 'text-warm')}
               >
                 {r.finished ? <CheckCircleIcon className="size-5" /> : <HalfCircleIcon className="size-5" />}
               </span>
@@ -329,6 +331,7 @@ function ReadGroup({ title, reads, link }: { title: string; reads: DayRead[]; sh
                 <span className="text-xs text-muted">
                   {r.story.topic} · {clockTime(r.at)} · {duration(r.active_seconds)}
                   {!r.finished && ' · not finished'}
+                  {r.finished && r.story.stats.too_fast && <span className="font-semibold text-warm"> · read too fast</span>}
                 </span>
               </span>
             </Link>

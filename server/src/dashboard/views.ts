@@ -32,6 +32,8 @@ export function storyCard(ctx: Context, row: Row, stat: StoryStat | undefined): 
       active_seconds: stat?.activeSeconds ?? 0,
       expected_seconds: Math.round(stat?.expectedSeconds ?? 0),
       engaged: stat?.engaged ?? false,
+      too_fast: stat?.tooFast ?? false,
+      min_seconds: stat?.minSeconds ?? 0,
       read_on: stat?.finishedAt != null ? londonDate(new Date(stat.finishedAt * 1000)) : null,
     },
   };

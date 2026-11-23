@@ -18,6 +18,8 @@ export interface ApiStory {
   title: string
   teaser: string
   minutes: number
+  /** Read to the end in fewer active seconds than this, it was read too fast (the child's reading setting). */
+  min_seconds?: number
   path: string
   word_to_know: WordToKnow | null
   image?: StoryImage | null
