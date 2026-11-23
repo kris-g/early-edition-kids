@@ -72,57 +72,61 @@ export function Sport() {
       {!data && view.loading && <Loading />}
       {error && <ErrorNote>{error}</ErrorNote>}
       {s && (
-        <>
-          <Card label="Sport page">
-            <div className="flex items-center gap-2.5">
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <SectionTitle>Sport page</SectionTitle>
-                <span className="text-[13px] text-muted">
-                  The table, the latest results and the next fixtures, updated each morning with the paper.
-                </span>
+        // On a wide screen the settings sit on the left and what they did on the right, as on the AI page.
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 desk:grid-cols-2 desk:items-start">
+          <div className="flex flex-col gap-4">
+            <Card label="Sport page">
+              <div className="flex items-center gap-2.5">
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <SectionTitle>Sport page</SectionTitle>
+                  <span className="text-[13px] text-muted">
+                    The table, the latest results and the next fixtures, updated each morning with the paper.
+                  </span>
+                </div>
+                {busy && <Spinner className="text-muted" />}
+                <Switch checked={s.enabled} label="Sport page for this child" disabled={busy} onClick={() => void change({ enabled: !s.enabled })} />
               </div>
-              {busy && <Spinner className="text-muted" />}
-              <Switch checked={s.enabled} label="Sport page for this child" disabled={busy} onClick={() => void change({ enabled: !s.enabled })} />
-            </div>
-          </Card>
-
-          {s.enabled && (
-            <>
-              <Card label="Read first" className="flex flex-col gap-3">
-                <div className="flex flex-col gap-0.5">
-                  <SectionTitle>Read the news first</SectionTitle>
-                  <span className="text-[13px] text-muted">{readFirstLine(s, data.today)}</span>
-                </div>
-                <div role="group" aria-label="How much of the paper to read first" className="grid grid-cols-5 gap-1.5">
-                  {READ_FIRST.map((c) => (
-                    <Segment key={c.value} aria-label={c.name} pressed={s.read_first === c.value} disabled={busy} onClick={() => void change({ read_first: c.value })} className="text-base">
-                      {c.label}
-                    </Segment>
-                  ))}
-                </div>
-              </Card>
-
-              {s.read_first > 0 && (
-                <Card label="Not too fast" className="flex flex-col gap-3">
+            </Card>
+            {s.enabled && (
+              <>
+                <Card label="Read first" className="flex flex-col gap-3">
                   <div className="flex flex-col gap-0.5">
-                    <SectionTitle>Not too fast</SectionTitle>
-                    <span className="text-[13px] text-muted">{minReadingLine(s)}</span>
+                    <SectionTitle>Read the news first</SectionTitle>
+                    <span className="text-[13px] text-muted">{readFirstLine(s, data.today)}</span>
                   </div>
-                  <div role="group" aria-label="Least reading time for a story to count" className="grid grid-cols-4 gap-1.5">
-                    {MIN_READING.map((c) => (
-                      <Segment key={c.value} aria-label={c.name} pressed={s.min_reading === c.value} disabled={busy} onClick={() => void change({ min_reading: c.value })} className="text-base">
+                  <div role="group" aria-label="How much of the paper to read first" className="grid grid-cols-5 gap-1.5">
+                    {READ_FIRST.map((c) => (
+                      <Segment key={c.value} aria-label={c.name} pressed={s.read_first === c.value} disabled={busy} onClick={() => void change({ read_first: c.value })} className="text-base">
                         {c.label}
                       </Segment>
                     ))}
                   </div>
                 </Card>
-              )}
-
+                {s.read_first > 0 && (
+                  <Card label="Not too fast" className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-0.5">
+                      <SectionTitle>Not too fast</SectionTitle>
+                      <span className="text-[13px] text-muted">{minReadingLine(s)}</span>
+                    </div>
+                    <div role="group" aria-label="Least reading time for a story to count" className="grid grid-cols-4 gap-1.5">
+                      {MIN_READING.map((c) => (
+                        <Segment key={c.value} aria-label={c.name} pressed={s.min_reading === c.value} disabled={busy} onClick={() => void change({ min_reading: c.value })} className="text-base">
+                          {c.label}
+                        </Segment>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+              </>
+            )}
+          </div>
+          {s.enabled && (
+            <div className="flex flex-col gap-4">
               {data.today && <Today status={data.today} />}
               <ThisWeek usage={usage.data?.pages ?? null} seconds={usage.data?.seconds ?? 0} />
-            </>
+            </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )
@@ -174,9 +178,9 @@ function ThisWeek({ usage, seconds }: { usage: SportPageUse[] | null; seconds: n
       {usage.length > 0 && (
         <ul className="m-0 flex list-none flex-col p-0">
           {usage.slice(0, 6).map((u) => (
-            <li key={`${u.page}:${u.match_id ?? ''}`} className="flex flex-col gap-0.5 border-t border-line py-2.5 text-sm first:border-t-0">
+            <li key={`${u.page}:${u.match_id ?? ''}`} className="flex flex-col gap-0.5 border-t border-line py-2.5 text-sm first:border-t-0 desk:flex-row desk:items-baseline desk:justify-between desk:gap-3">
               <span>{u.page === 'match' ? (u.match ?? PAGE_NAMES.match) : PAGE_NAMES[u.page]}</span>
-              <span className="text-[13px] text-muted tabular-nums">
+              <span className="shrink-0 text-[13px] text-muted tabular-nums">
                 {duration(u.seconds)} · {plural(u.views, 'look')}
               </span>
             </li>
