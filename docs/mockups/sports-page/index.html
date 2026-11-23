@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Early Edition Sport page: mock-up board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
+<style>
+/* The board. Each frame is drawn by the script at the bottom from data.js.
+   ?frame=<id> shows one frame alone at full size, for screenshots. */
+:root {
+  --paper: #fafaf7; --ink: #121212; --soft: #55554f; --faint: #6b6b65; --sun: #ffd21f;
+  --football: #35c26f; --team: #ff5a4d; --dim: #e6e4dc;
+  --display: 'Playfair Display', Georgia, serif;
+  --serif: 'Noto Serif', Georgia, serif;
+  --sans: 'Noto Sans', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #dfe3e6; color: var(--ink); font: 400 16px/1.55 var(--sans); }
+main { max-width: 1280px; margin: 0 auto; padding: 48px 32px 96px; }
+main > h1 { font: 700 40px/1.1 var(--serif); letter-spacing: -0.01em; margin: 0 0 14px; }
+.intro { max-width: 70ch; margin: 0 0 12px; }
+main > h2 { font: 700 24px/1.2 var(--serif); margin: 56px 0 6px; }
+main > h2 + p { margin: 0 0 22px; color: var(--soft); max-width: 70ch; }
+.shelf { display: flex; flex-wrap: wrap; gap: 32px 28px; align-items: flex-start; }
+figure { margin: 0; }
+figcaption { margin-top: 10px; font-size: 15px; max-width: 400px; }
+figcaption b { display: block; }
+.device { border: 6px solid var(--ink); border-radius: 18px; overflow: hidden; background: var(--paper); width: max-content; }
+.k-shell { zoom: 0.72; }
+.i-shell { zoom: 0.5; }
+body.solo { background: #fff; }
+body.solo main { padding: 0; max-width: none; }
+body.solo main > *:not(.shelf), body.solo figure:not(.on), body.solo figcaption { display: none; }
+body.solo .device { border: 0; border-radius: 0; }
+body.solo .k-shell, body.solo .i-shell { zoom: 1; }
+
+/* ---------- shared pieces ---------- */
+.screen { position: relative; background: var(--paper); color: var(--ink); font-family: var(--sans); overflow: hidden; display: flex; flex-direction: column; }
+.screen h1, .screen h2, .screen h3, .screen p, .screen ul { margin: 0; padding: 0; }
+.screen ul { list-style: none; }
+.num { font-variant-numeric: tabular-nums; }
+.star { font-size: 0.7em; vertical-align: 0.15em; margin-right: 0.25em; }
+.label { font: 700 var(--label)/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--tab-gap); }
+.tab { display: grid; place-items: center; height: var(--tab-h); border: 2px solid var(--ink); font: 700 var(--tab-fs)/1 var(--sans); }
+.tab.on { background: var(--ink); color: var(--paper); }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid var(--ink); font: 700 var(--tab-fs)/1 var(--sans); height: var(--btn-h); padding: 0 18px; background: var(--paper); }
+.day { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: var(--day-pb); margin-top: var(--day-mt); }
+.day small { font: 400 var(--meta)/1 var(--sans); color: var(--soft); letter-spacing: 0; text-transform: none; }
+.match { display: grid; grid-template-columns: 1fr var(--score-w) 1fr var(--state-w); align-items: center; min-height: var(--row-h); border-bottom: 1px solid var(--ink); padding: 0 var(--row-pad); }
+.match .home { text-align: right; }
+.match .team { font: 400 var(--team-fs)/1.15 var(--serif); }
+.match .team.win, .match .team.fav { font-weight: 700; }
+.match .score { text-align: center; font: 700 var(--score-fs)/1 var(--serif); }
+.match .score.time { font: 400 var(--meta)/1 var(--sans); color: var(--soft); }
+.match .state { text-align: right; font: 700 var(--state-fs)/1 var(--sans); white-space: nowrap; }
+.match .state .go { margin-left: 6px; font-weight: 400; }
+.match.fav { outline: 3px solid var(--ink); outline-offset: -3px; border-bottom-color: transparent; }
+.scorers { grid-column: 1 / 4; display: grid; grid-template-columns: 1fr var(--score-w) 1fr; font: 400 var(--meta)/1.35 var(--sans); color: var(--soft); padding-bottom: 12px; margin-top: -6px; }
+.scorers .g { white-space: nowrap; }
+.scorers .h { text-align: right; } .scorers .a { grid-column: 3; }
+
+table.lg { width: 100%; border-collapse: collapse; font: 400 var(--tbl-fs)/1 var(--sans); }
+table.lg th { font: 700 var(--label)/1 var(--sans); letter-spacing: 0.1em; text-align: right; padding: 0 0 var(--th-pb); border-bottom: 2px solid var(--ink); }
+table.lg td { height: var(--tbl-row); text-align: right; border-bottom: 1px solid var(--dim); padding: 0; }
+table.lg th:nth-child(2), table.lg td:nth-child(2) { text-align: left; padding-left: 0.6em; }
+table.lg td:nth-child(2) { font: 400 var(--tbl-team)/1 var(--serif); }
+table.lg td:first-child, table.lg th:first-child { text-align: center; width: 2.2em; }
+table.lg td:last-child { font-weight: 700; padding-right: 0.6em; } table.lg th:last-child { padding-right: 0.6em; }
+table.lg tr.cut td { border-bottom: 2px solid var(--ink); }
+table.lg tr.fav td { background: var(--fav-bg); color: var(--fav-ink); font-weight: 700; }
+table.lg tr.fav td:nth-child(2) { font-weight: 700; }
+.zone { display: flex; justify-content: space-between; font: 400 var(--meta)/1 var(--sans); color: var(--soft); margin-top: var(--zone-mt); }
+
+.card { display: inline-block; width: 0.62em; height: 0.86em; border: 1.5px solid var(--ink); vertical-align: -0.08em; margin-right: 0.5em; }
+.card.red { background: var(--red); }
+.card.yellow { background: var(--yellow); }
+.sec { border-top: 2px solid var(--ink); padding-top: var(--sec-pt); margin-top: var(--sec-mt); }
+.sec > .label { display: block; margin-bottom: var(--sec-gap); }
+.two { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--col-gap); }
+.two > :nth-child(2) { border-left: 1px solid var(--ink); padding-left: var(--col-gap); }
+.ev li { font: 400 var(--ev-fs)/1.2 var(--serif); padding: var(--ev-pad) 0; display: flex; gap: 0.6em; align-items: baseline; }
+.ev li .m { font: 700 var(--meta)/1 var(--sans); min-width: 2.9em; }
+.ev li small { font: 400 var(--meta)/1 var(--sans); color: var(--soft); }
+.ev .none { color: var(--faint); font: 400 var(--meta)/1.2 var(--sans); }
+.ev .off { color: var(--soft); }
+.xi li { display: grid; grid-template-columns: 2em 1fr auto; align-items: baseline; font: 400 var(--ev-fs)/1.2 var(--serif); padding: var(--xi-pad) 0; }
+.xi li .n { font: 700 var(--meta)/1 var(--sans); }
+.xi li .t { font: 400 var(--meta)/1 var(--sans); color: var(--soft); }
+.xi .grp { font: 700 var(--label)/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); padding: var(--grp-pt) 0 4px; display: block; }
+.teamname { font: 700 var(--teamname)/1.1 var(--serif); margin-bottom: 4px; }
+.names { font: 400 var(--ev-fs)/1.35 var(--serif); }
+.names b { font: 700 var(--meta)/1 var(--sans); display: block; margin: 8px 0 3px; }
+.scorehead { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: var(--col-gap); }
+.scorehead .t { font: 700 var(--big-team)/1.1 var(--serif); }
+.scorehead .t.h { text-align: right; }
+.scorehead .s { font: 700 var(--big-score)/1 var(--serif); white-space: nowrap; }
+.when { text-align: center; font: 700 var(--meta)/1 var(--sans); letter-spacing: 0.08em; margin-top: var(--when-mt); }
+.goalcols { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--col-gap) * 2); margin-top: var(--goal-mt); font: 400 var(--ev-fs)/1.45 var(--serif); }
+.goalcols .h { text-align: right; }
+.goalcols .m { font: 700 var(--meta)/1 var(--sans); }
+
+/* ---------- Kindle: 1072 x 1448 drawn at half size, black and white ---------- */
+.k { width: 536px; height: 724px; padding: 14px 20px 12px; --paper: #fff; --ink: #000; --soft: #444; --faint: #666; --dim: #bbb;
+  --label: 9.5px; --meta: 12px; --tab-h: 38px; --tab-fs: 14px; --tab-gap: 8px; --btn-h: 44px;
+  --day-pb: 5px; --day-mt: 7px; --row-h: 44px; --row-pad: 6px; --score-w: 74px; --state-w: 88px;
+  --team-fs: 16.5px; --score-fs: 19px; --state-fs: 12.5px;
+  --tbl-fs: 13.5px; --tbl-team: 15px; --tbl-row: 23.5px; --th-pb: 5px; --zone-mt: 5px; --fav-bg: #000; --fav-ink: #fff;
+  --red: #000; --yellow: repeating-linear-gradient(45deg, #000 0 1.5px, #fff 1.5px 4px);
+  --sec-pt: 9px; --sec-mt: 12px; --sec-gap: 5px; --col-gap: 16px; --ev-fs: 14.5px; --ev-pad: 3px; --xi-pad: 3.5px; --grp-pt: 7px;
+  --teamname: 20px; --big-team: 21px; --big-score: 44px; --when-mt: 8px; --goal-mt: 12px; }
+.k .top { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 3px double var(--ink); padding-bottom: 9px; }
+.k .top h1 { font: 900 34px/1 var(--display); letter-spacing: -0.01em; }
+.k .top p { font: 400 13px/1.3 var(--sans); color: var(--soft); margin-top: 3px; }
+.k .top .upd { text-align: right; font: 700 12.5px/1.3 var(--sans); }
+.k .tabs { margin-top: 10px; }
+/* The Kindle table is two pages of ten, so the type can be read by a child. */
+.k .halves { grid-template-columns: 1fr 1fr; margin-top: 8px; --tab-h: 32px; --tab-fs: 13px; }
+.k.half { --tbl-fs: 18px; --tbl-team: 21px; --tbl-row: 41px; --label: 10.5px; --zone-mt: 9px; }
+.k .body { flex: 1; min-height: 0; }
+.k .foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 3px double var(--ink); padding-top: 10px; }
+.k .foot.one { grid-template-columns: 1fr; }
+.k .foot.three { grid-template-columns: 1fr auto 1fr; align-items: center; }
+.k .pg { font: 700 12.5px/1 var(--sans); padding: 0 8px; }
+
+/* ---------- iPad: 820 x 1180, the paper's colours ---------- */
+.i { width: 820px; min-height: 1180px; --label: 13px; --meta: 16px; --tab-h: 52px; --tab-fs: 18px; --tab-gap: 12px; --btn-h: 56px;
+  --day-pb: 9px; --day-mt: 26px; --row-h: 68px; --row-pad: 10px; --score-w: 110px; --state-w: 116px;
+  --team-fs: 25px; --score-fs: 30px; --state-fs: 15px;
+  --tbl-fs: 18px; --tbl-team: 21px; --tbl-row: 41px; --th-pb: 9px; --zone-mt: 12px; --fav-bg: #ffd9d5; --fav-ink: var(--ink);
+  --red: var(--team); --yellow: var(--sun);
+  --sec-pt: 16px; --sec-mt: 26px; --sec-gap: 10px; --col-gap: 28px; --ev-fs: 20px; --ev-pad: 5px; --xi-pad: 6px; --grp-pt: 14px;
+  --teamname: 24px; --big-team: 34px; --big-score: 76px; --when-mt: 14px; --goal-mt: 18px; }
+.i.fixed { height: 1180px; }
+.i .runhead { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 64px; padding: 0 48px 0 34px; border-bottom: 2px solid var(--ink); }
+.i .runhead .home { font: 700 17px/1 var(--sans); padding-left: 14px; }
+.i .runhead .word { font: 900 24px/1 var(--display); }
+.i .runhead .upd { justify-self: end; font: 400 15px/1 var(--sans); color: var(--soft); }
+.i .pad { padding: 0 48px 40px; flex: 1; }
+.i .flag { display: inline-flex; align-items: center; gap: 10px; background: var(--football); font: 700 17px/1 var(--sans); padding: 12px 18px; margin-top: 26px; }
+.i .flag svg { width: 24px; height: 24px; }
+.i .title { display: flex; align-items: flex-end; justify-content: space-between; margin: 16px 0 20px; }
+.i .title h1 { font: 700 46px/1.05 var(--serif); letter-spacing: -0.01em; }
+.i .match.fav { background: #fff1ef; }
+.i .ev li .m { min-width: 3.2em; }
+
+/* ---------- the front page strip ---------- */
+.strip { display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: 14px; border: 2px solid var(--ink); background: var(--paper); }
+.strip .ico { display: grid; place-items: center; align-self: stretch; }
+.strip .t1 { font: 700 var(--s1)/1.15 var(--serif); }
+.strip .t2 { font: 400 var(--s2)/1.3 var(--sans); color: var(--soft); margin-top: 2px; }
+.strip .go { font: 700 var(--s2)/1 var(--sans); white-space: nowrap; }
+.kstrip { width: 496px; padding: 0 16px 0 0; height: 62px; --s1: 18px; --s2: 13px; --paper: #fff; --ink: #000; --soft: #444; }
+.kstrip .ico { width: 62px; border-right: 2px solid var(--ink); } .kstrip .ico svg { width: 30px; height: 30px; }
+.istrip { width: 724px; height: 84px; padding: 0 22px 0 0; --s1: 24px; --s2: 16px; }
+.istrip .ico { width: 84px; background: var(--football); } .istrip .ico svg { width: 38px; height: 38px; }
+.crop { padding: 20px; background: var(--paper); display: grid; gap: 12px; }
+.crop.kc { background: #fff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Early Edition: the Sport page</h1>
+  <p class="intro">Mock-ups for <a href="../../sports-page.md">docs/sports-page.md</a>. The matches, table and line-ups are the real round 11 of 21 to 23 November 2026, as the feeds in section 4 of the spec returned them, so the layouts are tested against real club and player names. The server fetches this once a day with the paper; the mock-up shows it as fetched on the morning of Monday 23 November. The data is in <code>data.js</code>.</p>
+  <p class="intro">Add <code>?frame=k-matches</code> (or any id under a frame) to see one screen alone at full size.</p>
+
+  <h2>On the Kindle</h2>
+  <p>1072 × 1448, black and white, drawn at half size. Three tabs with no scrolling; the table is two pages of ten clubs so its type is big enough to read. The reader's club is Liverpool.</p>
+  <div class="shelf" id="kindle"></div>
+
+  <h2>A match on the Kindle</h2>
+  <p>Two screens: what happened, then the line-ups side by side. Nothing else is on them.</p>
+  <div class="shelf" id="kmatch"></div>
+
+  <h2>On the iPad</h2>
+  <p>820 × 1180, portrait, in <code>pages</code> mode. The same three parts, with the paper's colours and the scorers under each result.</p>
+  <div class="shelf" id="ipad"></div>
+
+  <h2>The way in</h2>
+  <p>One strip on the front page under Today's paper. It never shows a score.</p>
+  <div class="shelf" id="strips"></div>
+</main>
+
+<script src="data.js"></script>
+<script>
+const D = window.SPORT, FAV = 'Liverpool';
+const ball = '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M24 15l7 5-3 8h-8l-3-8z" fill="currentColor"/><path d="M24 15V6M31 20l8-4M28 28l5 8M20 28l-5 8M17 20l-8-4" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>';
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const dayName = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
+const dayDate = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const iso = (d) => d.length === 8 ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}` : d;
+const time = (k) => new Date(k).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Europe/London' }).replace(' ', '');
+const team = (n, extra = '') => `<span class="team ${n === FAV ? 'fav' : ''} ${extra}">${n === FAV ? '<span class="star">★</span>' : ''}${esc(n)}</span>`;
+const kind = (g) => g.kind === 'penalty' ? ' (pen)' : g.kind === 'own_goal' ? ' (o.g.)' : '';
+
+// One result or fixture row.
+function matchRow(m, { scorers = false } = {}) {
+  const fav = m.home === FAV || m.away === FAV;
+  const s = m.score;
+  const hw = s && s.home > s.away ? 'win' : '', aw = s && s.away > s.home ? 'win' : '';
+  const score = s ? `<span class="score num">${s.home} – ${s.away}</span>` : `<span class="score time">v</span>`;
+  const state = m.state === 'finished' ? `FT<span class="go">›</span>` : time(m.kickoff);
+  const by = (side) => m.goals.filter((g) => g.side === side).map((g) => `<span class="g">${esc(g.player)} ${g.minute}${kind(g)}</span>`).join(', ');
+  const sc = scorers && m.goals.length ? `<div class="scorers"><span class="h">${by('home')}</span><span class="a">${by('away')}</span></div>` : '';
+  return `<div class="match ${fav ? 'fav' : ''}"><span class="home">${team(m.home, hw)}</span>${score}<span class="away">${team(m.away, aw)}</span><span class="state">${state}</span>${sc}</div>`;
+}
+const days = (obj, row) => Object.entries(obj).map(([d, ms]) =>
+  `<div class="label day"><span>${dayName(iso(d))}</span><small>${dayDate(iso(d))}</small></div>${ms.map(row).join('')}`).join('');
+const tabs = (on) => `<div class="tabs">${['Matches', 'Table', 'Next'].map((t) => `<span class="tab ${t === on ? 'on' : ''}">${t}</span>`).join('')}</div>`;
+
+function table(lo = 1, hi = 20) {
+  const rows = D.table.filter((r) => r.position >= lo && r.position <= hi).map((r) => `<tr class="${r.team === FAV ? 'fav' : ''} ${r.position === 4 || r.position === 17 ? 'cut' : ''}">
+    <td class="num">${r.position}</td><td>${r.team === FAV ? '<span class="star">★</span>' : ''}${esc(r.team)}</td><td class="num">${r.played}</td><td class="num">${r.won}</td><td class="num">${r.drawn}</td><td class="num">${r.lost}</td><td class="num">${r.gd > 0 ? '+' : ''}${r.gd}</td><td class="num">${r.points}</td></tr>`).join('');
+  return `<table class="lg"><thead><tr><th></th><th>CLUB</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="zone"><span>${lo <= 4 ? 'Top 4: Champions League' : ''}</span><span>${hi >= 18 ? 'Bottom 3: relegation' : ''}</span></div>`;
+}
+
+// ---- a match ----
+const X = D.detail, LIV = D.days['20261122'].find((m) => m.home === FAV);
+const names = { home: LIV.homeFull, away: LIV.awayFull };
+const list = (items, f) => items.length ? `<ul class="ev">${items.map(f).join('')}</ul>` : `<p class="ev"><span class="none">None</span></p>`;
+const scoreHead = () => `<div class="scorehead"><span class="t h">${esc(names.home)}</span><span class="s num">${LIV.score.home} – ${LIV.score.away}</span><span class="t">${esc(names.away)}</span></div>
+  <p class="when">FULL TIME · SUNDAY 22 NOVEMBER</p>
+  <div class="goalcols">${['home', 'away'].map((s) => `<div class="${s[0]}">${X.goals.filter((g) => g.side === s).map((g) => `${esc(g.player)} <span class="m">${g.minute}</span>${kind(g)}`).join('<br>')}</div>`).join('')}</div>`;
+const cards = (s) => list(X.cards.filter((c) => c.side === s), (c) => `<li><span class="m">${c.minute}</span><span><i class="card ${c.card}"></i>${esc(c.player)}${c.card === 'red' ? ' <small>sent off</small>' : ''}</span></li>`);
+const subs = (s) => list(X.subs.filter((c) => c.side === s), (c) => `<li><span class="m">${c.minute}</span><span>↑ ${esc(c.on)}<br><span class="off">↓ ${esc(c.off)}</span></span></li>`);
+const pair = (label, f) => `<div class="sec"><span class="label">${label}</span><div class="two"><div>${f('home')}</div><div>${f('away')}</div></div></div>`;
+const xi = (s, withName) => { const L = X.lineups[s]; const row = (p) => `<li><span class="n num">${p.number}</span><span>${esc(p.name)}</span><span class="t">${p.off ? '↓ ' + p.off : p.on ? '↑ ' + p.on : ''}</span></li>`;
+  return `${withName ? `<p class="teamname">${esc(names[s])}</p>` : ''}<ul class="xi">${L.starting.map((g) => `<li class="grp" style="display:block">${g.line[0].toUpperCase() + g.line.slice(1)}</li>${g.players.map(row).join('')}`).join('')}<li class="grp" style="display:block">Substitutes</li>${L.bench.map(row).join('')}</ul>`; };
+const inj = (s) => { const off = X.subs.filter((c) => c.side === s && c.injury).map((c) => `${esc(c.off)} ${c.minute}`); const out = X.out_injured[s];
+  if (!off.length && !out.length) return `<p class="ev"><span class="none">None</span></p>`;
+  return `<div class="names">${off.length ? `<b>Went off injured</b>${off.join(', ')}` : ''}${out.length ? `<b>Out injured</b>${out.map(esc).join(', ')}` : ''}</div>`; };
+
+// ---- frames ----
+const kTop = (sub, upd) => `<div class="top"><div><h1>Sport</h1><p>${sub}</p></div><div class="upd">${upd}</div></div>`;
+const kFoot = `<div class="foot one"><span class="btn">← Front page</span></div>`;
+const kMatchFoot = (n) => `<div class="foot three"><span class="btn">← ${n === 1 ? 'Matches' : 'Back'}</span><span class="pg">${n} of 2</span><span class="btn">${n === 2 ? 'Matches' : 'Line-ups →'}</span></div>`;
+const iHead = (upd) => `<div class="runhead"><span class="home">← Front page</span><span class="word">Early Edition</span><span class="upd">${upd}</span></div>`;
+const iTitle = (h, right = '') => `<span class="flag">${ball} Sport · Premier League</span><div class="title"><h1>${h}</h1>${right}</div>`;
+
+const frames = {
+  'k-matches': ['kindle', 'k', 'Matches', 'The latest matchday as fetched on Monday morning. Played matches open (›); Monday night\'s shows its kick-off time until Tuesday\'s fetch. Liverpool\'s match is outlined and starred.',
+    `<div class="screen k">${kTop('Premier League · Matchday 11', 'Results to Sun 22 Nov')}${tabs('Matches')}<div class="body">${days(D.days, (m) => matchRow(m))}</div>${kFoot}</div>`],
+  'k-table': ['kindle', 'k', 'Table, 1 to 10', 'Two pages of ten, so club names are about 10 pt on the device. It opens on the page with his club, which is inverted. A rule marks the top four.',
+    `<div class="screen k half">${kTop('Premier League · Table', 'Results to Sun 22 Nov')}${tabs('Table')}<div class="tabs halves">${['1 to 10', '11 to 20'].map((t, i) => `<span class="tab ${i === 0 ? 'on' : ''}">${t}</span>`).join('')}</div><div class="body" style="padding-top:10px">${table(1, 10)}</div>${kFoot}</div>`],
+  'k-table-2': ['kindle', 'k', 'Table, 11 to 20', 'The other half, reached by the 11 to 20 button or a swipe. A rule marks the bottom three.',
+    `<div class="screen k half">${kTop('Premier League · Table', 'Results to Sun 22 Nov')}${tabs('Table')}<div class="tabs halves">${['1 to 10', '11 to 20'].map((t, i) => `<span class="tab ${i === 1 ? 'on' : ''}">${t}</span>`).join('')}</div><div class="body" style="padding-top:10px">${table(11, 20)}</div>${kFoot}</div>`],
+  'k-next': ['kindle', 'k', 'Next', 'The next matchday\'s fixtures with kick-off times. Nothing opens.',
+    `<div class="screen k">${kTop('Premier League · Matchday 12', 'Results to Sun 22 Nov')}${tabs('Next')}<div class="body">${days(D.next, (m) => matchRow({ ...m, goals: [], state: 'scheduled' }))}</div>${kFoot}</div>`],
+  'k-match-1': ['kmatch', 'k', 'A match, screen 1', 'Score, goals, cards, substitutions and injuries. A yellow card is hatched and a red one solid, with "sent off" beside it.',
+    `<div class="screen k"><div class="body" style="padding-top:8px">${scoreHead()}${pair('Cards', cards)}${pair('Substitutions', subs)}${pair('Injuries', inj)}</div>${kMatchFoot(1)}</div>`],
+  'k-match-2': ['kmatch', 'k', 'A match, screen 2', 'Both line-ups side by side: the eleven by line, then the bench, with arrows for who went off and came on.',
+    `<div class="screen k"><div class="body" style="padding-top:4px"><div class="two">${['home', 'away'].map((s) => `<div>${xi(s, true)}</div>`).join('')}</div></div>${kMatchFoot(2)}</div>`],
+  'i-matches': ['ipad', 'i', 'Matches', 'Scorers sit under each result. Fetched on Monday morning, so Monday night\'s match shows its kick-off time; it gets its score on Tuesday.',
+    `<div class="screen i fixed">${iHead('Results to Sunday 22 November')}<div class="pad">${iTitle('Matchday 11')}${tabs('Matches')}${days(D.days, (m) => matchRow(m, { scorers: true }))}</div></div>`],
+  'i-table': ['ipad', 'i', 'Table', 'The same table. His club\'s row takes the team colour behind dark ink, and the star.',
+    `<div class="screen i fixed">${iHead('Results to Sunday 22 November')}<div class="pad">${iTitle('The table')}${tabs('Table')}<div style="margin-top:26px">${table()}</div></div></div>`],
+  'i-match': ['ipad', 'i', 'A match', 'One page that scrolls: score and goals, cards, substitutions, injuries, then the line-ups side by side.',
+    `<div class="screen i">${iHead('').replace('← Front page', '← Matches')}<div class="pad" style="padding-top:34px">${scoreHead()}${pair('Cards', cards)}${pair('Substitutions', subs)}${pair('Injuries', inj)}${pair('Line-ups', (s) => xi(s, false))}</div></div>`],
+  'k-strip': ['strips', 'k', 'Kindle front page strip', 'Sits between Today\'s paper and the Back issues and My week tiles. It never shows a score.',
+    `<div class="crop kc"><div class="strip kstrip"><span class="ico">${ball}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Premier League · Matchday 11</p></span><span class="go">Table, results, fixtures →</span></div></div>`],
+  'i-strip': ['strips', 'i', 'iPad front page strip', 'The same strip in the Football green, under the story list.',
+    `<div class="crop"><div class="strip istrip"><span class="ico">${ball}</span><span><p class="t1" style="margin:0">Sport</p><p class="t2" style="margin:0">Premier League · Matchday 11</p></span><span class="go">Table, results, fixtures →</span></div></div>`],
+};
+
+const solo = new URLSearchParams(location.search).get('frame');
+if (solo) document.body.classList.add('solo');
+for (const [id, [shelf, dev, title, note, html]] of Object.entries(frames)) {
+  const f = document.createElement('figure');
+  f.id = id; if (id === solo) f.classList.add('on');
+  f.innerHTML = `<div class="device"><div class="${dev}-shell">${html}</div></div><figcaption><b>${title}</b>${note} <code>?frame=${id}</code></figcaption>`;
+  document.getElementById(shelf).append(f);
+}
+</script>
+</body>
+</html>

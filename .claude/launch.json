@@ -26,6 +26,12 @@
       "port": 8095
     },
     {
+      "name": "sports-page-mock",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["docs/mockups/sports-page/serve.mjs"],
+      "port": 8096
+    },
+    {
       "name": "early-edition-kids-docs-sample",
       "runtimeExecutable": "sh",
       "runtimeArgs": [
