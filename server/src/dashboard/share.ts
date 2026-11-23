@@ -2,12 +2,17 @@
  * Data for the dashboard's share cards (CONTRACT.md "Share cards"): one call returns what all six
  * cards need. The cards themselves are drawn in the browser; nothing here leaves the server unless
  * the parent shares a card. No child's name is stored or returned.
+ *
+ * The cards count and list only stories read properly: one read too fast (CONTRACT.md "Read too
+ * fast") isn't on them, so its reads count as not read here, though its minutes still count as
+ * reading time. The streak is the reading streak, as everywhere else.
  */
 
 import type { Row } from "../db.js";
 import type { Context } from "../pipeline.js";
 import { parseWordToKnow } from "../render.js";
 import { addDays } from "../timeutil.js";
+import { storyStats } from "../weights.js";
 import { closedEvents, readingView, type Closed } from "./stats.js";
 import type { ShareStory, ShareView } from "./types.js";
 
@@ -52,10 +57,20 @@ export function shareView(ctx: Context, today: string): ShareView {
   };
   const stories = (ids: number[]) => ids.map(row).filter((r): r is Row => r !== undefined).map(shareStory);
 
-  const all = closedEvents(ctx);
+  const closed = closedEvents(ctx);
+  const readIds = [...new Set(closed.filter((e) => e.read).map((e) => e.storyId))];
+  const tooFast = new Set(storyStats(ctx.db, ctx.config, today, { ids: readIds }).filter((s) => s.tooFast).map((s) => s.id));
+  const all = closed.map((e) => (e.read && tooFast.has(e.storyId) ? { ...e, read: false } : e));
   const weekFrom = addDays(today, -6);
   const fortnight = readingView(ctx, today, 14);
   const week = readingView(ctx, today, 7);
+  // The week card's stories per day, without those read too fast.
+  const weekDays = week.days.map((d) => ({ ...d, read: readOrder(all.filter((e) => e.date === d.date)).length }));
+  const weekTopics = new Map<string, number>();
+  for (const id of readOrder(all.filter((e) => e.date >= weekFrom && e.date <= today))) {
+    const r = row(id);
+    if (r) weekTopics.set(r.topic, (weekTopics.get(r.topic) ?? 0) + 1);
+  }
 
   // Today
   const todayIds = readOrder(all.filter((e) => e.date === today));
@@ -98,7 +113,8 @@ export function shareView(ctx: Context, today: string): ShareView {
     }
   }
 
-  const topTopics = [...week.topics]
+  const topTopics = ctx.config.topics
+    .map((t) => ({ name: t.name, read: weekTopics.get(t.name) ?? 0 }))
     .filter((t) => t.read > 0)
     .sort((a, b) => b.read - a.read)
     .slice(0, 3)
@@ -116,10 +132,10 @@ export function shareView(ctx: Context, today: string): ShareView {
     week: {
       from: week.from,
       to: week.to,
-      days: week.days,
-      total_read: week.total_read,
+      days: weekDays,
+      total_read: weekDays.reduce((n, d) => n + d.read, 0),
       minutes: Math.round(week.days.reduce((n, d) => n + d.minutes, 0) * 10) / 10,
-      reading_days: week.reading_days,
+      reading_days: weekDays.filter((d) => d.read > 0).length,
       top_topics: topTopics,
     },
     total_read: everIds.length,
