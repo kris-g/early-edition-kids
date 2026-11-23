@@ -320,16 +320,20 @@ function Sport.match(view, id)
 end
 
 --- The front page strip: { open, label, sub, togo } or nil when today's paper has no Sport page.
-function Sport.strip(sport_issue, today, lock)
+-- `all_read`: every story is read, so the ones still needed must be read again, properly.
+function Sport.strip(sport_issue, today, lock, all_read)
     local si = sport_issue
     if not si or si.date ~= today or type(si.sports) ~= "table" then return nil end
     if lock.open then
         local md = tonumber(si.sports.matchday)
-        return { open = true, sub = (si.sports.label or "Premier League") .. (md and (" \194\183 Matchday " .. md) or "") }
+        return { open = true, sub = (si.sports.label or "Premier League") .. (md and (" \194\183 Matchday " .. md) or ""),
+                 tile_sub = md and ("Matchday " .. md) or (si.sports.label or "Premier League") }
     end
     local togo = lock.needed - lock.counted
     return { open = false, needed = lock.needed, counted = lock.counted, togo = togo,
-             sub = string.format("Opens after %d of today's stories \194\183 %d more to go", lock.needed, togo) }
+             sub = string.format("Opens after %d of today's stories \194\183 %d more to go", lock.needed, togo),
+             tile_sub = all_read and string.format("Read %d again to open", togo)
+                        or (togo == 1 and "1 more story first" or string.format("%d more stories first", togo)) }
 end
 
 return Sport

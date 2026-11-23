@@ -56,5 +56,8 @@ describe("sport.lua", function()
         local s = Sport.strip({ date = TODAY, sports = { label = "Premier League", matchday = 11 } }, TODAY, { open = false, needed = 3, counted = 1 })
         eq(s.togo, 2)
         eq(s.sub, "Opens after 3 of today's stories \194\183 2 more to go")
+        eq(s.tile_sub, "2 more stories first")
+        eq(Sport.strip({ date = TODAY, sports = {} }, TODAY, { open = false, needed = 3, counted = 1 }, true).tile_sub,
+           "Read 2 again to open", "every story read, too quickly")
     end)
 end)

@@ -74,6 +74,10 @@ describe('the closed screen', () => {
     expect(document.querySelectorAll('.pips i.on')).toHaveLength(2)
     expect(document.querySelector('.tally')!.textContent).toBe('1 more to go')
     expect(document.querySelector('.btn.go')!.getAttribute('data-go')).toBe('4')
+    // Everything read, but too quickly: read them again, from the first story.
+    document.body.innerHTML = sportClosedHtml({ open: false, needed: 3, counted: 2 }, null)
+    expect(document.body.textContent).toContain('Read 1 of them again, all the way through, to open it.')
+    expect(document.querySelector('.btn.go')!.getAttribute('data-go')).toBe('0')
     expect(document.body.textContent).not.toMatch(/\d\s*–\s*\d/)
   })
 })

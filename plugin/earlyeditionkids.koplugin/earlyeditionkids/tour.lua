@@ -114,8 +114,8 @@ function Tour.start(Controller)
         function() Controller:showMyWeek() end,
         function() shot("5-my-week.png") end,
     }
-    -- The Sport page (docs/sports-page.md), when today's paper has one.
-    if Controller.store:get("sport_issue") then
+    -- The Sport page (docs/sports-page.md). Always queued: the first sync may only bring it now.
+    do
         local function firstMatch()
             local view = Controller:sportView()
             for _, d in ipairs(view and view.matchday and view.matchday.days or {}) do

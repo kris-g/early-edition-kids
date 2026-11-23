@@ -93,7 +93,8 @@ local function teamText(name, bold, width, align)
 end
 
 function SportScreen:matchRow(r, h)
-    local cw = self.content_w
+    -- His team's row has a border inside the same width, so its columns are narrower by it.
+    local cw = self.content_w - (r.fav and 2 * W.px(3) or 0)
     local score_w, state_w = W.px(150), W.px(180)
     local pad = W.px(12)
     local team_w = math.floor((cw - score_w - state_w - 2 * pad) / 2)
@@ -113,7 +114,7 @@ function SportScreen:matchRow(r, h)
     local block
     if r.fav then
         -- His team's match: outlined, not moved and not coloured (section 2.1).
-        block = W.Box{ content = line, border = 3, width = cw, raw = true, pad_h = 0, pad_v = 0 }
+        block = W.Box{ content = line, border = 3, width = self.content_w, raw = true, pad_h = 0, pad_v = 0 }
     else
         block = W.VCol({ line, W.Rule(cw, W.px(1)) }, 0)
     end

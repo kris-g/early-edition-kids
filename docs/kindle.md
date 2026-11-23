@@ -52,10 +52,14 @@ These are captures from the KOReader emulator at the Kindle Paperwhite's size. E
 
 ## Sport
 
-When the [Sport page](sports-page.md) is on for a child, the front page has a Sport strip under the tiles. It never shows a score. Mock-ups of every screen are in [the Sport page's mock-ups](mockups/sports-page/index.html).
+When the [Sport page](sports-page.md) is on for a child, Sport is one of the front page's tiles, in place of Check for news, which moves to the bottom row beside Close. It never shows a score.
 
-- **Closed first.** Until enough of today's stories have been read properly, the strip has a padlock and says how many more to go, and tapping it opens the next story. A story paged through too quickly doesn't count. Reading on the iPad counts too, once the Kindle has synced.
-- **Matches:** the latest matchday by day on one screen; his club's match is outlined. A result with `›` opens.
+| Front page | Matches | Table | A match | Line-ups | Closed |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="images/kindle/sport-front-page.png" width="130" alt="The front page with the Sport tile"> | <img src="images/kindle/sport-matches.png" width="130" alt="Sport: the latest matchday's results"> | <img src="images/kindle/sport-table-1.png" width="130" alt="Sport: the table, places 1 to 10"> | <img src="images/kindle/sport-match.png" width="130" alt="A match: goals, cards and substitutions"> | <img src="images/kindle/sport-lineups.png" width="130" alt="A match: both line-ups"> | <img src="images/kindle/sport-closed.png" width="130" alt="Sport closed until three stories are read"> |
+
+- **Closed first.** Until enough of today's stories have been read properly, the tile has a padlock and says how many more stories first, and tapping it opens the next story. A story paged through too quickly doesn't count; if every story is read but not enough count, the tile says how many to read again. Reading on the iPad counts too, once the Kindle has synced.
+- **Matches:** the latest matchday by day on one screen; his club's match is outlined and its winners in bold. A result with `›` opens.
 - **Table:** ten clubs a page, his club's half first, his club in white on black. Tap `1 to 10` and `11 to 20`, or swipe.
 - **Next:** the next round's fixtures with kick-off times.
 - **A match:** two screens. The score, goals, cards, substitutions and injuries, then both line-ups side by side.

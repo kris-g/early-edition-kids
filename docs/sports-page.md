@@ -76,7 +76,7 @@ Opened by tapping a played match. It is one page that scrolls on the iPad and tw
 
 ### 2.5 Getting there
 
-- **Front page.** One full-width strip under Today's paper, on both devices: `Sport`, `Premier League · Matchday 11`, and on the right `Table, results, fixtures →`. It never shows a score, so a child waiting to watch the highlights isn't told the result by the front page.
+- **Front page.** On the Kindle, Sport is a tile like Back issues and My week, in place of the Check for news tile, which moves to the footer beside Close: the front page has no room for another row. On the iPad, one full-width strip under the stories: `Sport`, `Premier League · Matchday 11`, and on the right `Table, results, fixtures →`. It never shows a score, so a child waiting to watch the highlights isn't told the result by the front page.
 - **While Sport is closed** (section 2.7) the strip shows a padlock and says `Opens after 3 of today's stories · 1 more to go` on its second line, with `Today's paper →` on the right, which opens the next unread story. Tapping it never shows the Sport page.
 - **From Sport,** a **Front page** button goes back, as on the other screens.
 - There is no route to Sport from inside a story and no "next" from Sport into a story. It sits beside the paper, like Back issues and My week.

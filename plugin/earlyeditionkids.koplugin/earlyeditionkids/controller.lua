@@ -534,6 +534,8 @@ end
 
 function Controller:openNextStory()
     local date, story = self:nextStoryToRead()
+    -- Everything read but Sport still closed: the stories need reading again, from the first.
+    if date and not story then story = self.issues:visibleStories(date)[1] end
     if story then self:openStory(date, story, { kind = "frontpage" })
     elseif date then self:showHeadlines(date)
     else self:showFrontPage() end
@@ -612,7 +614,7 @@ function Controller:frontModel()
         end,
         skew = self.store:get("clock_skew"),
     }
-    m.sport = Sport.strip(self.store:get("sport_issue"), self:today(), self:sportLock())
+    m.sport = Sport.strip(self.store:get("sport_issue"), self:today(), self:sportLock(), m.all_read)
     return m
 end
 
