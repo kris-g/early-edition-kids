@@ -227,8 +227,20 @@ app.get('/api/dashboard/day/:date', (req, res) => {
     minutes: Math.round(reads.reduce((n, r) => n + r.active_seconds, 0) / 6) / 10,
     reads,
     paper,
-    sport: null,
-    sport_unlock: null,
+    // Sport on days with reading: the table, a match and the results.
+    sport: reads.length
+      ? {
+          date,
+          views: 5,
+          seconds: 395,
+          pages: [
+            { page: 'table', match_id: null, match: null, views: 2, seconds: 180 },
+            { page: 'match', match_id: '2645301', match: 'Liverpool 4–0 Man Utd', views: 1, seconds: 130 },
+            { page: 'matches', match_id: null, match: null, views: 2, seconds: 85 },
+          ],
+        }
+      : null,
+    sport_unlock: date === new Date().toISOString().slice(0, 10) ? sportToday() : null,
   })
 })
 

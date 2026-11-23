@@ -59,6 +59,36 @@ describe('Day', () => {
     expect(screen.getByText(/1 story from this day’s paper was read later/)).toBeInTheDocument()
   })
 
+  it('shows the day’s time on Sport, when it opened, and each page', () => {
+    const sport: DayView['sport'] = {
+      date: '2026-11-15',
+      views: 3,
+      seconds: 330,
+      pages: [
+        { page: 'match', match_id: '2645301', match: 'Liverpool 4–0 Man Utd', views: 2, seconds: 200 },
+        { page: 'table', match_id: null, match: null, views: 1, seconds: 130 },
+      ],
+    }
+    const sport_unlock: DayView['sport_unlock'] = { needed: 1, total: 1, counted: 1, unlocked: true, unlocked_at: '2026-11-15T10:04:00Z', stories: [] }
+    show(<ReadThatDay day={{ ...day, sport, sport_unlock }} today="2026-11-15" />)
+    const card = screen.getByRole('region', { name: 'Sport' })
+    expect(card).toHaveTextContent('5 min 30 s · 3 looks · opened at 10:04')
+    expect(within(card).getByText('Liverpool 4–0 Man Utd')).toBeInTheDocument()
+    expect(within(card).getByText('3 min 20 s')).toBeInTheDocument()
+    expect(within(card).getByText('Table')).toBeInTheDocument()
+  })
+
+  it('shows Sport on a day with nothing read, and no card on a day without Sport', () => {
+    const sport: DayView['sport'] = { date: '2026-11-13', views: 1, seconds: 45, pages: [{ page: 'next', match_id: null, match: null, views: 1, seconds: 45 }] }
+    const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: null, sport, sport_unlock: null }
+    const { unmount } = show(<ReadThatDay day={fri} today="2026-11-15" />)
+    expect(screen.getByRole('region', { name: 'Sport' })).toHaveTextContent('45 s · 1 look')
+    expect(screen.getByText('Fixtures')).toBeInTheDocument()
+    unmount()
+    show(<ReadThatDay day={day} today="2026-11-15" />)
+    expect(screen.queryByRole('region', { name: 'Sport' })).not.toBeInTheDocument()
+  })
+
   it('shows a paper’s stories with the day they were read', () => {
     const fri: DayView = { date: '2026-11-13', read: 0, minutes: 0, reads: [], paper: paper('2026-11-13', [friday]), sport: null, sport_unlock: null }
     show(<PaperOfDay day={fri} onStoryChange={() => {}} />)
