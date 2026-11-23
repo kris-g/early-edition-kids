@@ -4,6 +4,7 @@ import { api } from '../api/endpoints'
 import type { SportPageUse, SportSettings, SportSettingsView, UnlockStatus, UnlockStory } from '../api/types'
 import { Badge, Card, ErrorNote, Loading, PageHeader, SectionTitle, Segment, Spinner, Switch } from '../components/ui'
 import { clockTime, duration, percent, plural } from '../lib/format'
+import { sportPageName } from '../lib/sport'
 import { useApi } from '../lib/useApi'
 
 /** The choices offered; a value set in the config that isn't one of them still shows, as a percentage. */
@@ -21,8 +22,6 @@ const MIN_READING: Choice[] = [
   { value: 0.5, label: '½', name: 'Half' },
   { value: 0.75, label: '¾', name: 'Three quarters' },
 ]
-
-const PAGE_NAMES: Record<SportPageUse['page'], string> = { matches: 'Matches', table: 'Table', next: 'Fixtures', match: 'A match' }
 
 /** "Half of today's 6 stories (3)", in words a parent reads at a glance. */
 function readFirstLine(s: SportSettings, today: UnlockStatus | null): string {
@@ -179,7 +178,7 @@ function ThisWeek({ usage, seconds }: { usage: SportPageUse[] | null; seconds: n
         <ul className="m-0 flex list-none flex-col p-0">
           {usage.slice(0, 6).map((u) => (
             <li key={`${u.page}:${u.match_id ?? ''}`} className="flex flex-col gap-0.5 border-t border-line py-2.5 text-sm first:border-t-0 desk:flex-row desk:items-baseline desk:justify-between desk:gap-3">
-              <span>{u.page === 'match' ? (u.match ?? PAGE_NAMES.match) : PAGE_NAMES[u.page]}</span>
+              <span>{sportPageName(u)}</span>
               <span className="shrink-0 text-[13px] text-muted tabular-nums">
                 {duration(u.seconds)} · {plural(u.views, 'look')}
               </span>

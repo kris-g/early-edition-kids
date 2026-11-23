@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/endpoints'
-import type { DayRead, DayView, StoryCard } from '../api/types'
+import type { DayRead, DayView, SportDay, StoryCard, UnlockStatus } from '../api/types'
 import { CalendarIcon, CheckCircleIcon, ChevronLeft, ChevronRight, HalfCircleIcon } from '../components/Icons'
 import { DownloadedBy, IssueStories } from '../components/IssueStories'
 import { BackLink } from '../components/BackLink'
@@ -10,6 +10,7 @@ import { BigNumber, Card, ErrorNote, Eyebrow, Loading, PageHeader, Segment, Sect
 import { cx } from '../lib/cx'
 import { dayPath, type DayMode } from '../lib/day'
 import { useOrigin } from '../lib/origin'
+import { sportPageName } from '../lib/sport'
 import { addDaysIso, clockTime, duration, londonToday, plural, weekdayDayMonth, weekdayDayMonthShort } from '../lib/format'
 import { visibleCount, withStory } from '../lib/issue'
 import { useApi } from '../lib/useApi'
@@ -218,18 +219,21 @@ export function ReadThatDay({
 
   if (day.reads.length === 0) {
     return (
-      <Card label="Nothing read" className="flex flex-col gap-2">
-        <span className="font-display text-[26px] leading-tight font-black">Nothing read</span>
-        <p className="m-0 text-sm leading-[1.45] text-muted">
-          {isToday ? 'Nothing read yet today.' : 'Nothing was read this day.'}
-          {laterReads > 0 && ` ${plural(laterReads, 'story', 'stories')} from this day’s paper ${laterReads === 1 ? 'was' : 'were'} read later.`}
-        </p>
-        {laterReads > 0 && onShowPaper && (
-          <button type="button" onClick={onShowPaper} className="self-start text-sm font-bold text-accent hover:underline">
-            See this day’s paper
-          </button>
-        )}
-      </Card>
+      <div className="flex flex-col gap-3">
+        <Card label="Nothing read" className="flex flex-col gap-2">
+          <span className="font-display text-[26px] leading-tight font-black">Nothing read</span>
+          <p className="m-0 text-sm leading-[1.45] text-muted">
+            {isToday ? 'Nothing read yet today.' : 'Nothing was read this day.'}
+            {laterReads > 0 && ` ${plural(laterReads, 'story', 'stories')} from this day’s paper ${laterReads === 1 ? 'was' : 'were'} read later.`}
+          </p>
+          {laterReads > 0 && onShowPaper && (
+            <button type="button" onClick={onShowPaper} className="self-start text-sm font-bold text-accent hover:underline">
+              See this day’s paper
+            </button>
+          )}
+        </Card>
+        {day.sport && <SportTime sport={day.sport} unlock={day.sport_unlock} />}
+      </div>
     )
   }
 
@@ -250,6 +254,7 @@ export function ReadThatDay({
           {parts.length > 0 && <span className="text-[13px] text-muted">{parts.join(' · ')}</span>}
         </Card>
       )}
+      {day.sport && <SportTime sport={day.sport} unlock={day.sport_unlock} />}
       {own.length > 0 && (
         <ReadGroup title={isToday ? 'From today’s paper' : 'From this day’s paper'} reads={own} showPaper={false} />
       )}
@@ -263,6 +268,36 @@ export function ReadThatDay({
         />
       ))}
     </div>
+  )
+}
+
+/** Time on the Sport page that day, apart from reading: the total, when it opened, and each page. */
+function SportTime({ sport, unlock }: { sport: SportDay; unlock: UnlockStatus | null }) {
+  const opened = unlock?.unlocked_at ? ` · opened at ${clockTime(unlock.unlocked_at)}` : ''
+  return (
+    <Card label="Sport" className="flex flex-col gap-1 pt-3.5 pb-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <Eyebrow>Sport</Eyebrow>
+        <Link to="/sport" className="text-xs font-bold whitespace-nowrap text-accent hover:underline">
+          Settings
+        </Link>
+      </div>
+      <span className="text-[13px] text-muted">
+        {duration(sport.seconds)} · {plural(sport.views, 'look')}
+        {opened}
+      </span>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {sport.pages.map((u) => (
+          <li
+            key={`${u.page}:${u.match_id ?? ''}`}
+            className="flex items-baseline justify-between gap-3 border-t border-line py-2.5 text-sm first:border-t-0"
+          >
+            <span className="min-w-0">{sportPageName(u)}</span>
+            <span className="shrink-0 text-[13px] text-muted tabular-nums">{duration(u.seconds)}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
   )
 }
 
