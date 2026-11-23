@@ -228,8 +228,16 @@ describe('the Sport page', () => {
     expect(strip()!.textContent).toContain('1 more to go')
     expect(stage().querySelector('.tally')!.textContent).toContain('2 of 4 read') // still read everywhere else
 
-    // The closed strip leads to the next story to read, never to Sport.
+    // The closed strip shows the closed screen: how far, and the next story as a headline to tap.
     click('.sport-strip button')
+    await settle()
+    expect(app.screen).toBe('sport')
+    expect(stage().querySelector('.sport-closed h2')!.textContent).toBe('Sport opens after reading 2 of today’s stories')
+    expect(stage().querySelectorAll('.match')).toHaveLength(0) // no scores behind it
+    const next = stage().querySelector<HTMLElement>('.next-story')!
+    expect(next.dataset.go).toBe('2') // the first unread, before the one read too fast
+    expect(next.textContent).toContain('Next story')
+    click('.next-story')
     expect(app.screen).toBe('story')
     click('[data-go="front"]')
     await settle()
@@ -237,6 +245,24 @@ describe('the Sport page', () => {
     await read(2, 55)
     expect(strip()!.classList.contains('closed')).toBe(false)
     expect(strip()!.textContent).toContain('Premier League · Matchday 11')
+  })
+
+  it('with every story read but too few counting, offers the first read too fast, not one that counts', async () => {
+    serve(withSport(), sportsRoute())
+    const app = start()
+    await settle()
+    await read(0, 70) // counts
+    await read(1, 5) // too fast
+    await read(2, 5) // too fast
+    await read(3, 5) // too fast: every story read, one counts
+    expect(strip()!.textContent).toContain('Read 1 again to open')
+    click('.sport-strip button')
+    await settle()
+    const next = stage().querySelector<HTMLElement>('.next-story')!
+    expect(next.dataset.go).toBe('1') // not 0, which already counts
+    expect(next.textContent).toContain('Read again')
+    click('.next-story')
+    expect(app.screen).toBe('story')
   })
 
   it('shows the matches, the table, the next fixtures and a match, and records each look', async () => {

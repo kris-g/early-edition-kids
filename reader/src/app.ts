@@ -13,8 +13,8 @@ import { Store, browserKV, deviceId, namespaceFor, uuid, type KV } from './stora
 import { Tracker, type TrackerState } from './tracker'
 import type { ApiStory, Issue, ReaderMode, ReaderSettings, StoryBody } from './types'
 import { PageTurn } from './pageturn'
-import { SportKeeper, type LockState } from './sport'
-import { matchHtml, sportClosedHtml, sportEmptyHtml, sportHtml, sportStripHtml, type SportTab } from './sportviews'
+import { SportKeeper, countedStories, type LockState } from './sport'
+import { matchHtml, sportClosedHtml, sportEmptyHtml, sportHtml, sportStripHtml, type NextStory, type SportTab } from './sportviews'
 import { Uploader } from './uploader'
 import {
   backIssuesHtml,
@@ -300,8 +300,24 @@ export class ReaderApp {
   private stripHtml(): string {
     const issue = this.issue
     if (!issue || !this.viewingToday || issue.date !== this.today() || !issue.sports) return ''
-    const next = nextUnread(issue.stories, this.library.readIds(issue.date), issue.stories.length - 1)
-    return sportStripHtml(issue.sports.label, issue.sports.matchday, this.sportLock(), next ? issue.stories.indexOf(next) : null)
+    return sportStripHtml(issue.sports.label, issue.sports.matchday, this.sportLock(), this.sportNext(issue)?.again ?? false)
+  }
+
+  /**
+   * The next story toward opening Sport: the first in the paper that doesn't count yet, an unread
+   * one before one read too quickly, so it never points at a story already counted.
+   */
+  private sportNext(issue: Issue): NextStory | null {
+    const rule = issue.sports?.unlock
+    const read = this.library.readIds(issue.date)
+    if (!rule) {
+      const s = nextUnread(issue.stories, read, issue.stories.length - 1)
+      return s ? { index: issue.stories.indexOf(s), title: s.title, topic: s.topic, minutes: s.minutes, again: false } : null
+    }
+    const counted = countedStories(issue, this.log.entries())
+    const open = issue.stories.filter((s) => String(s.id) in rule.min_seconds && !counted.has(s.id))
+    const s = open.find((x) => !read.has(x.id)) ?? open[0]
+    return s ? { index: issue.stories.indexOf(s), title: s.title, topic: s.topic, minutes: s.minutes, again: read.has(s.id) } : null
   }
 
   openSport(): void {
@@ -330,8 +346,7 @@ export class ReaderApp {
     const lock = this.sportLock()
     const issue = this.todayIssue()
     if (!lock.open) {
-      const next = issue ? nextUnread(issue.stories, this.library.readIds(issue.date), issue.stories.length - 1) : null
-      this.stage.innerHTML = sportClosedHtml(lock, next && issue ? issue.stories.indexOf(next) : null)
+      this.stage.innerHTML = sportClosedHtml(lock, issue ? this.sportNext(issue) : null)
       return
     }
     const view = this.sport.view()

@@ -66,18 +66,24 @@ describe('the lock', () => {
 })
 
 describe('the closed screen', () => {
-  it('says how many, how far, and leads to the next story, with no scores', async () => {
+  it('says how many, how far, and offers the next story as a headline, with no scores', async () => {
     const { sportClosedHtml } = await import('./sportviews')
-    document.body.innerHTML = sportClosedHtml({ open: false, needed: 3, counted: 2 }, 4)
+    const closed = { open: false, needed: 3, counted: 2 }
+    document.body.innerHTML = sportClosedHtml(closed, { index: 4, title: 'Rivers <are> cleaner', topic: 'Science', minutes: 2, again: false })
     expect(document.querySelector('h2')!.textContent).toBe('Sport opens after reading 3 of today’s stories')
     expect(document.querySelectorAll('.pips i')).toHaveLength(3)
     expect(document.querySelectorAll('.pips i.on')).toHaveLength(2)
     expect(document.querySelector('.tally')!.textContent).toBe('1 more to go')
-    expect(document.querySelector('.btn.go')!.getAttribute('data-go')).toBe('4')
-    // Everything read, but too quickly: read them again, from the first story.
-    document.body.innerHTML = sportClosedHtml({ open: false, needed: 3, counted: 2 }, null)
-    expect(document.body.textContent).toContain('Read 1 of them again, all the way through, to open it.')
-    expect(document.querySelector('.btn.go')!.getAttribute('data-go')).toBe('0')
+    const next = document.querySelector('.next-story')!
+    expect(next.getAttribute('data-go')).toBe('4')
+    expect(next.textContent).toContain('Next story · Science · 2 min')
+    expect(next.querySelector('strong')!.textContent).toBe('Rivers <are> cleaner')
+    // A story read too quickly before: read it again.
+    document.body.innerHTML = sportClosedHtml(closed, { index: 1, title: 'A rocket', topic: 'Space', minutes: 3, again: true })
+    expect(document.querySelector('.next-story')!.textContent).toContain('Read again · Space')
+    // No story to offer: back to the front page.
+    document.body.innerHTML = sportClosedHtml(closed, null)
+    expect(document.querySelector('.btn.go')!.getAttribute('data-go')).toBe('front')
     expect(document.body.textContent).not.toMatch(/\d\s*–\s*\d/)
   })
 })

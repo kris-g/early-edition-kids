@@ -703,12 +703,14 @@ button.match:active { background: var(--ink); color: var(--paper); }
 
 /* Closed until today's stories are read. No scores behind it. */
 .closed-body { display: grid; place-items: center; }
-.sport-closed { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; max-width: 36em; padding: 40px 0; }
+.sport-closed { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; width: min(100%, 36em); padding: 40px 0; }
 .padlock svg { width: 84px; height: 84px; }
 .sport-closed h2 { font: 700 38px/1.15 var(--serif); text-wrap: balance; }
 .sport-closed .pips i { width: 26px; height: 26px; }
 .sport-closed .tally { font-size: 21px; }
 .sport-closed .btn { flex: none; width: 320px; }
+/* The next story to read: the end-of-story button, across the screen. */
+.sport-closed .next-story { margin-top: 6px; }
 
 @media (orientation: portrait) and (max-width: 780px) {
   .team { font-size: 22px; }
