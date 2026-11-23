@@ -5,7 +5,7 @@
 
 import type { Store } from './storage'
 
-export type EventType = 'issue_downloaded' | 'list_shown' | 'story_opened' | 'story_closed'
+export type EventType = 'issue_downloaded' | 'list_shown' | 'story_opened' | 'story_closed' | 'sport_viewed'
 
 export interface QueuedEvent {
   client_event_id: string

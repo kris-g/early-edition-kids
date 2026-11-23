@@ -1,6 +1,6 @@
 # The Sport page: spec and design
 
-The server part and the dashboard's Sport page are built (`server/src/sports/`, `web/src/pages/Sport.tsx`); the readers are not yet. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. Sport opens only after the child has read some of today's paper properly (section 2.7), and the parent dashboard sets that rule, shows stories read too fast, and records which Sport pages were looked at and for how long.
+Built on the server (`server/src/sports/`), the dashboard (`web/src/pages/Sport.tsx`) and the iPad (`reader/src/sport.ts`, `sportviews.ts`); the Kindle is still to do. It adds one page to the paper: the Premier League table, the latest matchday's results, and the next matchday's fixtures. Tapping a result shows that match's line-ups, goals, penalties, cards, injuries and substitutions, and nothing else. The server fetches it once a day, with the morning paper, so it is always up to date as of the previous day's matches. Sport opens only after the child has read some of today's paper properly (section 2.7), and the parent dashboard sets that rule, shows stories read too fast, and records which Sport pages were looked at and for how long.
 
 Mockups: [`mockups/sports-page/index.html`](mockups/sports-page/index.html) (open it in a browser). They are drawn from the real matchday of 21 to 23 November 2026, as the server would have fetched it on the morning of Monday 23 November.
 
@@ -28,7 +28,7 @@ It has to fit the paper's rules ([PRODUCT.md](../PRODUCT.md)):
 
 ## 2. What the child sees
 
-The page has three parts. In `pages` mode on the iPad and always on the Kindle they are three screens with tabs at the top (**Matches**, **Table**, **Next**); in `scroll` mode on the iPad they run down one page in that order.
+The page has three parts, as three screens with tabs at the top (**Matches**, **Table**, **Next**), on both devices and in both of the iPad's reading modes. Each screen scrolls on the iPad.
 
 ### 2.1 Matches: the latest matchday
 
@@ -292,7 +292,7 @@ The page is the paper's, in the paper's faces and rules: Playfair Display for th
 | Part | Change |
 |---|---|
 | `server/` | `src/sports/` with the ESPN and Fantasy adapters, the daily fetch and the state file; the `sports` config key; `GET /api/sports` on each mount; `sports` in the issue payload; `POST /admin/sports`; the `sport_viewed` event type and its match label; `GET /api/dashboard/sport`, `sport` in `DayView` and in `AboutView`; recorded responses from both feeds under `tests/fixtures/sports/` |
-| `reader/` | the front page strip, open or closed; a Sport view (three pages or one scroll), a match view and the closed screen; deciding the lock from its own reading and the server's count; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
+| `reader/` | built: the front page strip, open or closed; the Sport screen with three tabs, a match and the closed screen; deciding the lock from its own reading log and the server's count; `sport_viewed` events; the payload kept in `localStorage` under the mount's namespace |
 | `plugin/` | the front page strip, open or closed; `ui/sport.lua` and `ui/match.lua` built from the existing row, header and button widgets, and the closed screen; deciding the lock from the reading log and the server's count; fetch in the sync; `sport_viewed` events; the payload kept in the settings directory |
 | `web/` | the Sport page: settings, today's progress and time on Sport (built); still to do, the Sport line on the Day screen and the last fetch on the Server page |
 | `docs/` | CONTRACT.md gains the shapes above; settings.md the config key; kindle.md and ipad.md a section each |

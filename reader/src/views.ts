@@ -73,7 +73,8 @@ export function masthead(title: string, date: string, number: number | null, mid
 
 // ---------- front page ----------
 
-export function frontHtml(c: ViewCtx, status: DatelineStatus): string {
+/** `strip`: the Sport strip (sportviews.ts), under the stories, when today's paper has a Sport page. */
+export function frontHtml(c: ViewCtx, status: DatelineStatus, strip = ''): string {
   const stories = c.issue.stories
   const done = readCount(c) === stories.length
   const lead = stories.find((s) => !c.read.has(s.id)) ?? stories[0]
@@ -109,6 +110,7 @@ export function frontHtml(c: ViewCtx, status: DatelineStatus): string {
             })
             .join('')}
           <li class="furniture"><button class="btn" data-act="backissues">Back issues</button><button class="btn" data-act="myweek">My week</button></li>
+          ${strip}
         </ol>
       </div>
     </section>`

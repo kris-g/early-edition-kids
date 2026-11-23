@@ -94,6 +94,14 @@ To have the whole paper on one long scrolling page instead, set `reader_mode: sc
 
 The dashboard counts reading on the iPad just like reading on the Kindle, so a child can use both.
 
+### Sport
+
+When the [Sport page](sports-page.md) is on for a child, the front page has a Sport strip under the stories. It never shows a score.
+
+- **Closed first.** Until enough of today's stories have been read properly, the strip has a padlock and says how many more to go, and tapping it opens the next story. Turn this off, or change how much, on the dashboard's Sport page. Reading on the Kindle counts too.
+- **Open:** the strip opens Sport: **Matches** (the latest matchday by day, with the scorers), **Table** and **Next** (the next fixtures). Tap a result for its line-ups, goals, cards, substitutions and injuries.
+- It is the Sport page as it was fetched that morning, kept on the iPad, so it opens without the server too.
+
 ## Keeping it to the paper (optional)
 
 The paper itself has no way out to the web or the dashboard, but the iPad still has its home screen and other apps. To keep a child in the paper:

@@ -609,3 +609,129 @@ img { display: block; -webkit-user-drag: none; }
   .where .dots { display: none; }
   .turn.next { padding: 0 16px 0 18px; }
 }
+
+/* ---------- the Sport page (docs/sports-page.md; mock-ups in docs/mockups/sports-page/) ---------- */
+/* The strip on today's front page, under the stories, across both columns. */
+.sport-strip { grid-column: 1 / -1; border-top: 0 !important; padding-top: 6px; }
+.strip-btn {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 18px;
+  width: 100%; min-height: 84px; padding: 0 20px 0 0;
+  border: 2px solid var(--ink); background: var(--paper); text-align: left;
+}
+.strip-ico { align-self: stretch; width: 84px; display: grid; place-items: center; background: var(--football); color: #121212; }
+.strip-ico svg { width: 40px; height: 40px; }
+.sport-strip.closed .strip-ico { background: var(--dim); color: var(--ink); }
+.strip-text strong { display: block; font: 700 23px/1.15 var(--serif); }
+.strip-text .meta { display: block; font: 500 16px/1.3 var(--sans); color: var(--soft); margin-top: 3px; }
+.strip-go { display: flex; align-items: center; gap: 8px; font: 700 17px/1 var(--sans); white-space: nowrap; }
+.strip-go svg { width: 22px; height: 22px; }
+.strip-btn:active { background: var(--ink); color: var(--paper); }
+.strip-btn:active .meta { color: var(--on-ink-soft); }
+
+/* The page: a flag, three tabs, then the matches, the table or the fixtures. */
+.sport .screen-body > * { max-width: 980px; }
+.sport-flag { display: inline-flex; align-items: center; gap: 10px; background: var(--football); color: #121212; padding: 10px 16px 10px 10px; font: 700 17px/1 var(--sans); }
+.sport-flag svg { width: 28px; height: 28px; }
+.sport-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+.sport-tab { height: 56px; border: 2px solid var(--ink); background: var(--paper); font: 700 19px/1 var(--sans); }
+.sport-tab[aria-pressed='true'] { background: var(--ink); color: var(--paper); }
+.sport-title { font: 700 40px/1.1 var(--serif); letter-spacing: -0.01em; margin-top: 26px; }
+.sport-day { margin-top: 26px; }
+.day-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 9px; border-bottom: 2px solid var(--ink); font: 500 16px/1 var(--sans); color: var(--soft); }
+.day-head .kicker { color: var(--ink); }
+.matches { list-style: none; margin: 0; padding: 0; }
+.matches li { border-bottom: 1px solid var(--ink); }
+.match {
+  display: grid; grid-template-columns: minmax(0, 1fr) 7.2em minmax(0, 1fr) 6.2em; align-items: center; column-gap: 6px;
+  width: 100%; min-height: 72px; padding: 10px 10px; border: 0; background: none; text-align: left;
+}
+button.match:active { background: var(--ink); color: var(--paper); }
+.match .side-h { text-align: right; }
+.team { font: 400 25px/1.15 var(--serif); }
+.team.win, .team.fav { font-weight: 700; }
+.star { font-size: 0.7em; vertical-align: 0.15em; margin-right: 0.25em; }
+.match .score { text-align: center; font: 700 30px/1 var(--serif); font-variant-numeric: tabular-nums; }
+.match .score.v { font: 500 17px/1 var(--sans); color: var(--soft); }
+.match .state { display: flex; justify-content: flex-end; align-items: center; gap: 4px; font: 700 15px/1 var(--sans); white-space: nowrap; }
+.match .state svg { width: 18px; height: 18px; }
+.match .scorers { grid-column: 1 / 4; display: grid; grid-template-columns: minmax(0, 1fr) 7.2em minmax(0, 1fr); column-gap: 6px; font: 400 16px/1.35 var(--sans); color: var(--soft); margin-top: 4px; }
+.match .scorers .h { text-align: right; }
+.match .scorers .a { grid-column: 3; }
+.match.fav { outline: 3px solid var(--ink); outline-offset: -3px; background: color-mix(in srgb, var(--team) 14%, var(--paper)); }
+
+.league { width: 100%; border-collapse: collapse; margin-top: 26px; font: 400 18px/1 var(--sans); font-variant-numeric: tabular-nums; }
+.league caption { text-align: left; padding-bottom: 12px; }
+.league th { font: 700 13px/1 var(--sans); letter-spacing: 0.1em; text-align: right; padding: 0 0 9px; border-bottom: 2px solid var(--ink); }
+.league th abbr { text-decoration: none; }
+.league td { height: 42px; text-align: right; border-bottom: 1px solid var(--dim); }
+.league .pos { width: 2.4em; text-align: center; }
+.league .club { text-align: left; padding-left: 0.6em; }
+.league td.club { font: 400 21px/1 var(--serif); }
+.league .pts { font-weight: 700; padding-right: 0.6em; }
+.league tr.cut td { border-bottom: 2px solid var(--ink); }
+.league tr.fav td { background: color-mix(in srgb, var(--team) 22%, var(--paper)); font-weight: 700; }
+.zones { display: flex; justify-content: space-between; gap: 16px; font: 500 15px/1.3 var(--sans); color: var(--soft); margin-top: 12px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* A match: the score is the headline, then each part in two columns, home on the left. */
+.m-score { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; column-gap: 28px; margin-top: 8px; }
+.m-name { font: 700 32px/1.1 var(--serif); }
+.m-name.h { text-align: right; }
+.m-big { font: 700 76px/1 var(--serif); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.m-when { text-align: center; font: 700 15px/1 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 14px; }
+.m-goals { display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px; margin-top: 18px; font: 400 20px/1.5 var(--serif); }
+.m-goals ul { list-style: none; margin: 0; padding: 0; }
+.m-goals .h { text-align: right; }
+.m-part { border-top: 2px solid var(--ink); margin-top: 28px; padding-top: 16px; }
+.m-part > .kicker { margin-bottom: 12px; }
+.m-two { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+.m-two > :last-child { border-left: 1px solid var(--ink); padding-left: 28px; }
+.m-list, .m-xi { list-style: none; margin: 0; padding: 0; }
+.m-list li { display: flex; gap: 12px; align-items: baseline; padding: 5px 0; font: 400 20px/1.25 var(--serif); }
+.m-list small { font: 500 15px/1 var(--sans); color: var(--soft); }
+.m-min, .m-num { font: 700 15px/1 var(--sans); min-width: 3.2em; }
+.m-offname { color: var(--soft); }
+.m-none { font: 500 16px/1.3 var(--sans); color: var(--faint); }
+.card { display: inline-block; width: 0.62em; height: 0.86em; border: 1.5px solid var(--ink); vertical-align: -0.08em; margin-right: 0.5em; }
+.card.yellow { background: var(--sun); }
+.card.red { background: var(--team); }
+.m-team { font: 700 24px/1.1 var(--serif); margin: 0 0 4px; }
+.m-line { font: 700 13px/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin: 14px 0 6px; }
+.m-xi li { display: grid; grid-template-columns: 2.4em 1fr auto; align-items: baseline; padding: 6px 0; font: 400 20px/1.2 var(--serif); }
+.m-sub { font: 500 15px/1 var(--sans); color: var(--soft); }
+.m-names { font: 400 20px/1.4 var(--serif); }
+
+/* Closed until today's stories are read. No scores behind it. */
+.closed-body { display: grid; place-items: center; }
+.sport-closed { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; max-width: 36em; padding: 40px 0; }
+.padlock svg { width: 84px; height: 84px; }
+.sport-closed h2 { font: 700 38px/1.15 var(--serif); text-wrap: balance; }
+.sport-closed .pips i { width: 26px; height: 26px; }
+.sport-closed .tally { font-size: 21px; }
+.sport-closed .btn { flex: none; width: 320px; }
+
+@media (orientation: portrait) and (max-width: 780px) {
+  .team { font-size: 22px; }
+  .match { grid-template-columns: minmax(0, 1fr) 6em minmax(0, 1fr) 5.6em; }
+  .match .scorers { grid-template-columns: minmax(0, 1fr) 6em minmax(0, 1fr); }
+  .m-name { font-size: 26px; }
+  .m-big { font-size: 60px; }
+}
+@media (max-width: 600px) {
+  .strip-go { display: none; }
+  .strip-ico { width: 64px; }
+  .match { grid-template-columns: minmax(0, 1fr) 4.4em minmax(0, 1fr); padding: 10px 4px; }
+  .match .state { grid-column: 1 / -1; justify-content: center; margin-top: 2px; }
+  .match .scorers { grid-template-columns: minmax(0, 1fr) 4.4em minmax(0, 1fr); }
+  .team { font-size: 19px; }
+  .match .score { font-size: 24px; }
+  .league { font-size: 15px; }
+  .league td.club { font-size: 17px; }
+  .m-score { column-gap: 12px; }
+  .m-name { font-size: 20px; }
+  .m-big { font-size: 44px; }
+  .m-two, .m-goals { column-gap: 14px; }
+  .m-two > :last-child { padding-left: 14px; }
+  .m-list li, .m-xi li, .m-names, .m-goals { font-size: 16px; }
+  .sport-closed h2 { font-size: 28px; }
+}

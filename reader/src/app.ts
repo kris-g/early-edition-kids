@@ -2,7 +2,7 @@
 // recording reading the way the Kindle does (CONTRACT.md "POST /api/events"). The look and the
 // behaviour follow the approved mock-up in docs/mockups/ipad-reader/.
 
-import { ApiError, getIssue, getSettings, getStoryHtml, joinMount } from './api'
+import { ApiError, getIssue, getSettings, getSports, getStoryHtml, joinMount } from './api'
 import { parseStoryHtml } from './body'
 import { addDays, isIsoDate, londonDate, nowSeconds } from './clock'
 import { EventQueue } from './events'
@@ -13,6 +13,8 @@ import { Store, browserKV, deviceId, namespaceFor, uuid, type KV } from './stora
 import { Tracker, type TrackerState } from './tracker'
 import type { ApiStory, Issue, ReaderMode, ReaderSettings, StoryBody } from './types'
 import { PageTurn } from './pageturn'
+import { SportKeeper, type LockState } from './sport'
+import { matchHtml, sportClosedHtml, sportEmptyHtml, sportHtml, sportStripHtml, type SportTab } from './sportviews'
 import { Uploader } from './uploader'
 import {
   backIssuesHtml,
@@ -22,6 +24,7 @@ import {
   longHtml,
   lookHtml,
   myWeekHtml,
+  nextUnread,
   pagedHtml,
   place,
   tally,
@@ -31,7 +34,7 @@ import {
   type ViewCtx,
 } from './views'
 
-type Screen = 'loading' | 'waiting' | 'front' | 'story' | 'backissues' | 'myweek'
+type Screen = 'loading' | 'waiting' | 'front' | 'story' | 'backissues' | 'myweek' | 'sport'
 
 /** Check for news again when the reader comes back after this long (the Kindle's rule 3). */
 export const RECHECK_SECONDS = 30 * 60
@@ -39,6 +42,16 @@ export const RECHECK_SECONDS = 30 * 60
 const SCROLL_OPEN_MS = 2000
 const UPLOAD_DELAY_MS = 3000
 const BACK_ISSUE_DAYS = 7
+/** A Sport page left sooner than this isn't recorded, so flicking through the tabs doesn't count. */
+export const SPORT_MIN_SECONDS = 2
+
+/** One look at a Sport page, timed like a story (docs/sports-page.md 5.4). */
+interface SportLook {
+  page: SportTab | 'match'
+  match_id: string | null
+  matchday: number | null
+  tracker: Tracker
+}
 
 /** The type size band for a reader's age, as in the mock-up. */
 export const ageClass = (age: number) => (age <= 6 ? 'age-young' : age >= 9 ? 'age-older' : 'age-mid')
@@ -90,6 +103,14 @@ export class ReaderApp {
   readonly queue: EventQueue
   readonly log: ReadingLog
   readonly uploader: Uploader
+  /** The Sport page kept on the iPad, and whether it is open today. */
+  readonly sport: SportKeeper
+  sportTab: SportTab = 'matches'
+  /** The match open on the Sport page, by id. */
+  sportMatch: string | null = null
+  private sportLook: SportLook | null = null
+  /** The Sport strip on the front page as last drawn, to redraw only when it changes. */
+  private shownStrip = ''
   settings: ReaderSettings
   /** Text size and page colour, chosen from the Aa button on a story. */
   look: Look
@@ -124,6 +145,7 @@ export class ReaderApp {
     this.library = new Library(this.store)
     this.queue = new EventQueue(this.store, uuid)
     this.log = new ReadingLog(this.store)
+    this.sport = new SportKeeper(this.store)
     this.uploader = new Uploader({ queue: this.queue, deviceId: deviceId(kv, uuid), paper: () => this.library.paper() })
     this.look = readLook(this.store.get<unknown>('look', null))
     this.settings = this.library.settings() ?? { profile: '', profile_root: true, title: document.title || 'Early Edition', mode: 'pages', age: 8 }
@@ -204,13 +226,14 @@ export class ReaderApp {
       this.todayStatus = 'ok'
       const kept = this.library.cached(fresh.date)?.issue ?? fresh
       void this.prefetchBodies(kept)
+      void this.refreshSport(kept)
       const after = `${kept.date}/${kept.version}/${kept.stories.map((s) => s.id).join(',')}`
       if (this.viewingToday) {
         if (this.screen === 'story') this.pendingToday = kept
         else {
           this.issue = kept
           // Redraw only when something changed, so the front page does not flash.
-          if (this.screen === 'loading' || this.screen === 'waiting' || (this.screen === 'front' && after !== before)) {
+          if (this.screen === 'loading' || this.screen === 'waiting' || (this.screen === 'front' && (after !== before || this.stripHtml() !== this.shownStrip))) {
             this.screen = 'front'
             this.render()
           }
@@ -240,6 +263,122 @@ export class ReaderApp {
       this.refreshStatus()
       void this.uploader.flush()
     }
+  }
+
+  // ---------- the Sport page ----------
+
+  /** Today's paper, when it is the one kept for today. */
+  private todayIssue(): Issue | null {
+    const today = this.today()
+    return this.library.cached(today)?.issue ?? null
+  }
+
+  /** The Sport lock for today, from this iPad's reading and the server's count. */
+  sportLock(): LockState {
+    return this.sport.lock(this.today(), this.todayIssue(), this.log.entries())
+  }
+
+  /** Fetch the Sport page that comes with today's paper; the front page or Sport redraws if it changed. */
+  async refreshSport(issue: Issue): Promise<void> {
+    if (issue.date !== this.today()) return
+    if (!issue.sports) this.sport.drop()
+    else {
+      try {
+        this.sport.put(await getSports(issue.sports.path), this.today())
+      } catch (err) {
+        // Withdrawn on the server: forget it. Out of reach: keep what is here.
+        if (err instanceof ApiError && err.kind === 'not_found') this.sport.drop()
+        else return
+      }
+    }
+    if (this.screen === 'front' && this.stripHtml() !== this.shownStrip) this.render()
+    else if (this.screen === 'sport' && !this.sportLook) this.render()
+    else if (this.screen === 'sport' && this.sportMatch === null) this.redrawSport()
+  }
+
+  /** The strip on today's front page, or nothing when today's paper has no Sport page. */
+  private stripHtml(): string {
+    const issue = this.issue
+    if (!issue || !this.viewingToday || issue.date !== this.today() || !issue.sports) return ''
+    const next = nextUnread(issue.stories, this.library.readIds(issue.date), issue.stories.length - 1)
+    return sportStripHtml(issue.sports.label, issue.sports.matchday, this.sportLock(), next ? issue.stories.indexOf(next) : null)
+  }
+
+  openSport(): void {
+    this.closeSession()
+    this.endSportLook()
+    this.screen = 'sport'
+    const view = this.sport.view()
+    this.sportTab = view?.matchday ? 'matches' : 'next'
+    this.sportMatch = null
+    this.render()
+    // The server's count may open it, and the page may be newer.
+    const today = this.todayIssue()
+    if (today) void this.refreshSport(today)
+  }
+
+  /** Redraw Sport where it is, after newer data arrived, without restarting the look being timed. */
+  private redrawSport(): void {
+    const body = $('.screen-body', this.stage)
+    const top = body?.scrollTop ?? 0
+    this.renderSport()
+    const fresh = $('.screen-body', this.stage)
+    if (fresh) fresh.scrollTop = top
+  }
+
+  private renderSport(): void {
+    const lock = this.sportLock()
+    const issue = this.todayIssue()
+    if (!lock.open) {
+      const next = issue ? nextUnread(issue.stories, this.library.readIds(issue.date), issue.stories.length - 1) : null
+      this.stage.innerHTML = sportClosedHtml(lock, next && issue ? issue.stories.indexOf(next) : null)
+      return
+    }
+    const view = this.sport.view()
+    if (!view) {
+      this.stage.innerHTML = sportEmptyHtml()
+      return
+    }
+    const match = this.sportMatch ? view.matchday?.days.flatMap((d) => d.matches).find((m) => m.id === this.sportMatch && m.detail) : null
+    if (this.sportMatch && !match) this.sportMatch = null
+    this.stage.innerHTML = match ? matchHtml(view, match) : sportHtml(view, this.sportTab)
+    // Scrolling a Sport page is reading it: the clock keeps going.
+    $('.screen-body', this.stage)?.addEventListener('scroll', () => this.sportLook?.tracker.tick(), { passive: true })
+  }
+
+  /** Start timing the Sport page now showing; nothing is timed on the closed or empty screens. */
+  private beginSportLook(): void {
+    this.endSportLook()
+    const view = this.sport.view()
+    if (this.screen !== 'sport' || !view || !this.sportLock().open) return
+    const page = this.sportMatch ? 'match' : this.sportTab
+    const md = page === 'next' ? view.next : view.matchday
+    this.sportLook = { page, match_id: this.sportMatch, matchday: md?.number ?? null, tracker: new Tracker() }
+  }
+
+  /** Record the Sport page being left: sport_viewed, if it was looked at for long enough. */
+  private endSportLook(): void {
+    const look = this.sportLook
+    if (!look) return
+    this.sportLook = null
+    const seconds = Math.round(look.tracker.state().active)
+    if (seconds < SPORT_MIN_SECONDS) return
+    this.queue.add('sport_viewed', null, { page: look.page, match_id: look.match_id, matchday: look.matchday, active_seconds: seconds }, nowSeconds())
+    this.uploader.schedule(UPLOAD_DELAY_MS)
+  }
+
+  /** "tab:<name>" or "match:<id>" from the Sport page. */
+  private sportAct(what: string): void {
+    if (this.screen !== 'sport') return
+    const [kind, value] = [what.slice(0, what.indexOf(':')), what.slice(what.indexOf(':') + 1)]
+    this.endSportLook()
+    if (kind === 'tab' && (value === 'matches' || value === 'table' || value === 'next')) {
+      this.sportTab = value
+      this.sportMatch = null
+    } else if (kind === 'match') {
+      this.sportMatch = value
+    }
+    this.render()
   }
 
   private bodyOf(issue: Issue, s: ApiStory): StoryBody | null {
@@ -297,6 +436,7 @@ export class ReaderApp {
     this.scrollCleanup?.()
     this.scrollCleanup = null
     if (this.screen !== 'story') this.lookOpen = false
+    if (this.screen !== 'sport') this.endSportLook()
     this.app.dataset.mode = this.mode
     this.app.dataset.screen = this.screen
     const today = this.today()
@@ -313,7 +453,8 @@ export class ReaderApp {
           this.render()
           return
         }
-        this.stage.innerHTML = frontHtml(this.ctx(), this.status())
+        this.shownStrip = this.stripHtml()
+        this.stage.innerHTML = frontHtml(this.ctx(), this.status(), this.shownStrip)
         if (this.library.firstListed(this.issue.date, this.issue.version)) {
           this.queue.add('list_shown', null, { date: this.issue.date, version: this.issue.version }, nowSeconds())
           this.uploader.schedule(UPLOAD_DELAY_MS)
@@ -329,6 +470,10 @@ export class ReaderApp {
       case 'myweek':
         this.stage.innerHTML = myWeekHtml(myWeek(this.log.entries(), today))
         break
+      case 'sport':
+        this.renderSport()
+        if (!this.sportLook) this.beginSportLook()
+        break
     }
   }
 
@@ -339,7 +484,7 @@ export class ReaderApp {
     const el = $('.dateline .dl-btn', this.stage)
     if (!el) return
     const fresh = document.createElement('div')
-    fresh.innerHTML = frontHtml(this.ctx(), this.status())
+    fresh.innerHTML = frontHtml(this.ctx(), this.status(), this.shownStrip)
     const btn = $('.dateline .dl-btn', fresh)
     if (btn) el.replaceWith(btn)
   }
@@ -359,6 +504,7 @@ export class ReaderApp {
   /** Where "Front page" leads: the paper on show, or the waiting screen. */
   private toFront(): void {
     this.closeSession()
+    this.endSportLook()
     if (this.viewingToday && this.pendingToday) {
       this.issue = this.pendingToday
       this.pendingToday = null
@@ -381,6 +527,9 @@ export class ReaderApp {
       return
     }
     this.closeSession()
+    this.endSportLook()
+    // From Sport (the closed screen's Today's paper), a story of today's paper.
+    if (this.screen === 'sport') this.issue = this.todayIssue() ?? this.issue
     this.mode = this.settings.mode
     this.screen = 'story'
     this.story = i
@@ -839,10 +988,11 @@ export class ReaderApp {
       }
       if (target.closest('#look')) return
     }
-    const t = target.closest<HTMLElement>('[data-go],[data-turn],[data-act],[data-issue]')
+    const t = target.closest<HTMLElement>('[data-go],[data-turn],[data-act],[data-issue],[data-sport]')
     if (t) {
       if ((t as HTMLButtonElement).disabled) return
-      if (t.dataset.go !== undefined) this.go(t.dataset.go)
+      if (t.dataset.sport) this.sportAct(t.dataset.sport)
+      else if (t.dataset.go !== undefined) this.go(t.dataset.go)
       else if (t.dataset.turn) this.turn(Number(t.dataset.turn))
       else if (t.dataset.issue) this.openIssue(t.dataset.issue)
       else this.act(t.dataset.act ?? '')
@@ -873,6 +1023,9 @@ export class ReaderApp {
         break
       case 'myweek':
         this.openMyWeek()
+        break
+      case 'sport':
+        this.openSport()
         break
       case 'look':
         if (this.lookOpen) this.closeLook()
@@ -942,6 +1095,7 @@ export class ReaderApp {
 
   /** Hidden (another app, the iPad asleep): stop the reading clock and send what is queued. */
   private onHide(): void {
+    this.endSportLook()
     this.session?.tracker.pause()
     this.persistSession()
     void this.uploader.flush(true)
@@ -949,6 +1103,7 @@ export class ReaderApp {
 
   private onShow(): void {
     this.session?.tracker.resume()
+    if (this.screen === 'sport') this.beginSportLook()
     const stale = nowSeconds() - this.library.lastCheck() >= RECHECK_SECONDS
     const newDay = this.viewingToday && this.issue !== null && this.issue.date !== this.today()
     if (stale || newDay || this.todayStatus === 'offline') void this.checkForNews(false)

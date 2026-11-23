@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ReaderApp, ageClass, pageCount } from './app'
 import { memoryKV, type KV } from './storage'
-import { STORY_HTML, issue } from './test/fixtures'
+import { STORY_HTML, issue, sportsView } from './test/fixtures'
 import type { Issue } from './types'
 
 type Route = (url: string, init?: RequestInit) => Response | Promise<Response>
@@ -196,5 +196,138 @@ describe('pageCount', () => {
   it('agrees with scrollWidth when it does include them (Chrome)', () => {
     expect(pageCount(flowWith(1600, [760, 1560]), 800)).toBe(2)
     expect(pageCount(flowWith(800, [760]), 800)).toBe(1)
+  })
+})
+
+describe('the Sport page', () => {
+  const RULE = { needed: 2, min_seconds: { '40': 60, '41': 60, '42': 50, '43': 50 } }
+  const withSport = (unlock: typeof RULE | null = RULE) => issue({ sports: { path: '/api/sports', label: 'Premier League', matchday: 11, unlock } })
+  const sportsRoute = (view = sportsView()): Route => (url) => (url.endsWith('/api/sports') ? new Response(JSON.stringify(view)) : new Response('{}', { status: 404 }))
+  const later = (seconds: number) => vi.setSystemTime(new Date(Date.now() + seconds * 1000))
+  const strip = () => stage().querySelector('.sport-strip')
+  /** Read story `i` from the front page for `seconds`, to the end, and come back. */
+  async function read(i: number, seconds: number) {
+    click(`[data-go="${i}"]`)
+    later(seconds)
+    click('[data-turn="1"]')
+    click('[data-go="front"]')
+    await settle()
+  }
+
+  it('is closed until enough stories are read properly, and a story read too fast doesn’t count', async () => {
+    serve(withSport(), sportsRoute())
+    const app = start()
+    await settle()
+    expect(strip()!.classList.contains('closed')).toBe(true)
+    expect(strip()!.textContent).toContain('Opens after 2 of today’s stories · 2 more to go')
+    expect(strip()!.textContent).not.toMatch(/\d\s*–\s*\d/) // never a score
+
+    await read(0, 70) // counts
+    expect(strip()!.textContent).toContain('1 more to go')
+    await read(1, 5) // finished, but paged through
+    expect(strip()!.textContent).toContain('1 more to go')
+    expect(stage().querySelector('.tally')!.textContent).toContain('2 of 4 read') // still read everywhere else
+
+    // The closed strip leads to the next story to read, never to Sport.
+    click('.sport-strip button')
+    expect(app.screen).toBe('story')
+    click('[data-go="front"]')
+    await settle()
+
+    await read(2, 55)
+    expect(strip()!.classList.contains('closed')).toBe(false)
+    expect(strip()!.textContent).toContain('Premier League · Matchday 11')
+  })
+
+  it('shows the matches, the table, the next fixtures and a match, and records each look', async () => {
+    serve(withSport(null), sportsRoute())
+    const app = start()
+    await settle()
+    click('.sport-strip button')
+    await settle()
+    expect(app.screen).toBe('sport')
+    expect(stage().querySelector('.runhead .place')!.textContent).toBe('Results to Sunday 15 November')
+    const rows = [...stage().querySelectorAll('.match')]
+    expect(rows).toHaveLength(2)
+    expect(rows[0].textContent).toContain('2 – 0')
+    expect(rows[0].classList.contains('fav')).toBe(true)
+    expect(rows[0].textContent).toContain('Wirtz 13\' (pen)')
+    expect(rows[1].textContent).toContain('8:00pm')
+    expect(rows[1].tagName).toBe('DIV') // not played: nothing to open
+
+    later(30)
+    click('[data-sport="tab:table"]')
+    expect(stage().querySelectorAll('.league tbody tr')).toHaveLength(3)
+    expect(stage().querySelector('.league tr.fav')!.textContent).toContain('Liverpool')
+    expect(stage().querySelector('.league tr.cut')!.textContent).toContain('Liverpool')
+    later(1) // a flick: not recorded
+    click('[data-sport="tab:next"]')
+    expect(stage().querySelector('.sport-title')!.textContent).toBe('Matchday 12')
+    later(10)
+    click('[data-sport="tab:matches"]')
+    click('[data-sport="match:2645301"]')
+    expect(stage().querySelector('.m-big')!.textContent).toBe('2 – 0')
+    expect(stage().textContent).toContain('Leny <Yoro>') // escaped, shown as text
+    expect(stage().querySelector('yoro')).toBeNull()
+    expect(stage().textContent).toContain('Went off injured')
+    expect(stage().textContent).toContain('Out injured')
+    expect(stage().textContent).toContain('Bradley')
+    later(45)
+    click('.runhead [data-sport="tab:matches"]') // the way back from a match
+    expect(stage().querySelectorAll('.match')).toHaveLength(2)
+    click('[data-go="front"]')
+    expect(app.screen).toBe('front')
+    await app.uploader.flush()
+
+    const looks = posted.flatMap((p) => p.events).filter((e) => e.type === 'sport_viewed')
+    expect(looks.map((e) => [e.story_id, e.payload])).toEqual([
+      [null, { page: 'matches', match_id: null, matchday: 11, active_seconds: 30 }],
+      [null, { page: 'next', match_id: null, matchday: 12, active_seconds: 10 }],
+      [null, { page: 'match', match_id: '2645301', matchday: 11, active_seconds: 45 }],
+    ])
+  })
+
+  it('opens on the server’s count when the reading was done on another device', async () => {
+    serve(withSport(), sportsRoute(sportsView({ unlock: { needed: 2, counted: 2, unlocked: true } })))
+    start()
+    await settle()
+    expect(strip()!.classList.contains('closed')).toBe(false)
+  })
+
+  it('has no strip when the paper has no Sport page, and forgets a page the server took down', async () => {
+    serve(issue())
+    start()
+    await settle()
+    expect(strip()).toBeNull()
+
+    const kv = memoryKV()
+    serve(withSport(null), sportsRoute())
+    const app = start(kv)
+    await settle()
+    expect(app.sport.view()).not.toBeNull()
+    serve(withSport(null))
+    await app.checkForNews(false)
+    await settle()
+    expect(app.sport.view()).toBeNull()
+    click('.sport-strip button')
+    expect(stage().textContent).toContain('The scores aren’t here yet.')
+  })
+})
+
+describe('the Sport strip', () => {
+  it('opens when a parent turns the lock off, with the same paper', async () => {
+    const kv = memoryKV()
+    const lockOf = (unlock: { needed: number; min_seconds: Record<string, number> } | null) =>
+      issue({ sports: { path: '/api/sports', label: 'Premier League', matchday: 11, unlock } })
+    const sport: Route = (url) => (url.endsWith('/api/sports') ? new Response(JSON.stringify(sportsView())) : new Response('{}', { status: 404 }))
+    serve(lockOf({ needed: 2, min_seconds: { '40': 60 } }), sport)
+    start(kv)
+    await settle()
+    expect(stage().querySelector('.sport-strip')!.classList.contains('closed')).toBe(true)
+    // Opened again later: the kept paper shows first, then the server's copy without the lock.
+    serve(lockOf(null), sport)
+    start(kv)
+    await settle()
+    expect(stage().querySelector('.sport-strip')!.classList.contains('closed')).toBe(false)
   })
 })
