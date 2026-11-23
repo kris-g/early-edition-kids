@@ -4,7 +4,9 @@ A2 · Today's paper: the headline list (DESIGN 5.2, mockup A-Headlines).
 Header: "Early Edition", "date · N stories · about M minutes", "N of M read"
 with progress dots. One row per story: topic icon in a circle, label,
 headline, teaser, and a boxed "2 min" chip, or a filled tick once read (read
-rows are greyed). Footer: Front page / Back issues.
+rows are greyed). While today's Sport is closed, a story read to the end too
+quickly to count for it has a fast-forward mark instead of the tick, is not
+greyed, and says so in place of its teaser. Footer: Front page / Back issues.
 
 Rows that do not fit (a parent can add stories during the day) go on further
 pages, reached by a tappable "N more stories" row at the bottom and a "Back"
@@ -12,7 +14,7 @@ row at the top, or by swiping left/right.
 
 Model (controller.lua headlineModel):
   { subtitle, read_text, read, total, stories = { { topic, title, teaser,
-    minutes_text, done, story } }, empty_text, date }
+    minutes_text, done, too_fast, story } }, empty_text, date }
 ]]
 
 local W = require("earlyeditionkids/ui/widgets")
@@ -64,11 +66,14 @@ end
 
 function HeadlinesScreen:row(item, extra)
     local cw = self.content_w
-    local done = item.done
+    local fast = item.too_fast
+    local done = item.done and not fast
     local fg = done and W.GREYED or W.INK
     local right
     if item.nav then
         right = W.Icon(item.nav == "next" and "arrow-right" or "arrow-left", 48)
+    elseif fast then
+        right = W.Icon("too-fast", 64)
     elseif done then
         right = W.Icon("tick", 64)
     else
@@ -84,7 +89,10 @@ function HeadlinesScreen:row(item, extra)
     -- list reads evenly; a headline still too long at that size wraps.
     local tn = item.nav and 40 or (self.title_n or 42)
     col[#col + 1] = W.FitLine{ text = item.title or "", file = W.SERIF_BOLD, n = tn, min_n = tn, width = text_w, color = fg }
-    if item.teaser and item.teaser ~= "" then
+    if fast then
+        col[#col + 1] = W.Text{ text = "Read too fast to count for Sport", face = W.face(W.SANS_BOLD, 24),
+                                color = W.INK, max_width = text_w }
+    elseif item.teaser and item.teaser ~= "" then
         col[#col + 1] = W.Text{ text = item.teaser, face = W.face(W.SANS, 24),
                                 color = done and W.GREYED or W.SECONDARY, max_width = text_w }
     end
@@ -128,7 +136,7 @@ function HeadlinesScreen:build()
     for _, it in ipairs(m.stories or {}) do
         items[#items + 1] = {
             topic = it.topic, title = it.title, teaser = it.teaser, minutes_text = it.minutes_text,
-            done = it.done,
+            done = it.done, too_fast = it.too_fast,
             callback = function() if self.on_story then self.on_story(it.story) end end,
         }
     end

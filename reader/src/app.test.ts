@@ -247,6 +247,23 @@ describe('the Sport page', () => {
     expect(strip()!.textContent).toContain('Premier League · Matchday 11')
   })
 
+  it('marks a story read too fast in the list while Sport is closed', async () => {
+    serve(withSport(), sportsRoute())
+    start()
+    await settle()
+    await read(0, 70) // counts
+    await read(1, 5) // too fast
+    const row = (i: number) => stage().querySelector(`.row[data-go="${i}"]`)!
+    expect(row(0).classList.contains('read')).toBe(true)
+    expect(row(0).querySelector('svg.too-fast, .meta b')).toBeNull()
+    expect(row(1).classList.contains('too-fast')).toBe(true)
+    expect(row(1).classList.contains('read')).toBe(false) // not greyed: it still needs reading
+    expect(row(1).textContent).toContain('Read too fast to count for Sport')
+    await read(2, 55) // counts: Sport opens, nothing left to mark
+    expect(row(1).classList.contains('too-fast')).toBe(false)
+    expect(row(1).classList.contains('read')).toBe(true)
+  })
+
   it('with every story read but too few counting, offers the first read too fast, not one that counts', async () => {
     serve(withSport(), sportsRoute())
     const app = start()

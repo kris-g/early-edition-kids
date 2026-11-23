@@ -432,8 +432,18 @@ export class ReaderApp {
     return {
       issue,
       read: this.library.readIds(issue.date),
+      tooFast: this.readTooFast(issue),
       photo: (s) => (s.image && !this.failed.has(s.image.path) ? joinMount(s.image.path) : null),
     }
+  }
+
+  /** Today's stories read to the end but too quickly to count toward opening Sport, while it is closed. */
+  private readTooFast(issue: Issue): Set<number> {
+    const rule = issue.sports?.unlock
+    if (!rule || issue.date !== this.today() || this.sportLock().open) return new Set()
+    const read = this.library.readIds(issue.date)
+    const counted = countedStories(issue, this.log.entries())
+    return new Set(issue.stories.filter((s) => String(s.id) in rule.min_seconds && read.has(s.id) && !counted.has(s.id)).map((s) => s.id))
   }
 
   private status(): DatelineStatus {

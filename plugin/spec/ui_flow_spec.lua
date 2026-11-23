@@ -1145,6 +1145,29 @@ describe("the Sport page (stubbed KOReader)", function()
         eq(S.ReaderUI.instance.document.file, ROOT .. "/2026-11-13/42.html")
     end)
 
+    it("marks a story read too fast in All headlines while Sport is closed", function()
+        local S = fresh()
+        sportPaper(S, RULE)
+        S.FileManager:showFiles("/mnt/us/documents")
+        S.run()
+        readNext(S, 70)                     -- 41 counts
+        readNext(S, 6)                      -- 42 paged through
+        S.Controller:showHeadlines()
+        S.run()
+        local rows = S.UIManager:top().model.stories
+        eq(rows[1].done, true); falsy(rows[1].too_fast, "41 counts: a plain tick")
+        eq(rows[2].done, true); eq(rows[2].too_fast, true, "42 was read too fast")
+        falsy(rows[3].too_fast, "43 isn't read yet")
+        local top = S.UIManager:top()
+        truthy(top.body_height <= top.body_room, "the list fits")
+        S.Controller:showFrontPage()
+        S.run()
+        readNext(S, 65)                     -- 43 counts: Sport opens
+        S.Controller:showHeadlines()
+        S.run()
+        falsy(S.UIManager:top().model.stories[2].too_fast, "once Sport is open, nothing to mark")
+    end)
+
     it("every Sport screen fits the Kindle without scrolling", function()
         local S = fresh()
         sportPaper(S)

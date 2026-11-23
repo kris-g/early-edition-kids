@@ -554,6 +554,22 @@ function Controller:nextStoryToRead()
     return date, again, again ~= nil
 end
 
+--- Ids (as strings) of `date`'s stories read to the end but too quickly to count toward
+--- opening Sport, while it is still closed today; an empty set otherwise.
+function Controller:readTooFast(date)
+    local si = self.store:get("sport_issue")
+    local rule = si and si.date == date and si.sports and si.sports.unlock or nil
+    if type(rule) ~= "table" or type(rule.min_seconds) ~= "table" or date ~= self:today() then return {} end
+    if self:sportLock().open then return {} end
+    local counted = Sport.counted(date, rule, self.readlog:entries())
+    local read = self.store:issueState(date).read or {}
+    local out = {}
+    for id in pairs(rule.min_seconds) do
+        if read[Store.idKey(tonumber(id) or id)] and not counted[id] then out[id] = true end
+    end
+    return out
+end
+
 function Controller:openNextStory()
     local date, story = self:nextStoryToRead()
     if story then self:openStory(date, story, { kind = "frontpage" })
@@ -646,12 +662,14 @@ function Controller:headlineModel(date)
     end
     local sum = self.issues:summary(date)
     local st = self.store:issueState(date)
+    local fast = self:readTooFast(date)
     local items = {}
     for _, s in ipairs(sum.stories) do
         table.insert(items, {
             topic = s.topic, title = s.title or "", teaser = s.teaser,
             minutes_text = T("%1 min", tonumber(s.minutes) or 1),
             done = st.read[Store.idKey(s.id)] and true or false,
+            too_fast = fast[tostring(s.id)] or false,
             story = s,
         })
     end
